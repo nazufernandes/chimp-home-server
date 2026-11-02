@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChimpCron | Scheduled Automation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg: #06080f;
@@ -18,19 +21,23 @@
             --text: #e8ecf2;
             --text-muted: #8b9bb4;
             --accent: #22c997;
-            --accent-dim: rgba(34,201,151,0.12);
+            --accent-dim: rgba(34, 201, 151, 0.12);
             --blue: #38bdf8;
-            --blue-dim: rgba(56,189,248,0.12);
+            --blue-dim: rgba(56, 189, 248, 0.12);
             --purple: #a78bfa;
-            --purple-dim: rgba(167,139,250,0.12);
+            --purple-dim: rgba(167, 139, 250, 0.12);
             --red: #f87171;
-            --red-dim: rgba(248,113,113,0.12);
+            --red-dim: rgba(248, 113, 113, 0.12);
             --yellow: #fbbf24;
-            --yellow-dim: rgba(251,191,36,0.12);
+            --yellow-dim: rgba(251, 191, 36, 0.12);
             --radius: 12px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background: var(--bg);
@@ -71,7 +78,7 @@
             padding: 2px 8px;
             border-radius: 20px;
             font-weight: 600;
-            border: 1px solid rgba(167,139,250,0.3);
+            border: 1px solid rgba(167, 139, 250, 0.3);
         }
 
         .nav-links {
@@ -94,7 +101,7 @@
 
         .nav-link:hover {
             color: var(--text);
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
         }
 
         .nav-link.active {
@@ -180,12 +187,12 @@
 
         .btn-danger {
             color: var(--red);
-            border-color: rgba(248,113,113,0.3);
+            border-color: rgba(248, 113, 113, 0.3);
             background: var(--red-dim);
         }
 
         .btn-danger:hover {
-            background: rgba(248,113,113,0.25);
+            background: rgba(248, 113, 113, 0.25);
             border-color: var(--red);
         }
 
@@ -287,14 +294,36 @@
             flex-shrink: 0;
         }
 
-        .status-dot.success { background: var(--accent); box-shadow: 0 0 8px rgba(34,201,151,0.6); }
-        .status-dot.failed { background: var(--red); box-shadow: 0 0 8px rgba(248,113,113,0.6); }
-        .status-dot.running { background: var(--yellow); animation: pulse 1s infinite; }
+        .status-dot.success {
+            background: var(--accent);
+            box-shadow: 0 0 8px rgba(34, 201, 151, 0.6);
+        }
+
+        .status-dot.failed {
+            background: var(--red);
+            box-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
+        }
+
+        .status-dot.running {
+            background: var(--yellow);
+            animation: pulse 1s infinite;
+        }
 
         @keyframes pulse {
-            0% { opacity: 0.3; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.15); }
-            100% { opacity: 0.3; transform: scale(0.9); }
+            0% {
+                opacity: 0.3;
+                transform: scale(0.9);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.15);
+            }
+
+            100% {
+                opacity: 0.3;
+                transform: scale(0.9);
+            }
         }
 
         .job-title {
@@ -312,9 +341,23 @@
             gap: 4px;
         }
 
-        .badge-interval { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
-        .badge-status-ok { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(34,201,151,0.25); }
-        .badge-status-err { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.25); }
+        .badge-interval {
+            background: var(--purple-dim);
+            color: var(--purple);
+            border: 1px solid rgba(167, 139, 250, 0.25);
+        }
+
+        .badge-status-ok {
+            background: var(--accent-dim);
+            color: var(--accent);
+            border: 1px solid rgba(34, 201, 151, 0.25);
+        }
+
+        .badge-status-err {
+            background: var(--red-dim);
+            color: var(--red);
+            border: 1px solid rgba(248, 113, 113, 0.25);
+        }
 
         .job-actions {
             display: flex;
@@ -374,12 +417,19 @@
             height: 20px;
         }
 
-        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
 
         .slider {
             position: absolute;
             cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-color: #21262d;
             transition: .3s;
             border-radius: 20px;
@@ -398,12 +448,12 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider {
+        input:checked+.slider {
             background-color: #7c3aed;
             border-color: #8b5cf6;
         }
 
-        input:checked + .slider:before {
+        input:checked+.slider:before {
             transform: translateX(18px);
             background-color: #ffffff;
         }
@@ -427,8 +477,11 @@
         /* Modal */
         .modal-overlay {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.75);
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(6px);
             display: none;
             align-items: center;
@@ -447,7 +500,7 @@
             border-radius: var(--radius);
             width: 100%;
             max-width: 560px;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
             overflow: hidden;
         }
 
@@ -483,7 +536,8 @@
             color: var(--text-muted);
         }
 
-        .form-input, .form-select {
+        .form-input,
+        .form-select {
             background: #090c10;
             border: 1px solid var(--border);
             color: var(--text);
@@ -495,7 +549,8 @@
             transition: border-color 0.2s;
         }
 
-        .form-input:focus, .form-select:focus {
+        .form-input:focus,
+        .form-select:focus {
             border-color: var(--purple);
         }
 
@@ -507,7 +562,7 @@
         }
 
         .template-chip {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             color: var(--text-muted);
             padding: 4px 8px;
@@ -529,7 +584,7 @@
             display: flex;
             justify-content: flex-end;
             gap: 10px;
-            background: rgba(0,0,0,0.15);
+            background: rgba(0, 0, 0, 0.15);
         }
 
         /* History Table */
@@ -547,7 +602,7 @@
         }
 
         .history-table th {
-            background: rgba(0,0,0,0.25);
+            background: rgba(0, 0, 0, 0.25);
             text-align: left;
             padding: 12px 16px;
             color: var(--text-muted);
@@ -565,7 +620,7 @@
         }
 
         .history-table tr:hover td {
-            background: rgba(255,255,255,0.02);
+            background: rgba(255, 255, 255, 0.02);
         }
 
         /* Toast notification */
@@ -579,21 +634,32 @@
             padding: 12px 18px;
             border-radius: 8px;
             font-size: 0.88rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             display: none;
             align-items: center;
             gap: 10px;
             z-index: 2000;
         }
 
-        .toast.show { display: flex; animation: slideUp 0.3s forwards; }
+        .toast.show {
+            display: flex;
+            animation: slideUp 0.3s forwards;
+        }
 
         @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- Navbar -->
@@ -660,7 +726,8 @@
         <!-- Jobs Section -->
         <div class="section-title">
             <span>Configured Schedules</span>
-            <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: normal;">Auto-refreshes every 5s</span>
+            <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: normal;">Auto-refreshes every
+                5s</span>
         </div>
 
         <div class="jobs-list" id="jobsList">
@@ -686,7 +753,10 @@
                     </tr>
                 </thead>
                 <tbody id="historyBody">
-                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">No execution history recorded yet</td></tr>
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 20px;">No
+                            execution history recorded yet</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -707,12 +777,22 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Shell Command</label>
-                    <input type="text" class="form-input" id="jobCommand" placeholder="e.g. python ~/server/scripts/backup-photos.py" style="font-family: 'JetBrains Mono', monospace;">
+                    <input type="text" class="form-input" id="jobCommand"
+                        placeholder="e.g. python ~/server/scripts/backup-photos.py"
+                        style="font-family: 'JetBrains Mono', monospace;">
                     <div class="quick-templates">
-                        <span class="template-chip" onclick="applyTemplate('Disk Clean', 'rm -rf /tmp/* ~/.cache/pip/* 2>/dev/null && echo \'Cache cleaned\'', 'interval', '86400', 'Every 24 hours')">🧹 Disk Clean</span>
-                        <span class="template-chip" onclick="applyTemplate('Photo Sync', 'python ~/server/scripts/backup-photos.py', 'interval', '14400', 'Every 4 hours')">📸 Photo Sync</span>
-                        <span class="template-chip" onclick="applyTemplate('Health Ping', 'ping -c 2 1.1.1.1 >/dev/null && echo \'Reachable (OK)\'', 'interval', '900', 'Every 15 mins')">🌐 Health Ping</span>
-                        <span class="template-chip" onclick="applyTemplate('Git Pull Updates', 'cd ~/server && git pull origin main', 'daily', '03:00', 'Daily at 03:00')">🔄 Git Pull</span>
+                        <span class="template-chip"
+                            onclick="applyTemplate('Disk Clean', 'rm -rf /tmp/* ~/.cache/pip/* 2>/dev/null && echo \'Cache cleaned\'', 'interval', '86400', 'Every 24 hours')">🧹
+                            Disk Clean</span>
+                        <span class="template-chip"
+                            onclick="applyTemplate('Photo Sync', 'python ~/server/scripts/backup-photos.py', 'interval', '14400', 'Every 4 hours')">📸
+                            Photo Sync</span>
+                        <span class="template-chip"
+                            onclick="applyTemplate('Health Ping', 'ping -c 2 1.1.1.1 >/dev/null && echo \'Reachable (OK)\'', 'interval', '900', 'Every 15 mins')">🌐
+                            Health Ping</span>
+                        <span class="template-chip"
+                            onclick="applyTemplate('Git Pull Updates', 'cd ~/server && git pull origin main', 'daily', '03:00', 'Daily at 03:00')">🔄
+                            Git Pull</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -726,7 +806,8 @@
                 <div class="form-group" id="valGroup">
                     <label class="form-label" id="valLabel">Interval Value (seconds)</label>
                     <input type="text" class="form-input" id="scheduleValue" value="3600">
-                    <small style="color: var(--text-muted); font-size: 0.75rem;" id="valHelp">300 = 5m, 900 = 15m, 3600 = 1h, 86400 = 24h</small>
+                    <small style="color: var(--text-muted); font-size: 0.75rem;" id="valHelp">300 = 5m, 900 = 15m, 3600
+                        = 1h, 86400 = 24h</small>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Schedule Friendly Label</label>
@@ -1099,4 +1180,5 @@
         }, 5000);
     </script>
 </body>
+
 </html>
