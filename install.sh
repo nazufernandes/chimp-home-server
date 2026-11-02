@@ -14,11 +14,11 @@ echo ""
 if which pkg > /dev/null 2>&1; then
     echo "[1/5] Updating Termux packages and installing dependencies..."
     pkg update -y
-    pkg install -y python python-pip nginx git curl
+    pkg install -y python python-pip nginx git curl openssh
 elif which apt-get > /dev/null 2>&1; then
     echo "[1/5] Updating APT packages and installing dependencies..."
     sudo apt-get update -y
-    sudo apt-get install -y python3 python3-pip nginx git curl
+    sudo apt-get install -y python3 python3-pip nginx git curl openssh-server
 else
     echo "[!] Unsupported package manager. Please ensure Python, pip, and Nginx are installed."
 fi

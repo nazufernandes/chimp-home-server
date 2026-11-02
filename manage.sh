@@ -23,6 +23,16 @@ start_services() {
     # Ensure wake lock is active
     which termux-wake-lock > /dev/null 2>&1 && termux-wake-lock
 
+    # 0. SSH Daemon
+    if which sshd > /dev/null 2>&1; then
+        if ! pgrep -x sshd > /dev/null 2>&1; then
+            sshd
+            echo "[✓] SSH Daemon started"
+        else
+            echo "[-] SSH Daemon already running"
+        fi
+    fi
+
     # 1. Gateway & Dashboard (port 8080 - Nginx)
     pkill -9 -f "http.server 8080" 2>/dev/null || true
     NGINX_TARGET=""
@@ -103,6 +113,9 @@ stop_services() {
 
 status_services() {
     echo "=== Chimp Home Server Status ==="
+    echo -n "SSH Server:             "
+    pgrep -x sshd > /dev/null 2>&1 && echo "RUNNING (PID $(pgrep -x sshd | head -n 1))" || echo "STOPPED"
+
     echo -n "Gateway (8080 - Nginx): "
     pgrep nginx > /dev/null && echo "RUNNING (PID $(pgrep nginx | head -n 1))" || echo "STOPPED"
 

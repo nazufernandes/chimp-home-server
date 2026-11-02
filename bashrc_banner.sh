@@ -121,5 +121,6 @@ alias ll="ls -la --color=auto"
 # Custom Shell Prompt
 PS1='\[\e[38;5;49m\]chimp-server\[\e[0m\]:\[\e[38;5;39m\]\w\[\e[0m\]\$ '
 
-# Auto-start server services if not running
+# Auto-start SSH daemon & server services if not running
+which sshd > /dev/null 2>&1 && ! pgrep -x sshd > /dev/null 2>&1 && sshd
 [ -f ~/server/manage.sh ] && ~/server/manage.sh start > /dev/null 2>&1
