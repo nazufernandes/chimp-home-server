@@ -25,11 +25,22 @@ start_services() {
 
     # 1. Gateway & Dashboard (port 8080 - Nginx)
     pkill -9 -f "http.server 8080" 2>/dev/null || true
+    NGINX_TARGET=""
+    if [ -d "/data/data/com.termux/files/usr/etc/nginx" ]; then
+        NGINX_TARGET="/data/data/com.termux/files/usr/etc/nginx/nginx.conf"
+    elif [ -d "/etc/nginx" ]; then
+        NGINX_TARGET="/etc/nginx/nginx.conf"
+    fi
+    if [ -n "$NGINX_TARGET" ] && [ -f "$BASE_DIR/config/nginx.conf" ]; then
+        sed "s|__CHIMP_ROOT__|$BASE_DIR|g" "$BASE_DIR/config/nginx.conf" > "$NGINX_TARGET"
+    fi
+
     if ! pgrep nginx > /dev/null; then
         nginx > "$LOG_DIR/gateway.log" 2>&1
         echo "[✓] Unified Gateway & Dashboard started on http://${IP}:8080/ (Nginx)"
     else
-        echo "[-] Unified Gateway already running (Nginx)"
+        nginx -s reload 2>/dev/null || true
+        echo "[✓] Unified Gateway reloaded (Nginx)"
     fi
 
     # 2. Modern Web File Manager (port 8081 - Flask)
