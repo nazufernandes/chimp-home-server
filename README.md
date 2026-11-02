@@ -138,7 +138,7 @@ graph TD
 Open Termux on your phone and run:
 
 ```bash
-pkg install -y git && git clone https://github.com/your-username/chimp-home-server.git ~/server && cd ~/server && ./install.sh
+pkg install -y git && git clone https://github.com/nazufernandes/chimp-home-server.git ~/server && cd ~/server && ./install.sh
 ```
 
 The automated script will:
