@@ -1,0 +1,15 @@
+.DS_Store
+*.pyc
+__pycache__/
+*.log
+logs/
+data/drop/files/*
+!data/drop/files/.gitkeep
+data/drop/clips.json
+data/photos/*
+!data/photos/.gitkeep
+photos/thumbnails/*
+!photos/thumbnails/.gitkeep
+.venv/
+venv/
+*.tmp
