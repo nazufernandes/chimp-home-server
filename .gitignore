@@ -6,6 +6,8 @@ logs/
 data/drop/files/*
 !data/drop/files/.gitkeep
 data/drop/clips.json
+data/cron/*
+!data/cron/.gitkeep
 data/photos/*
 !data/photos/.gitkeep
 photos/thumbnails/*

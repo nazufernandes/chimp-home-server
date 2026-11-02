@@ -42,6 +42,7 @@ mkdir -p "$CHIMP_DIR/logs" \
          "$CHIMP_DIR/data/drop/files" \
          "$CHIMP_DIR/data/photos" \
          "$CHIMP_DIR/data/shared" \
+         "$CHIMP_DIR/data/cron" \
          "$CHIMP_DIR/photos/thumbnails"
 
 chmod +x "$CHIMP_DIR/manage.sh"

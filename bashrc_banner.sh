@@ -100,8 +100,11 @@ if [[ $- == *i* ]]; then
     local_s4="  ● Photos:        http://${IP}:8080/photos/"
     print_card_row ${#local_s4} "  ${C_MINT}●${C_RESET} Photos:        ${C_BLUE}http://${IP}:8080/photos/${C_RESET}"
 
-    local_s5="  ● Monitor API:   http://${IP}:8080/api/status"
-    print_card_row ${#local_s5} "  ${C_MINT}●${C_RESET} Monitor API:   ${C_BLUE}http://${IP}:8080/api/status${C_RESET}"
+    local_s5="  ● ChimpCron:     http://${IP}:8080/cron/"
+    print_card_row ${#local_s5} "  ${C_MINT}●${C_RESET} ChimpCron:     ${C_BLUE}http://${IP}:8080/cron/${C_RESET}"
+
+    local_s6="  ● Monitor API:   http://${IP}:8080/api/status"
+    print_card_row ${#local_s6} "  ${C_MINT}●${C_RESET} Monitor API:   ${C_BLUE}http://${IP}:8080/api/status${C_RESET}"
 
     echo -e "${C_DARK}  ╰───────────────────────────────────────────────────────────────╯${C_RESET}"
     echo ""

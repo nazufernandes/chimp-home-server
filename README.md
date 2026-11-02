@@ -78,6 +78,12 @@ Access all web apps, tools, and endpoints through a single clean port (`:8080`) 
 * Full EXIF inspector (camera model, original capture date, resolution).
 * Automated photo library syncing.
 
+### ⏰ ChimpCron (Visual Task Scheduler & Automation)
+* **Web-Based Schedule Manager**: Run automated shell scripts, backups, or disk cleanup routines without cryptic crontab syntax.
+* **Flexible Triggering**: Repeat intervals (e.g. every 15 mins, every 4 hours), daily at specific times (e.g. `03:00`), or standard 5-field cron syntax (`*/10 * * * *`).
+* **Instant Manual Execution**: Run any scheduled script on demand with live status indicators and real-time execution duration.
+* **Execution Logs & Drawer**: Full capture of stdout, stderr, and exit codes for every run with one-click output inspection.
+
 ### 🎨 Signature Chimp Terminal Experience
 * Fully aligned custom ASCII Art banner upon terminal login.
 * Dynamic column calculation preventing ugly line-wrapping across any terminal width.
@@ -95,6 +101,7 @@ graph TD
     GW -->|"/drop/"| Drop["📋 ChimpDrop Universal Clipboard (:8082)"]
     GW -->|"/files/"| Files["📁 Web File Explorer (:8081)"]
     GW -->|"/photos/"| Photos["📷 Photo Library & EXIF Gallery (:8091)"]
+    GW -->|"/cron/"| Cron["⏰ ChimpCron Task Scheduler (:8083)"]
     GW -->|"/api/status"| Mon["📈 Hardware Telemetry API (:8090)"]
 
     subgraph Server_Core ["🐒 Chimp Server Core"]
@@ -102,6 +109,7 @@ graph TD
         Drop
         Files
         Photos
+        Cron
         Mon
     end
 
@@ -151,6 +159,7 @@ The automated script will:
 | **ChimpDrop** | `http://<IP>:8080/drop/` | `:8082` | Universal clipboard & drag-drop files |
 | **File Manager** | `http://<IP>:8080/files/` | `:8081` | Web file explorer & code editor |
 | **Photo Library**| `http://<IP>:8080/photos/`| `:8091` | Gallery with EXIF viewer |
+| **ChimpCron**    | `http://<IP>:8080/cron/`  | `:8083` | Visual task scheduler & background automation |
 | **Telemetry API**| `http://<IP>:8080/api/status`| `:8090` | JSON hardware status endpoint |
 
 *(Replace `<IP>` with your server's local IP address, e.g. `192.168.1.13`)*

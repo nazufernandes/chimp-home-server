@@ -7,7 +7,7 @@ BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$BASE_DIR/logs"
 DATA_DIR="$BASE_DIR/data"
 
-mkdir -p "$LOG_DIR" "$DATA_DIR/drop/files" "$DATA_DIR/photos" "$DATA_DIR/shared"
+mkdir -p "$LOG_DIR" "$DATA_DIR/drop/files" "$DATA_DIR/photos" "$DATA_DIR/shared" "$DATA_DIR/cron"
 
 # Keep device awake if running inside Termux
 if which termux-wake-lock > /dev/null 2>&1; then
@@ -64,6 +64,14 @@ start_services() {
         echo "[-] Photo Library already running"
     fi
 
+    # 6. ChimpCron - Scheduled Automation (port 8083)
+    if ! pgrep -f "cron/app.py" > /dev/null; then
+        nohup python "$BASE_DIR/cron/app.py" > "$LOG_DIR/cron.log" 2>&1 &
+        echo "[✓] ChimpCron started on http://${IP}:8080/cron/ (PID $!)"
+    else
+        echo "[-] ChimpCron already running"
+    fi
+
     echo ""
     echo "=========================================================="
     echo "  🎉 All services active! Open in your browser:"
@@ -78,6 +86,7 @@ stop_services() {
     pkill -9 -f "drop/app.py" 2>/dev/null && echo "[✓] ChimpDrop stopped" || true
     pkill -9 -f "monitor/monitor.py" 2>/dev/null && echo "[✓] Monitor API stopped" || true
     pkill -9 -f "photos/app.py" 2>/dev/null && echo "[✓] Photo Library stopped" || true
+    pkill -9 -f "cron/app.py" 2>/dev/null && echo "[✓] ChimpCron stopped" || true
     pkill -9 -f "http.server 8080" 2>/dev/null || true
 }
 
@@ -91,6 +100,9 @@ status_services() {
 
     echo -n "ChimpDrop (8082):       "
     pgrep -f "drop/app.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'drop/app.py' | head -n 1))" || echo "STOPPED"
+
+    echo -n "ChimpCron (8083):       "
+    pgrep -f "cron/app.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'cron/app.py' | head -n 1))" || echo "STOPPED"
 
     echo -n "Monitor API (8090):     "
     pgrep -f "monitor/monitor.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'monitor/monitor.py' | head -n 1))" || echo "STOPPED"
