@@ -412,6 +412,192 @@ body::before {
     background: var(--text-dim);
 }
 
+/* === CONTROL PANEL === */
+.btn-ctrl {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+.btn-ctrl:hover {
+    border-color: var(--accent);
+    background: var(--card-hover);
+    color: var(--accent);
+}
+.ctrl-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+.ctrl-overlay.active { display: flex; }
+.ctrl-card {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 620px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    overflow: hidden;
+}
+.ctrl-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.ctrl-title {
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.ctrl-body {
+    padding: 20px 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.ctrl-service-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.ctrl-service-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.ctrl-service-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.ctrl-service-name {
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ctrl-service-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+.ctrl-toggles {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+.toggle-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-dim);
+}
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #21262d;
+    transition: .3s;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--text-dim);
+    transition: .3s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #22c997;
+    border-color: #22c997;
+}
+input:checked + .slider:before {
+    transform: translateX(16px);
+    background-color: #06080f;
+}
+.status-pill {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+.status-pill.online { background: rgba(34,201,151,0.15); color: #22c997; }
+.status-pill.offline { background: rgba(248,113,113,0.15); color: #f87171; }
+.ctrl-footer {
+    padding: 14px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(0,0,0,0.15);
+}
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #161b22;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 2000;
+}
+.toast.show { display: flex; animation: slideUp 0.3s forwards; }
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
 @media (max-width: 768px) {
     .main { padding: 20px 16px; }
     .header-inner { padding: 0 16px; }
@@ -553,64 +739,14 @@ body::before {
     </div>
 
     <!-- Services -->
-    <div class="section-title">Server Services</div>
-    <div class="services-grid">
-        <a class="service-card" href="/">
-            <div class="service-icon s-dash">&#x1f3e0;</div>
-            <div>
-                <div class="service-name">Dashboard</div>
-                <div class="service-url">Unified Gateway &middot; / (Live Telemetry)</div>
-            </div>
-            <div class="service-arrow">&#x2192;</div>
-        </a>
-        <a class="service-card" href="/drop/">
-            <div class="service-icon" style="background: rgba(34,201,151,0.12); color: #22c997;">&#x1f4cb;</div>
-            <div>
-                <div class="service-name">ChimpDrop</div>
-                <div class="service-url">Unified Gateway &middot; /drop/ (Clipboard &amp; File Drop)</div>
-            </div>
-            <div class="service-arrow">&#x2192;</div>
-        </a>
-        <a class="service-card" href="/files/">
-            <div class="service-icon s-files">&#x1f4c1;</div>
-            <div>
-                <div class="service-name">File Manager</div>
-                <div class="service-url">Unified Gateway &middot; /files/ (Web Explorer &amp; Upload)</div>
-            </div>
-            <div class="service-arrow">&#x2192;</div>
-        </a>
-        <a class="service-card" href="/photos/">
-            <div class="service-icon s-photos">&#x1f4f7;</div>
-            <div>
-                <div class="service-name">Photo Library</div>
-                <div class="service-url">Unified Gateway &middot; /photos/ (Gallery &amp; EXIF)</div>
-            </div>
-            <div class="service-arrow">&#x2192;</div>
-        </a>
-        <a class="service-card" href="/cron/">
-            <div class="service-icon" style="background: rgba(167,139,250,0.15); color: #a78bfa;">&#x23f0;</div>
-            <div>
-                <div class="service-name">ChimpCron</div>
-                <div class="service-url">Unified Gateway &middot; /cron/ (Scheduled Automation)</div>
-            </div>
-            <div class="service-arrow">&#x2192;</div>
-        </a>
-        <a class="service-card" href="/sites/">
-            <div class="service-icon" style="background: rgba(34,201,151,0.15); color: #22c997;">&#x1f310;</div>
-            <div>
-                <div class="service-name">ChimpSites</div>
-                <div class="service-url">Unified Gateway &middot; /sites/ (Static Web Host)</div>
-            </div>
-            <div class="service-arrow">&#x2192;</div>
-        </a>
-        <a class="service-card" href="/api/status">
-            <div class="service-icon s-api">&#x1f4ca;</div>
-            <div>
-                <div class="service-name">Monitoring API</div>
-                <div class="service-url">Unified Gateway &middot; /api/status (JSON endpoint)</div>
-            </div>
-            <div class="service-arrow">&#x2192;</div>
-        </a>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="section-title" style="margin-bottom: 0;">Server Services</div>
+        <button class="btn-ctrl" onclick="openControlPanel()">
+            <span>⚙️</span> Control Panel (<span id="activeServicesCount">--</span> Active)
+        </button>
+    </div>
+    <div class="services-grid" id="servicesGrid">
+        <!-- Populated dynamically via /api/services -->
     </div>
 
     <!-- Footer -->
@@ -624,14 +760,172 @@ body::before {
     </div>
 </div>
 
+<!-- Control Panel Modal -->
+<div class="ctrl-overlay" id="ctrlModal">
+    <div class="ctrl-card">
+        <div class="ctrl-header">
+            <div class="ctrl-title">
+                <span>⚙️</span> Service Control Panel
+            </div>
+            <button class="btn-ctrl" style="padding: 4px 8px;" onclick="closeControlPanel()">✕</button>
+        </div>
+        <div style="padding: 12px 24px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim);">
+            Enable or disable background services to free up phone RAM/CPU, and choose which apps appear in your dashboard launcher.
+        </div>
+        <div class="ctrl-body" id="ctrlServicesList">
+            <!-- Dynamically populated -->
+        </div>
+        <div class="ctrl-footer">
+            <button class="btn-ctrl" onclick="closeControlPanel()">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <span id="toastIcon">✅</span>
+    <span id="toastMsg">Action completed</span>
+</div>
+
 <script>
 const API = "/api/status";
+const SERVICES_API = "/api/services";
+let servicesList = [];
 
 function setBar(id, percent) {
     const bar = document.getElementById(id);
     if (!bar) return;
     bar.style.width = Math.min(100, Math.max(0, percent)) + "%";
     bar.className = "progress-fill " + (percent >= 90 ? "red" : percent >= 75 ? "yellow" : "green");
+}
+
+async function fetchServices() {
+    try {
+        const res = await fetch(SERVICES_API);
+        if (!res.ok) return;
+        const data = await res.json();
+        servicesList = data.services || [];
+        renderDashboardServices(servicesList);
+        renderControlPanel(servicesList);
+    } catch (err) {
+        console.error("Failed to load services:", err);
+    }
+}
+
+function renderDashboardServices(services) {
+    const grid = document.getElementById("servicesGrid");
+    const activeCount = services.filter(s => s.enabled && s.running).length;
+    document.getElementById("activeServicesCount").textContent = activeCount;
+
+    // Filter services configured to show on dashboard
+    const visibleServices = services.filter(s => s.show_dashboard);
+
+    if (visibleServices.length === 0) {
+        grid.innerHTML = `
+            <div style="grid-column: 1/-1; background: var(--card); border: 1px dashed var(--border); border-radius: var(--radius); padding: 30px; text-align: center; color: var(--text-dim);">
+                All service cards are currently hidden. Click <strong>Control Panel</strong> above to display them.
+            </div>`;
+        return;
+    }
+
+    grid.innerHTML = visibleServices.map(s => {
+        const isOnline = s.running;
+        const statusDot = isOnline ? 
+            `<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent); display: inline-block;"></span>` :
+            `<span style="width: 8px; height: 8px; border-radius: 50%; background: var(--text-dim); display: inline-block;"></span>`;
+
+        return `
+        <a class="service-card" href="${s.url}" style="${!s.enabled ? 'opacity: 0.5; filter: grayscale(0.5);' : ''}">
+            <div class="service-icon" style="background: ${s.bg}; color: ${s.color};">${s.icon}</div>
+            <div>
+                <div class="service-name" style="display: flex; align-items: center; gap: 8px;">
+                    <span>${s.name}</span>
+                    ${statusDot}
+                </div>
+                <div class="service-url">Unified Gateway &middot; ${s.url} ${!s.enabled ? '(Stopped)' : ''}</div>
+            </div>
+            <div class="service-arrow">&#x2192;</div>
+        </a>`;
+    }).join("");
+}
+
+function renderControlPanel(services) {
+    const list = document.getElementById("ctrlServicesList");
+    if (!list) return;
+
+    list.innerHTML = services.map(s => {
+        const isRunning = s.running;
+        const isStatic = s.type === "static";
+
+        return `
+        <div class="ctrl-service-row">
+            <div class="ctrl-service-left">
+                <div class="ctrl-service-icon" style="background: ${s.bg}; color: ${s.color};">${s.icon}</div>
+                <div>
+                    <div class="ctrl-service-name">
+                        <span>${s.name}</span>
+                        <span class="status-pill ${isRunning ? 'online' : 'offline'}">${isRunning ? 'Online' : 'Stopped'}</span>
+                    </div>
+                    <div class="ctrl-service-sub">${s.desc} &middot; <code>${s.url}</code></div>
+                </div>
+            </div>
+
+            <div class="ctrl-toggles">
+                <div class="toggle-wrap">
+                    <span>${s.enabled ? 'Active' : 'Disabled'}</span>
+                    <label class="switch" title="Start or stop the service process">
+                        <input type="checkbox" ${s.enabled ? 'checked' : ''} ${isStatic ? 'disabled' : ''} onchange="toggleServiceState('${s.id}', 'enabled', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-wrap">
+                    <span>Dashboard</span>
+                    <label class="switch" title="Show or hide on Dashboard launcher">
+                        <input type="checkbox" ${s.show_dashboard ? 'checked' : ''} onchange="toggleServiceState('${s.id}', 'show_dashboard', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>`;
+    }).join("");
+}
+
+async function toggleServiceState(id, field, value) {
+    showToast(`Updating ${id}...`, "info");
+    try {
+        const res = await fetch("/api/services/toggle", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, [field]: value })
+        });
+        const data = await res.json();
+        if (data.success) {
+            servicesList = data.services;
+            renderDashboardServices(servicesList);
+            renderControlPanel(servicesList);
+            showToast(`${id} ${field === 'enabled' ? (value ? 'started' : 'stopped') : (value ? 'shown' : 'hidden')}!`);
+        }
+    } catch (err) {
+        showToast("Error updating service", "error");
+    }
+}
+
+function openControlPanel() {
+    document.getElementById("ctrlModal").classList.add("active");
+    fetchServices();
+}
+
+function closeControlPanel() {
+    document.getElementById("ctrlModal").classList.remove("active");
+}
+
+function showToast(msg, type = "success") {
+    const t = document.getElementById("toast");
+    document.getElementById("toastMsg").textContent = msg;
+    document.getElementById("toastIcon").textContent = type === "error" ? "❌" : (type === "info" ? "⏳" : "✅");
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2500);
 }
 
 async function refresh() {
@@ -700,8 +994,11 @@ async function refresh() {
     }
 }
 
+// Initial loads
 refresh();
+fetchServices();
 setInterval(refresh, 3000);
+setInterval(fetchServices, 6000);
 </script>
 </body>
 </html>

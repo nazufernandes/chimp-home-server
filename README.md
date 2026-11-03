@@ -227,5 +227,5 @@ Contributions are welcome!
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
 
 <div align="center">
-  <sub>Built with 🍌 by Nazu Fernandes &amp; the open-source community.</sub>
+  <sub>Built with ❤️ by Nazu Fernandes &amp; the open-source community.</sub>
 </div>

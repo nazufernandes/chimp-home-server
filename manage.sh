@@ -17,6 +17,26 @@ fi
 # Detect local IP
 IP=$(ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "127.0.0.1")
 
+is_service_enabled() {
+    local svc="$1"
+    local state_file="$BASE_DIR/data/services_state.json"
+    if [ ! -f "$state_file" ]; then
+        return 0
+    fi
+    python -c "
+import json, sys
+try:
+    with open('$state_file') as f:
+        d = json.load(f)
+    if not d.get('$svc', {}).get('enabled', True):
+        sys.exit(1)
+except Exception:
+    pass
+sys.exit(0)
+" 2>/dev/null
+    return $?
+}
+
 start_services() {
     echo "Starting Chimp Home Server services..."
 
@@ -54,19 +74,27 @@ start_services() {
     fi
 
     # 2. Modern Web File Manager (port 8081 - Flask)
-    if ! pgrep -f "files/app.py" > /dev/null; then
-        nohup python "$BASE_DIR/files/app.py" > "$LOG_DIR/files.log" 2>&1 &
-        echo "[✓] Web File Manager started on http://${IP}:8080/files/ (PID $!)"
+    if is_service_enabled "files"; then
+        if ! pgrep -f "files/app.py" > /dev/null; then
+            nohup python "$BASE_DIR/files/app.py" > "$LOG_DIR/files.log" 2>&1 &
+            echo "[✓] Web File Manager started on http://${IP}:8080/files/ (PID $!)"
+        else
+            echo "[-] File Manager already running"
+        fi
     else
-        echo "[-] File Manager already running"
+        echo "[-] File Manager disabled in Control Panel (skipping)"
     fi
 
     # 3. ChimpDrop - Universal Clipboard (port 8082 - Flask)
-    if ! pgrep -f "drop/app.py" > /dev/null; then
-        nohup python "$BASE_DIR/drop/app.py" > "$LOG_DIR/drop.log" 2>&1 &
-        echo "[✓] ChimpDrop (Clipboard) started on http://${IP}:8080/drop/ (PID $!)"
+    if is_service_enabled "drop"; then
+        if ! pgrep -f "drop/app.py" > /dev/null; then
+            nohup python "$BASE_DIR/drop/app.py" > "$LOG_DIR/drop.log" 2>&1 &
+            echo "[✓] ChimpDrop (Clipboard) started on http://${IP}:8080/drop/ (PID $!)"
+        else
+            echo "[-] ChimpDrop already running"
+        fi
     else
-        echo "[-] ChimpDrop already running"
+        echo "[-] ChimpDrop disabled in Control Panel (skipping)"
     fi
 
     # 4. Hardware Telemetry Monitor (port 8090)
@@ -78,19 +106,27 @@ start_services() {
     fi
 
     # 5. Photos App (port 8091)
-    if ! pgrep -f "photos/app.py" > /dev/null; then
-        nohup python "$BASE_DIR/photos/app.py" > "$LOG_DIR/photos.log" 2>&1 &
-        echo "[✓] Photo Library started on http://${IP}:8080/photos/ (PID $!)"
+    if is_service_enabled "photos"; then
+        if ! pgrep -f "photos/app.py" > /dev/null; then
+            nohup python "$BASE_DIR/photos/app.py" > "$LOG_DIR/photos.log" 2>&1 &
+            echo "[✓] Photo Library started on http://${IP}:8080/photos/ (PID $!)"
+        else
+            echo "[-] Photo Library already running"
+        fi
     else
-        echo "[-] Photo Library already running"
+        echo "[-] Photo Library disabled in Control Panel (skipping)"
     fi
 
     # 6. ChimpCron - Scheduled Automation (port 8083)
-    if ! pgrep -f "cron/app.py" > /dev/null; then
-        nohup python "$BASE_DIR/cron/app.py" > "$LOG_DIR/cron.log" 2>&1 &
-        echo "[✓] ChimpCron started on http://${IP}:8080/cron/ (PID $!)"
+    if is_service_enabled "cron"; then
+        if ! pgrep -f "cron/app.py" > /dev/null; then
+            nohup python "$BASE_DIR/cron/app.py" > "$LOG_DIR/cron.log" 2>&1 &
+            echo "[✓] ChimpCron started on http://${IP}:8080/cron/ (PID $!)"
+        else
+            echo "[-] ChimpCron already running"
+        fi
     else
-        echo "[-] ChimpCron already running"
+        echo "[-] ChimpCron disabled in Control Panel (skipping)"
     fi
 
     echo ""
