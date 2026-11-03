@@ -84,6 +84,12 @@ Access all web apps, tools, and endpoints through a single clean port (`:8080`) 
 * **Instant Manual Execution**: Run any scheduled script on demand with live status indicators and real-time execution duration.
 * **Execution Logs & Drawer**: Full capture of stdout, stderr, and exit codes for every run with one-click output inspection.
 
+### 🌐 ChimpSites (Zero-Config Static Web Hosting)
+* **Instant Local Web Hosting**: Host SPAs (React, Vue, Vite, Astro), HTML prototypes, or documentation sites directly from your phone.
+* **Zero Configuration**: Any folder dropped into `~/server/data/sites/` is instantly served at `http://<IP>:8080/sites/<folder>/`.
+* **Zero Python Overhead**: Served at native C-speed directly through Nginx with automatic MIME type mapping.
+* **Interactive Launchpad**: Built-in visual hub at `/sites/` listing all hosted sites with launch buttons and upload zones.
+
 ### 🎨 Signature Chimp Terminal Experience
 * Fully aligned custom ASCII Art banner upon terminal login.
 * Dynamic column calculation preventing ugly line-wrapping across any terminal width.
@@ -102,6 +108,7 @@ graph TD
     GW -->|"/files/"| Files["📁 Web File Explorer (:8081)"]
     GW -->|"/photos/"| Photos["📷 Photo Library & EXIF Gallery (:8091)"]
     GW -->|"/cron/"| Cron["⏰ ChimpCron Task Scheduler (:8083)"]
+    GW -->|"/sites/"| Sites["🌐 ChimpSites Static Hosting (Nginx)"]
     GW -->|"/api/status"| Mon["📈 Hardware Telemetry API (:8090)"]
 
     subgraph Server_Core ["🐒 Chimp Server Core"]
@@ -110,6 +117,7 @@ graph TD
         Files
         Photos
         Cron
+        Sites
         Mon
     end
 
@@ -117,11 +125,13 @@ graph TD
         DropFiles["drop/files"]
         PhotoStore["photos/"]
         SharedDir["shared/"]
+        SitesDir["sites/"]
     end
 
     Drop --> DropFiles
     Photos --> PhotoStore
     Files --> Storage
+    Sites --> SitesDir
 ```
 
 ---
@@ -160,6 +170,7 @@ The automated script will:
 | **File Manager** | `http://<IP>:8080/files/` | `:8081` | Web file explorer & code editor |
 | **Photo Library**| `http://<IP>:8080/photos/`| `:8091` | Gallery with EXIF viewer |
 | **ChimpCron**    | `http://<IP>:8080/cron/`  | `:8083` | Visual task scheduler & background automation |
+| **ChimpSites**   | `http://<IP>:8080/sites/` | `:8080` | Zero-config static web hosting & launchpad |
 | **Telemetry API**| `http://<IP>:8080/api/status`| `:8090` | JSON hardware status endpoint |
 
 *(Replace `<IP>` with your server's local IP address, e.g. `192.168.1.13`)*

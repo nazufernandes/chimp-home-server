@@ -103,8 +103,11 @@ if [[ $- == *i* ]]; then
     local_s5="  ● ChimpCron:     http://${IP}:8080/cron/"
     print_card_row ${#local_s5} "  ${C_MINT}●${C_RESET} ChimpCron:     ${C_BLUE}http://${IP}:8080/cron/${C_RESET}"
 
-    local_s6="  ● Monitor API:   http://${IP}:8080/api/status"
-    print_card_row ${#local_s6} "  ${C_MINT}●${C_RESET} Monitor API:   ${C_BLUE}http://${IP}:8080/api/status${C_RESET}"
+    local_s6="  ● ChimpSites:    http://${IP}:8080/sites/"
+    print_card_row ${#local_s6} "  ${C_MINT}●${C_RESET} ChimpSites:    ${C_BLUE}http://${IP}:8080/sites/${C_RESET}"
+
+    local_s7="  ● Monitor API:   http://${IP}:8080/api/status"
+    print_card_row ${#local_s7} "  ${C_MINT}●${C_RESET} Monitor API:   ${C_BLUE}http://${IP}:8080/api/status${C_RESET}"
 
     echo -e "${C_DARK}  ╰───────────────────────────────────────────────────────────────╯${C_RESET}"
     echo ""

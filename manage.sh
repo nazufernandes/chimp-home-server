@@ -7,7 +7,7 @@ BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="$BASE_DIR/logs"
 DATA_DIR="$BASE_DIR/data"
 
-mkdir -p "$LOG_DIR" "$DATA_DIR/drop/files" "$DATA_DIR/photos" "$DATA_DIR/shared" "$DATA_DIR/cron"
+mkdir -p "$LOG_DIR" "$DATA_DIR/drop/files" "$DATA_DIR/photos" "$DATA_DIR/shared" "$DATA_DIR/cron" "$DATA_DIR/sites"
 
 # Keep device awake if running inside Termux
 if which termux-wake-lock > /dev/null 2>&1; then

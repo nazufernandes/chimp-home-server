@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello World | Hosted on ChimpSites</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #07090e;
+            --card: #10151d;
+            --border: #1f2937;
+            --accent: #22c997;
+            --text: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .container {
+            max-width: 640px;
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 32px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: bounce 2s infinite ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+        p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(34, 201, 151, 0.12);
+            color: var(--accent);
+            border: 1px solid rgba(34, 201, 151, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .code-box {
+            background: #080b10;
+            border: 1px solid #1a2230;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: left;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: #7ee787;
+            margin-bottom: 24px;
+            overflow-x: auto;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            color: #07090e;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 201, 151, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🚀</div>
+        <div class="badge">● Live on ChimpSites</div>
+        <h1>Hello from Chimp Home Server!</h1>
+        <p>This static website is being served directly by Nginx from your low-power Linux node with zero configuration.</p>
+        
+        <div class="code-box">
+            // Path on server:<br>
+            ~/server/data/sites/hello-world/index.html<br><br>
+            // Accessible on your network at:<br>
+            http://&lt;your-server-ip&gt;:8080/sites/hello-world/
+        </div>
+
+        <a href="/sites/" class="btn">← Back to ChimpSites Hub</a>
+    </div>
+</body>
+</html>
+
