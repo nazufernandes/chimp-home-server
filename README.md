@@ -194,6 +194,25 @@ Chimp Home Server includes built-in global access for both web browsing and term
 
 ---
 
+## 👑 Master Admin Panel & Easter Egg
+
+Chimp Server includes a multi-tier management model:
+
+* **Standard User Control Panel (`⚙️ Control Panel`)**:
+  Accessible by anyone on your network from the main dashboard. Standard users can toggle which services are shown or hidden on their dashboard launcher. Any service disabled by an administrator is automatically **blurred** with a **`🔒 Locked by Admin`** badge and cannot be launched or shown.
+* **Secret Admin Master Panel**:
+  Click the monkey logo (`🐒`) in the top navbar **7 times continuously** (within 1-second gaps) to open the Master Password Prompt.
+  * Configured during `install.sh` (or anytime in `.env` under `CHIMP_ADMIN_PASSWORD`).
+  * Gain master control to start, stop, kill, and lock/unlock backend background service daemons directly from the web interface.
+  * Your admin session is securely cached in browser session storage and can be locked at any time with the **🔒 Lock** button.
+
+```bash
+# You are prompted for this during install.sh, or can change it in .env:
+CHIMP_ADMIN_PASSWORD=your_secure_password
+```
+
+---
+
 ## 🛠️ CLI Management
 
 Once installed, use these built-in aliases from any terminal session:

@@ -12,11 +12,11 @@ echo ""
 
 # 1. Detect Environment & Install Packages
 if which pkg > /dev/null 2>&1; then
-    echo "[1/5] Updating Termux packages and installing dependencies..."
+    echo "[1/6] Updating Termux packages and installing dependencies..."
     pkg update -y
     pkg install -y python python-pip nginx git curl openssh
 elif which apt-get > /dev/null 2>&1; then
-    echo "[1/5] Updating APT packages and installing dependencies..."
+    echo "[1/6] Updating APT packages and installing dependencies..."
     sudo apt-get update -y
     sudo apt-get install -y python3 python3-pip nginx git curl openssh-server
 else
@@ -24,12 +24,12 @@ else
 fi
 
 # 2. Install Python Requirements
-echo "[2/5] Installing Python dependencies (Flask, Pillow, Werkzeug)..."
+echo "[2/6] Installing Python dependencies (Flask, Pillow, Werkzeug)..."
 pip install flask pillow werkzeug
 
 # 3. Setup Server Directory Structure
 CHIMP_DIR="$HOME/server"
-echo "[3/5] Setting up server directory at $CHIMP_DIR..."
+echo "[3/6] Setting up server directory at $CHIMP_DIR..."
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -48,8 +48,33 @@ mkdir -p "$CHIMP_DIR/logs" \
 
 chmod +x "$CHIMP_DIR/manage.sh"
 
-# 4. Configure Nginx Gateway
-echo "[4/5] Configuring Nginx Reverse Proxy Gateway..."
+# 4. Admin Security & Password Configuration
+echo ""
+echo "[4/6] Configuring Admin Master Password..."
+ADMIN_INPUT=""
+if [ -t 0 ]; then
+    read -r -p "  Enter Master Admin Password for Dashboard Control [default: admin]: " ADMIN_INPUT
+elif [ -e /dev/tty ]; then
+    read -r -p "  Enter Master Admin Password for Dashboard Control [default: admin]: " ADMIN_INPUT < /dev/tty 2>/dev/null || true
+fi
+ADMIN_PASS="${ADMIN_INPUT:-admin}"
+
+ENV_FILE="$CHIMP_DIR/.env"
+if [ -f "$ENV_FILE" ]; then
+    grep -v "^CHIMP_ADMIN_PASSWORD=" "$ENV_FILE" > "$ENV_FILE.tmp" 2>/dev/null || true
+    echo "CHIMP_ADMIN_PASSWORD=$ADMIN_PASS" >> "$ENV_FILE.tmp"
+    mv "$ENV_FILE.tmp" "$ENV_FILE"
+    echo "  [✓] Admin password updated in $ENV_FILE"
+else
+    echo "# Chimp Home Server — Environment Configuration" > "$ENV_FILE"
+    echo "CHIMP_ADMIN_PASSWORD=$ADMIN_PASS" >> "$ENV_FILE"
+    echo "  [✓] Admin password saved to $ENV_FILE"
+fi
+chmod 600 "$ENV_FILE" 2>/dev/null || true
+
+# 5. Configure Nginx Gateway
+echo ""
+echo "[5/6] Configuring Nginx Reverse Proxy Gateway..."
 NGINX_CONF_TARGET=""
 
 if [ -d "/data/data/com.termux/files/usr/etc/nginx" ]; then
@@ -63,8 +88,8 @@ if [ -n "$NGINX_CONF_TARGET" ]; then
     echo "[✓] Nginx config installed at $NGINX_CONF_TARGET"
 fi
 
-# 5. Setup Login Shell Banner
-echo "[5/6] Configuring startup banner in ~/.bashrc..."
+# 6. Setup Login Shell Banner
+echo "[6/6] Configuring startup banner in ~/.bashrc..."
 if ! grep -q "CHIMP HOME SERVER" "$HOME/.bashrc" 2>/dev/null; then
     echo "" >> "$HOME/.bashrc"
     cat "$CHIMP_DIR/bashrc_banner.sh" >> "$HOME/.bashrc"
@@ -73,26 +98,35 @@ else
     echo "[-] Banner already present in ~/.bashrc"
 fi
 
-# 6. Remote Access Options (Optional & Independent)
+# 7. Remote Access Options (Optional)
 echo ""
 echo "----------------------------------------------------------"
-echo "  🌐 Remote Access Options (Optional)"
+echo "  🌐 Remote Internet Access (Optional)"
 echo "----------------------------------------------------------"
 echo "  By default, Chimp runs privately on your local home Wi-Fi."
-echo "  You can independently enable public web hosting and/or remote SSH."
+echo "  You can optionally enable public web hosting and remote SSH via Ngrok."
 echo ""
 
-# 6a. Public Web Access (Ngrok)
+# Public Web Access (Ngrok)
 ENABLE_NGROK="n"
 if [ -t 0 ]; then
-    read -r -p "  [1/2] Enable Public Web Access via Ngrok (share sites/files with anyone)? (y/N): " ENABLE_NGROK
+    read -r -p "  Enable Public Internet Access via Ngrok? (y/N): " ENABLE_NGROK
+elif [ -e /dev/tty ]; then
+    read -r -p "  Enable Public Internet Access via Ngrok? (y/N): " ENABLE_NGROK < /dev/tty 2>/dev/null || true
 fi
 
 if [[ "$ENABLE_NGROK" =~ ^[Yy]$ ]]; then
     echo ""
     echo "  [*] Setting up Public Internet Access via Ngrok..."
-    read -r -p "  Enter your Ngrok Authtoken (from dashboard.ngrok.com): " NGROK_TOKEN
-    read -r -p "  Enter your free static domain (e.g. your-subdomain.ngrok-free.dev) [optional]: " NGROK_DOMAIN
+    NGROK_TOKEN=""
+    NGROK_DOMAIN=""
+    if [ -t 0 ]; then
+        read -r -p "  Enter your Ngrok Authtoken (from dashboard.ngrok.com): " NGROK_TOKEN
+        read -r -p "  Enter your static domain (e.g. your-subdomain.ngrok-free.dev) [optional]: " NGROK_DOMAIN
+    elif [ -e /dev/tty ]; then
+        read -r -p "  Enter your Ngrok Authtoken (from dashboard.ngrok.com): " NGROK_TOKEN < /dev/tty 2>/dev/null || true
+        read -r -p "  Enter your static domain (e.g. your-subdomain.ngrok-free.dev) [optional]: " NGROK_DOMAIN < /dev/tty 2>/dev/null || true
+    fi
 
     # Install prerequisites
     if which pkg > /dev/null 2>&1; then
@@ -153,5 +187,6 @@ echo "  👉  Local LAN:   http://${IP}:8080/ (SSH: ssh u0_a223@${IP} -p 8022)"
 if [ -n "$TUNNEL_DOMAIN" ]; then
     echo "  👉  Internet:    https://${TUNNEL_DOMAIN}/"
 fi
+echo "  🔒  Admin Panel: 7 rapid clicks on 🐒 logo"
 echo "=========================================================="
 echo ""

@@ -12,6 +12,25 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 STATE_FILE = os.path.join(DATA_DIR, "services_state.json")
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 
+def load_env():
+    env_file = os.path.join(BASE_DIR, ".env")
+    env_vars = {}
+    if os.path.exists(env_file):
+        try:
+            with open(env_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        k, v = line.split("=", 1)
+                        env_vars[k.strip()] = v.strip().strip('"').strip("'")
+        except Exception as e:
+            print("Error loading .env:", e)
+    return env_vars
+
+def get_admin_password():
+    env_vars = load_env()
+    return env_vars.get("CHIMP_ADMIN_PASSWORD", os.environ.get("CHIMP_ADMIN_PASSWORD", "admin"))
+
 SERVICES_DEF = [
     {
         "id": "drop",
@@ -150,63 +169,67 @@ def is_service_running(svc):
     pid = run_cmd(["pgrep", "-f", script])
     return bool(pid.strip())
 
+def has_tmux_session():
+    try:
+        res = subprocess.run(["tmux", "has-session", "-t", "chimp"], capture_output=True)
+        return res.returncode == 0
+    except Exception:
+        return False
+
 def start_service_process(svc):
     if svc["type"] == "static":
         return
+    s_id = svc["id"]
     if svc["type"] == "tunnel":
-        if is_service_running(svc):
-            return
-        ngrok_bin = os.path.expanduser("~/ngrok")
-        if not os.path.exists(ngrok_bin):
-            ngrok_bin = run_cmd(["which", "ngrok"])
-        if not ngrok_bin:
-            return
-        domain = get_tunnel_domain()
-        log_path = os.path.join(LOG_DIR, "ngrok.log")
-        os.makedirs(LOG_DIR, exist_ok=True)
-        cmd = f"termux-chroot {ngrok_bin} http --domain={domain} 8080"
-        try:
-            subprocess.Popen(
-                cmd,
-                shell=True,
-                stdout=open(log_path, "a"),
-                stderr=subprocess.STDOUT,
-                start_new_session=True
-            )
-        except Exception as e:
-            print("Failed to start tunnel:", e)
+        if has_tmux_session():
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ngrok-web"])
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ngrok-ssh"])
+            run_cmd(["tmux", "new-window", "-t", "chimp", "-n", "ngrok-web"])
+            run_cmd(["tmux", "send-keys", "-t", "chimp:ngrok-web", f"while true; do termux-chroot $HOME/ngrok http --url=https://{get_tunnel_domain()} 8080; sleep 5; done", "C-m"])
+            run_cmd(["tmux", "new-window", "-t", "chimp", "-n", "ngrok-ssh"])
+            run_cmd(["tmux", "send-keys", "-t", "chimp:ngrok-ssh", "while true; do termux-chroot $HOME/ngrok tcp 8022; sleep 5; done", "C-m"])
         return
 
-    script = svc["script"]
+    script = svc.get("script")
     if not script:
-        return
-    if is_service_running(svc):
         return
     
     script_path = os.path.join(BASE_DIR, script)
-    os.makedirs(LOG_DIR, exist_ok=True)
-    log_path = os.path.join(LOG_DIR, f"{svc['id']}.log")
-    
-    try:
-        subprocess.Popen(
-            ["python", script_path],
-            stdout=open(log_path, "a"),
-            stderr=subprocess.STDOUT,
-            cwd=BASE_DIR,
-            start_new_session=True
-        )
-    except Exception as e:
-        print(f"Failed to start {svc['id']}:", e)
+    if has_tmux_session():
+        run_cmd(["tmux", "kill-window", "-t", f"chimp:{s_id}"])
+        run_cmd(["tmux", "new-window", "-t", "chimp", "-n", s_id])
+        run_cmd(["tmux", "send-keys", "-t", f"chimp:{s_id}", f"while true; do python {script_path}; sleep 2; done", "C-m"])
+    else:
+        os.makedirs(LOG_DIR, exist_ok=True)
+        log_path = os.path.join(LOG_DIR, f"{svc['id']}.log")
+        try:
+            subprocess.Popen(
+                ["python", script_path],
+                stdout=open(log_path, "a"),
+                stderr=subprocess.STDOUT,
+                cwd=BASE_DIR,
+                start_new_session=True
+            )
+        except Exception as e:
+            print(f"Failed to start {svc['id']}:", e)
 
 def stop_service_process(svc):
     if svc["type"] == "static":
         return
+    s_id = svc["id"]
     if svc["type"] == "tunnel":
-        run_cmd(["pkill", "-9", "-f", "ngrok http"])
+        if has_tmux_session():
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ngrok-web"])
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ngrok-ssh"])
+        run_cmd(["pkill", "-9", "-f", "ngrok"])
+        run_cmd(["pkill", "-9", "-f", "proot"])
         return
-    script = svc["script"]
+
+    script = svc.get("script")
     if not script:
         return
+    if has_tmux_session():
+        run_cmd(["tmux", "kill-window", "-t", f"chimp:{s_id}"])
     run_cmd(["pkill", "-9", "-f", script])
 
 def get_services_catalog():
@@ -408,7 +431,30 @@ class MonitorHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = self.path.split("?")[0]
-        if path in ("/api/services/toggle", "/api/monitor/services/toggle"):
+        if path in ("/api/admin/verify", "/api/monitor/admin/verify"):
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                data = json.loads(body)
+                provided_pw = data.get("password", "")
+                actual_pw = get_admin_password()
+                
+                if provided_pw and provided_pw == actual_pw:
+                    resp_data = json.dumps({"success": True, "message": "Admin authenticated"}).encode()
+                    self.send_response(200)
+                else:
+                    resp_data = json.dumps({"success": False, "error": "Invalid admin password"}).encode()
+                    self.send_response(401)
+                self.send_header("Content-Type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(resp_data)
+                return
+            except Exception as e:
+                self.send_error(500, f"Auth error: {e}")
+                return
+
+        elif path in ("/api/services/toggle", "/api/monitor/services/toggle"):
             try:
                 length = int(self.headers.get("Content-Length", 0))
                 body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
@@ -424,6 +470,16 @@ class MonitorHandler(BaseHTTPRequestHandler):
                 current = state.get(svc_id, {"enabled": True, "show_dashboard": True})
 
                 if "enabled" in data:
+                    provided_pw = data.get("password", "")
+                    if provided_pw != get_admin_password():
+                        resp_data = json.dumps({"success": False, "error": "Admin password required to enable/disable services"}).encode()
+                        self.send_response(403)
+                        self.send_header("Content-Type", "application/json")
+                        self.send_cors_headers()
+                        self.end_headers()
+                        self.wfile.write(resp_data)
+                        return
+
                     current["enabled"] = bool(data["enabled"])
                     if current["enabled"]:
                         start_service_process(svc)

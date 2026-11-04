@@ -62,6 +62,16 @@ for port in [4040, 4041, 4042]:
 start_services() {
     echo "Starting Chimp Home Server services..."
 
+    # Ensure .env exists with default admin password if missing
+    if [ ! -f "$BASE_DIR/.env" ]; then
+        if [ -f "$BASE_DIR/.env.example" ]; then
+            cp "$BASE_DIR/.env.example" "$BASE_DIR/.env"
+        else
+            echo "CHIMP_ADMIN_PASSWORD=admin" > "$BASE_DIR/.env"
+        fi
+        chmod 600 "$BASE_DIR/.env" 2>/dev/null || true
+    fi
+
     # 0. SSH Daemon
     if which sshd > /dev/null 2>&1; then
         if ! pgrep -x sshd > /dev/null 2>&1; then
