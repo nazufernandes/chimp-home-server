@@ -157,34 +157,24 @@ The automated script will:
 3. Set up the `~/server` directory and data storage paths.
 4. Configure Nginx reverse proxy routing.
 5. Install the custom ASCII login banner into `~/.bashrc`.
-6. **Optional Remote Access**: Independently configure Public Web Access (Ngrok) and/or Secure Remote SSH (Tailscale).
+6. **Public Remote Access**: Built-in global HTTPS web access and direct Remote SSH tunneling (powered by Ngrok, zero client software required).
 7. Start all server services in the background.
 
 ---
 
-## 🌐 Remote Access & Remote SSH Options
+## 🌐 Remote Access & Worldwide SSH
 
-Chimp Home Server treats **Public Web Hosting** and **Admin Remote SSH** as separate, modular capabilities during installation:
-
-```text
-  [1/2] Enable Public Web Access via Ngrok (share sites/files with anyone)? (y/N)
-  [2/2] Enable Secure Remote SSH via Tailscale (remote terminal for admin)? (y/N)
-```
-
-You can enable **both, either, or neither** depending on your needs:
+Chimp Home Server includes built-in global access for both web browsing and terminal management without requiring any client software or VPNs:
 
 | Capability | Powered By | URL / Connection | Who is it for? | Client Setup |
 | :--- | :--- | :--- | :--- | :--- |
 | **Local LAN (Default)** | Home Wi-Fi | `http://192.168.x.x:8080/` | Devices on your home network | None |
-| **Public Web Hosting** | Ngrok | `https://your-domain.ngrok-free.dev/` | Visitors worldwide via standard browser | **Zero** (no apps/VPNs) |
-| **Remote SSH & Admin** | Tailscale | `ssh -p 8022 u0_a223@100.x.y.z` | You (the server admin) | Tailscale app on your device |
+| **Public Web Hosting** | Ngrok HTTP | `https://your-domain.ngrok-free.dev/` | Visitors worldwide via standard browser | **Zero** (no apps/VPNs) |
+| **Remote SSH & Admin** | Ngrok TCP | `ssh u0_a223@<host> -p <port>` | You (server admin from anywhere) | **Zero** (standard PowerShell/terminal) |
 
-### 💡 Public Web vs. Tailscale SSH: How They Complement Each Other
-
-* **Public Web Access (Ngrok)** opens an authentic HTTPS URL to the public web. Anyone can browse your static websites (`/sites/`), download files, or view the dashboard without installing anything.
-* **Remote SSH (Tailscale)** creates an encrypted WireGuard mesh between your personal devices. It allows *you* to SSH into your phone's terminal (`ssh -p 8022 u0_a223@100.x.y.z`) from coffee shops or while traveling to inspect logs, run updates, and manage your server securely.
-* **Can you use both together?**  
-  **Yes!** Many users run Ngrok for their public-facing websites while using Tailscale as a private backchannel for SSH admin access. Tailscale is never required for public web visitors.
+### 💡 Public Web & Remote SSH Anywhere
+* **Public Web Access**: Opens a secure, permanent HTTPS URL. Anyone can access your static websites (`/sites/`), download files from ChimpDrive, or use ChimpDrop from any browser worldwide.
+* **Worldwide Remote SSH**: Opens an encrypted TCP tunnel directly to your Termux SSH daemon. You can SSH into your phone from any laptop, office computer, or terminal across the globe without installing any VPN or client app. Run `server-status` on the device anytime to see your live public SSH command.
 
 ---
 
@@ -234,7 +224,7 @@ server-logs
    * Keep the phone in a cool, ventilated area.
    * If possible, use a smart plug or hardware timer to maintain the battery charge between 30% and 80%.
 3. **Local Network Privacy**:
-   By default, all endpoints bind to your local Wi-Fi network. Do not port-forward port 8080 directly on your router without adding authentication. For secure access outside your house, use **Tailscale** or **Cloudflare Tunnel**.
+   By default, all endpoints bind to your local Wi-Fi network. Do not port-forward port 8080 directly on your router without adding authentication. For secure access outside your house, use the built-in **Ngrok Tunnels** or **Cloudflare Tunnel**.
 
 ---
 

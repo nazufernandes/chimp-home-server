@@ -41,6 +41,24 @@ check_port() {
     return $?
 }
 
+get_public_ssh() {
+    python -c "
+import urllib.request, json, sys
+for port in [4040, 4041, 4042]:
+    try:
+        with urllib.request.urlopen(f'http://127.0.0.1:{port}/api/tunnels', timeout=0.5) as r:
+            data = json.load(r)
+            for t in data.get('tunnels', []):
+                if t.get('proto') == 'tcp':
+                    url = t.get('public_url', '').replace('tcp://', '')
+                    host, p = url.split(':')
+                    print(f'ssh u0_a223@{host} -p {p}')
+                    sys.exit(0)
+    except Exception:
+        pass
+" 2>/dev/null
+}
+
 start_services() {
     echo "Starting Chimp Home Server services..."
 
@@ -80,10 +98,19 @@ start_services() {
             echo "[-] Unified Gateway already running (port 8080)"
         fi
 
+        # Monitor API (8090)
+        if ! check_port 8090; then
+            tmux new-window -t chimp:1 -n monitor 2>/dev/null || true
+            tmux send-keys -t chimp:monitor "while true; do python $BASE_DIR/monitor/monitor.py; sleep 2; done" C-m
+            echo "[✓] Monitor API started on http://${IP}:8080/api/status"
+        else
+            echo "[-] Monitor API already running (port 8090)"
+        fi
+
         # ChimpDrive (8081)
         if is_service_enabled "files"; then
             if ! check_port 8081; then
-                tmux new-window -t chimp:1 -n files 2>/dev/null || true
+                tmux new-window -t chimp:2 -n files 2>/dev/null || true
                 tmux send-keys -t chimp:files "while true; do python $BASE_DIR/files/app.py; sleep 2; done" C-m
                 echo "[✓] ChimpDrive started on http://${IP}:8080/files/"
             else
@@ -96,7 +123,7 @@ start_services() {
         # ChimpDrop (8082)
         if is_service_enabled "drop"; then
             if ! check_port 8082; then
-                tmux new-window -t chimp:2 -n drop 2>/dev/null || true
+                tmux new-window -t chimp:3 -n drop 2>/dev/null || true
                 tmux send-keys -t chimp:drop "while true; do python $BASE_DIR/drop/app.py; sleep 2; done" C-m
                 echo "[✓] ChimpDrop (Clipboard) started on http://${IP}:8080/drop/"
             else
@@ -109,7 +136,7 @@ start_services() {
         # ChimpCron (8083)
         if is_service_enabled "cron"; then
             if ! check_port 8083; then
-                tmux new-window -t chimp:3 -n cron 2>/dev/null || true
+                tmux new-window -t chimp:4 -n cron 2>/dev/null || true
                 tmux send-keys -t chimp:cron "while true; do python $BASE_DIR/cron/app.py; sleep 2; done" C-m
                 echo "[✓] ChimpCron started on http://${IP}:8080/cron/"
             else
@@ -117,15 +144,6 @@ start_services() {
             fi
         else
             echo "[-] ChimpCron disabled in Control Panel (skipping)"
-        fi
-
-        # Monitor API (8090)
-        if ! check_port 8090; then
-            tmux new-window -t chimp:4 -n monitor 2>/dev/null || true
-            tmux send-keys -t chimp:monitor "while true; do python $BASE_DIR/monitor/monitor.py; sleep 2; done" C-m
-            echo "[✓] Monitor API started on http://${IP}:8080/api/status"
-        else
-            echo "[-] Monitor API already running (port 8090)"
         fi
 
         # ChimpPix (8091)
@@ -141,20 +159,30 @@ start_services() {
             echo "[-] ChimpPix disabled in Control Panel (skipping)"
         fi
 
-        # Public Tunnel (Ngrok)
+        # Public Tunnels (Ngrok Web + SSH)
         if is_service_enabled "tunnel"; then
             TUNNEL_DOMAIN=""
             [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
             [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
 
+            # Web Tunnel (Port 8080)
             if [ -n "$TUNNEL_DOMAIN" ]; then
                 if ! check_port 4040; then
-                    tmux new-window -t chimp:6 -n ngrok 2>/dev/null || true
-                    tmux send-keys -t chimp:ngrok "while true; do termux-chroot $HOME/ngrok http --url=https://${TUNNEL_DOMAIN} 8080; sleep 5; done" C-m
-                    echo "[✓] Public Tunnel started on https://${TUNNEL_DOMAIN}"
+                    tmux new-window -t chimp:6 -n ngrok-web 2>/dev/null || true
+                    tmux send-keys -t chimp:ngrok-web "while true; do termux-chroot $HOME/ngrok http --url=https://${TUNNEL_DOMAIN} 8080; sleep 5; done" C-m
+                    echo "[✓] Public Web Tunnel started on https://${TUNNEL_DOMAIN}"
                 else
-                    echo "[-] Public Tunnel already running (https://${TUNNEL_DOMAIN})"
+                    echo "[-] Public Web Tunnel already running (https://${TUNNEL_DOMAIN})"
                 fi
+            fi
+
+            # Remote SSH Tunnel (Port 8022)
+            if ! check_port 4041; then
+                tmux new-window -t chimp:7 -n ngrok-ssh 2>/dev/null || true
+                tmux send-keys -t chimp:ngrok-ssh "while true; do termux-chroot $HOME/ngrok tcp 8022; sleep 5; done" C-m
+                echo "[✓] Public SSH Tunnel started"
+            else
+                echo "[-] Public SSH Tunnel already running"
             fi
         else
             echo "[-] Public Tunnel disabled in Control Panel (skipping)"
@@ -163,13 +191,17 @@ start_services() {
 
     echo ""
     echo "=========================================================="
-    echo "  🎉 All services active! Open in your browser:"
-    echo "  👉  Local LAN: http://${IP}:8080/"
+    echo "  🎉 All services active! Connect from anywhere:"
+    echo "  👉  Local LAN Web:  http://${IP}:8080/"
     TUNNEL_DOMAIN=""
     [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
     [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
     if [ -n "$TUNNEL_DOMAIN" ] && check_port 4040; then
-        echo "  👉  Internet:  https://${TUNNEL_DOMAIN}/"
+        echo "  👉  Internet Web:   https://${TUNNEL_DOMAIN}/"
+    fi
+    SSH_CMD=$(get_public_ssh)
+    if [ -n "$SSH_CMD" ]; then
+        echo "  👉  Remote SSH:     $SSH_CMD"
     fi
     echo "=========================================================="
 }
@@ -211,12 +243,20 @@ status_services() {
     echo -n "ChimpPix (8091):        "
     check_port 8091 && echo "RUNNING (Port 8091)" || echo "STOPPED"
 
-    echo -n "Public Tunnel (Ngrok):  "
+    echo -n "Public Web Tunnel:      "
     TUNNEL_DOMAIN=""
     [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
     [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
     if check_port 4040; then
-        echo "RUNNING (https://${TUNNEL_DOMAIN}/) (Port 4040)"
+        echo "RUNNING (https://${TUNNEL_DOMAIN}/)"
+    else
+        echo "STOPPED"
+    fi
+
+    echo -n "Public SSH Tunnel:      "
+    SSH_CMD=$(get_public_ssh)
+    if [ -n "$SSH_CMD" ]; then
+        echo "RUNNING ($SSH_CMD)"
     else
         echo "STOPPED"
     fi

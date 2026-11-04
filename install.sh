@@ -137,32 +137,6 @@ if [[ "$ENABLE_NGROK" =~ ^[Yy]$ ]]; then
     fi
 fi
 
-# 6b. Remote SSH & Private Admin Mesh (Tailscale)
-echo ""
-ENABLE_TAILSCALE="n"
-if [ -t 0 ]; then
-    read -r -p "  [2/2] Enable Secure Remote SSH via Tailscale (remote terminal for admin)? (y/N): " ENABLE_TAILSCALE
-fi
-
-if [[ "$ENABLE_TAILSCALE" =~ ^[Yy]$ ]]; then
-    echo ""
-    echo "  [*] Configuring Remote SSH via Tailscale..."
-    if which apt-get > /dev/null 2>&1; then
-        echo "  [-] Installing Tailscale via official repository..."
-        curl -fsSL https://tailscale.com/install.sh | sh
-        sudo tailscale up
-    else
-        echo ""
-        echo "  📱 On Android / Termux:"
-        echo "  1. Install the official Tailscale app from Google Play or F-Droid."
-        echo "  2. Sign in and toggle Connect to ON."
-        echo "  3. Your phone will receive an encrypted private IP (100.x.y.z)."
-        echo "     Access your server at: http://100.x.y.z:8080/"
-        echo "     SSH remotely via:      ssh -p 8022 u0_a223@100.x.y.z"
-        echo ""
-    fi
-fi
-
 # 7. Start Services
 echo ""
 echo "🚀 Starting all Chimp Home Server services..."
@@ -171,17 +145,13 @@ echo "🚀 Starting all Chimp Home Server services..."
 IP=$(ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "127.0.0.1")
 TUNNEL_DOMAIN=""
 [ -f "$CHIMP_DIR/data/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$CHIMP_DIR/data/tunnel.conf" | tr -d '\r\n')"
-TS_IP=$(ip -4 addr show tun0 2>/dev/null | grep -oP '(?<=inet\s)100\.\d+(\.\d+){2}' || which tailscale > /dev/null 2>&1 && tailscale ip -4 2>/dev/null || echo "")
 
 echo ""
 echo "=========================================================="
 echo "  🎉 Chimp Home Server is now fully installed and LIVE!"
-echo "  👉  Local LAN:   http://${IP}:8080/"
-if [ -n "$TUNNEL_DOMAIN" ] && pgrep -f "ngrok http" > /dev/null 2>&1; then
+echo "  👉  Local LAN:   http://${IP}:8080/ (SSH: ssh u0_a223@${IP} -p 8022)"
+if [ -n "$TUNNEL_DOMAIN" ]; then
     echo "  👉  Internet:    https://${TUNNEL_DOMAIN}/"
-fi
-if [ -n "$TS_IP" ]; then
-    echo "  👉  Tailscale:   http://${TS_IP}:8080/ (SSH: ssh -p 8022 ${TS_IP})"
 fi
 echo "=========================================================="
 echo ""
