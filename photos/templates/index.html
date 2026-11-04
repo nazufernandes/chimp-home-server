@@ -7,6 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+    (function() {
+        const theme = localStorage.getItem("chimp_theme") || "dark";
+        if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
+    })();
+</script>
 <style>
 :root {
     --bg: #06080f;
@@ -29,6 +35,31 @@
     --red-dim: rgba(248,113,113,0.12);
     --radius: 16px;
     --radius-sm: 10px;
+    --header-bg: rgba(6,8,15,0.85);
+    --glow-bg: radial-gradient(ellipse, rgba(167,139,250,0.05) 0%, transparent 70%);
+}
+
+[data-theme="light"] {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --card-hover: #f1f5f9;
+    --border: #e2e8f0;
+    --border-glow: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #64748b;
+    --accent: #7c3aed;
+    --accent-dim: rgba(124,58,237,0.1);
+    --accent-glow: rgba(124,58,237,0.22);
+    --green: #0d9488;
+    --green-dim: rgba(13,148,136,0.12);
+    --blue: #2563eb;
+    --blue-dim: rgba(37,99,235,0.1);
+    --red: #dc2626;
+    --red-dim: rgba(220,38,38,0.1);
+    --header-bg: rgba(255, 255, 255, 0.88);
+    --glow-bg: radial-gradient(ellipse, rgba(124,58,237,0.06) 0%, transparent 70%);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -36,6 +67,7 @@ body {
     color: var(--text);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
+    transition: background 0.25s, color 0.25s;
 }
 
 body::before {
@@ -46,9 +78,10 @@ body::before {
     transform: translateX(-50%);
     width: 800px;
     height: 600px;
-    background: radial-gradient(ellipse, rgba(167,139,250,0.05) 0%, transparent 70%);
+    background: var(--glow-bg);
     pointer-events: none;
     z-index: 0;
+    transition: background 0.3s;
 }
 
 /* === HEADER === */
@@ -58,8 +91,9 @@ body::before {
     z-index: 50;
     backdrop-filter: blur(20px) saturate(1.8);
     -webkit-backdrop-filter: blur(20px) saturate(1.8);
-    background: rgba(6,8,15,0.85);
+    background: var(--header-bg);
     border-bottom: 1px solid var(--border);
+    transition: background 0.25s, border-color 0.25s;
 }
 .header-inner {
     max-width: 1440px;
@@ -607,6 +641,9 @@ select:focus, .btn:focus { border-color: var(--accent); }
                 <div class="dot"></div>
                 <span id="headerCount">Loading...</span>
             </div>
+            <button class="nav-link" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode" style="cursor: pointer; background: transparent; border: 1px solid var(--border);">
+                <span id="themeIcon">☀️</span>
+            </button>
         </div>
     </div>
 </div>
@@ -974,6 +1011,34 @@ document.getElementById("upload").addEventListener("change", async event => {
     }
     event.target.value = "";
 });
+
+// Theme Management
+function initTheme() {
+    const saved = localStorage.getItem("chimp_theme") || "dark";
+    applyTheme(saved);
+}
+function applyTheme(theme) {
+    const icon = document.getElementById("themeIcon");
+    const btn = document.getElementById("themeToggleBtn");
+    if (theme === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+        if (icon) icon.textContent = "🌙";
+        if (btn) btn.title = "Switch to Dark Mode";
+    } else {
+        document.documentElement.removeAttribute("data-theme");
+        if (icon) icon.textContent = "☀️";
+        if (btn) btn.title = "Switch to Light Mode";
+    }
+    localStorage.setItem("chimp_theme", theme);
+}
+function toggleTheme() {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    applyTheme(isLight ? "dark" : "light");
+}
+window.addEventListener('storage', (e) => {
+    if (e.key === 'chimp_theme') applyTheme(e.newValue || 'dark');
+});
+initTheme();
 
 loadPhotos();
 </script>

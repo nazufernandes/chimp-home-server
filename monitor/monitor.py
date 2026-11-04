@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import re
 import socket
+import urllib.request
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 BASE_DIR = os.path.expanduser("~/server")
@@ -152,7 +153,60 @@ def get_tunnel_domain():
             pass
     return "holstered-meltingly-pablo.ngrok-free.dev"
 
+_last_ssh_check = 0
+_cached_ssh_res = None
+
+def get_public_ssh():
+    global _last_ssh_check, _cached_ssh_res
+    now = time.time()
+    if _cached_ssh_res is not None and (now - _last_ssh_check < 4.0):
+        return _cached_ssh_res
+
+    res = None
+    try:
+        user = run_cmd(["whoami"]).strip() or "u0_a223"
+    except Exception:
+        user = "u0_a223"
+
+    for port in (4040, 4041, 4042):
+        try:
+            req = urllib.request.Request(f"http://127.0.0.1:{port}/api/tunnels", headers={"User-Agent": "ChimpMonitor/1.0"})
+            with urllib.request.urlopen(req, timeout=0.5) as resp:
+                data = json.loads(resp.read().decode())
+                for t in data.get("tunnels", []):
+                    if t.get("proto") == "tcp":
+                        pub = t.get("public_url", "")
+                        clean = pub.replace("tcp://", "")
+                        if ":" in clean:
+                            host, p = clean.split(":")
+                            res = {
+                                "command": f"ssh {user}@{host} -p {p}",
+                                "host": host,
+                                "port": p,
+                                "user": user,
+                                "public_url": pub
+                            }
+                            break
+            if res:
+                break
+        except Exception:
+            pass
+
+    _cached_ssh_res = res
+    _last_ssh_check = now
+    return res
+
 def get_public_url():
+    for port in (4040, 4041, 4042):
+        try:
+            req = urllib.request.Request(f"http://127.0.0.1:{port}/api/tunnels", headers={"User-Agent": "ChimpMonitor/1.0"})
+            with urllib.request.urlopen(req, timeout=0.5) as resp:
+                data = json.loads(resp.read().decode())
+                for t in data.get("tunnels", []):
+                    if t.get("proto") == "https":
+                        return t.get("public_url")
+        except Exception:
+            pass
     if run_cmd(["pgrep", "-f", "ngrok http"]):
         return f"https://{get_tunnel_domain()}"
     return None
@@ -380,6 +434,7 @@ def get_metrics():
         "hostname": "chimp",
         "ip": get_ip(),
         "public_url": get_public_url(),
+        "public_ssh": get_public_ssh(),
         "cpu": uptime["load"],
         "memory": memory,
         "storage": get_storage(),
@@ -417,7 +472,11 @@ class MonitorHandler(BaseHTTPRequestHandler):
                 self.send_error(500, f"Monitoring error: {e}")
         elif path in ("/api/services", "/api/monitor/services"):
             try:
-                data = json.dumps({"services": get_services_catalog()}).encode()
+                data = json.dumps({
+                    "services": get_services_catalog(),
+                    "public_ssh": get_public_ssh(),
+                    "public_url": get_public_url()
+                }).encode()
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Cache-Control", "no-store")

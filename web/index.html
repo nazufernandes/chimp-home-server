@@ -7,6 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+    (function() {
+        // Default is dark mode
+        const theme = localStorage.getItem("chimp_theme") || "dark";
+        if (theme === "light") {
+            document.documentElement.setAttribute("data-theme", "light");
+        }
+    })();
+</script>
 <style>
 :root {
     --bg: #06080f;
@@ -16,13 +25,14 @@
     --border: #1e2a3a;
     --border-glow: #1a3a5c;
     --text: #e8ecf2;
-    --text-muted: #6b7d95;
-    --text-dim: #4a5568;
+    --text-muted: #8b9bb4;
+    --text-dim: #5c6b82;
     --accent: #22c997;
     --accent-dim: rgba(34,201,151,0.12);
     --accent-glow: rgba(34,201,151,0.25);
     --purple: #a78bfa;
     --purple-dim: rgba(167,139,250,0.12);
+    --purple-text: #c4b5fd;
     --blue: #60a5fa;
     --blue-dim: rgba(96,165,250,0.12);
     --orange: #f59e0b;
@@ -31,6 +41,66 @@
     --red-dim: rgba(248,113,113,0.12);
     --radius: 16px;
     --radius-sm: 10px;
+    --header-bg: rgba(6, 8, 15, 0.85);
+    --input-bg: #06080f;
+    --slider-bg: #21262d;
+    --slider-knob-active: #06080f;
+    --progress-track-bg: rgba(255,255,255,0.06);
+    --ctrl-card-bg: #0d1117;
+    --ctrl-footer-bg: rgba(0, 0, 0, 0.15);
+    --glow-bg: radial-gradient(ellipse, rgba(34,201,151,0.06) 0%, transparent 70%);
+    --card-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    --card-hover-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    --modal-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    --admin-card-border: rgba(167, 139, 250, 0.4);
+    --locked-row-bg: rgba(13, 17, 23, 0.4);
+    --locked-badge-bg: rgba(20, 24, 33, 0.95);
+    --locked-badge-text: #fca5a5;
+    --locked-badge-border: rgba(248, 113, 113, 0.5);
+    --toast-bg: #161b22;
+    --btn-accent-text: #06080f;
+}
+
+[data-theme="light"] {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --card-hover: #f1f5f9;
+    --border: #e2e8f0;
+    --border-glow: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --text-dim: #64748b;
+    --accent: #0d9488;
+    --accent-dim: rgba(13,148,136,0.12);
+    --accent-glow: rgba(13,148,136,0.22);
+    --purple: #7c3aed;
+    --purple-dim: rgba(124,58,237,0.1);
+    --purple-text: #6d28d9;
+    --blue: #2563eb;
+    --blue-dim: rgba(37,99,235,0.1);
+    --orange: #d97706;
+    --orange-dim: rgba(217,119,6,0.12);
+    --red: #dc2626;
+    --red-dim: rgba(220,38,38,0.1);
+    --header-bg: rgba(255, 255, 255, 0.88);
+    --input-bg: #f8fafc;
+    --slider-bg: #cbd5e1;
+    --slider-knob-active: #ffffff;
+    --progress-track-bg: rgba(0, 0, 0, 0.07);
+    --ctrl-card-bg: #ffffff;
+    --ctrl-footer-bg: rgba(0, 0, 0, 0.03);
+    --glow-bg: radial-gradient(ellipse, rgba(13,148,136,0.08) 0%, transparent 70%);
+    --card-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    --card-hover-shadow: 0 8px 24px rgba(15,23,42,0.08);
+    --modal-shadow: 0 20px 60px rgba(15,23,42,0.18);
+    --admin-card-border: rgba(124, 58, 237, 0.35);
+    --locked-row-bg: rgba(241, 245, 249, 0.6);
+    --locked-badge-bg: rgba(254, 242, 242, 0.96);
+    --locked-badge-text: #dc2626;
+    --locked-badge-border: rgba(239, 68, 68, 0.4);
+    --toast-bg: #ffffff;
+    --btn-accent-text: #ffffff;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -39,6 +109,7 @@ body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    transition: background 0.25s, color 0.25s;
 }
 
 body::before {
@@ -49,9 +120,10 @@ body::before {
     transform: translateX(-50%);
     width: 800px;
     height: 600px;
-    background: radial-gradient(ellipse, rgba(34,201,151,0.06) 0%, transparent 70%);
+    background: var(--glow-bg);
     pointer-events: none;
     z-index: 0;
+    transition: background 0.3s;
 }
 
 /* === HEADER === */
@@ -61,8 +133,34 @@ body::before {
     z-index: 50;
     backdrop-filter: blur(20px) saturate(1.8);
     -webkit-backdrop-filter: blur(20px) saturate(1.8);
-    background: rgba(6,8,15,0.75);
+    background: var(--header-bg);
     border-bottom: 1px solid var(--border);
+    transition: background 0.25s, border-color 0.25s;
+}
+
+.btn-theme {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--card-shadow);
+}
+.btn-theme:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(1.06);
+    background: var(--card-hover);
+}
+.btn-theme:active {
+    transform: scale(0.94);
 }
 .header-inner {
     max-width: 1280px;
@@ -274,7 +372,7 @@ body::before {
 
 .progress-track {
     height: 6px;
-    background: rgba(255,255,255,0.05);
+    background: var(--progress-track-bg);
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 10px;
@@ -452,12 +550,12 @@ body::before {
 }
 .ctrl-overlay.active { display: flex; }
 .ctrl-card {
-    background: #0d1117;
+    background: var(--ctrl-card-bg);
     border: 1px solid var(--border);
     border-radius: 16px;
     width: 100%;
     max-width: 620px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    box-shadow: var(--modal-shadow);
     overflow: hidden;
 }
 .ctrl-header {
@@ -496,7 +594,7 @@ body::before {
     transition: all 0.2s;
 }
 .ctrl-service-row.locked-service {
-    background: rgba(13, 17, 23, 0.4);
+    background: var(--locked-row-bg);
     border-style: dashed;
     border-color: rgba(248, 113, 113, 0.35);
     overflow: hidden;
@@ -513,9 +611,9 @@ body::before {
     right: 18px;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(20, 24, 33, 0.95);
-    border: 1px solid rgba(248, 113, 113, 0.5);
-    color: #fca5a5;
+    background: var(--locked-badge-bg);
+    border: 1px solid var(--locked-badge-border);
+    color: var(--locked-badge-text);
     padding: 6px 14px;
     border-radius: 8px;
     font-size: 11px;
@@ -523,7 +621,7 @@ body::before {
     display: flex;
     align-items: center;
     gap: 6px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
     z-index: 5;
     letter-spacing: 0.3px;
     cursor: pointer;
@@ -585,7 +683,7 @@ body::before {
     position: absolute;
     cursor: pointer;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #21262d;
+    background-color: var(--slider-bg);
     transition: .3s;
     border-radius: 20px;
     border: 1px solid var(--border);
@@ -602,12 +700,12 @@ body::before {
     border-radius: 50%;
 }
 input:checked + .slider {
-    background-color: #22c997;
-    border-color: #22c997;
+    background-color: var(--accent);
+    border-color: var(--accent);
 }
 input:checked + .slider:before {
     transform: translateX(16px);
-    background-color: #06080f;
+    background-color: var(--slider-knob-active);
 }
 .status-pill {
     font-size: 11px;
@@ -622,19 +720,19 @@ input:checked + .slider:before {
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: flex-end;
-    background: rgba(0,0,0,0.15);
+    background: var(--ctrl-footer-bg);
 }
 .toast {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    background: #161b22;
+    background: var(--toast-bg);
     border: 1px solid var(--border);
     color: var(--text);
     padding: 10px 16px;
     border-radius: 8px;
     font-size: 13px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     display: none;
     align-items: center;
     gap: 8px;
@@ -680,6 +778,9 @@ input:checked + .slider:before {
                 <div class="status-pulse" id="statusPulse"></div>
                 <span id="connectionStatus">Connecting...</span>
             </div>
+            <button class="btn-theme" id="themeToggleBtn" onclick="toggleTheme()" title="Switch to Light Mode" aria-label="Toggle Theme">
+                <span id="themeIcon">☀️</span>
+            </button>
         </div>
     </div>
 </div>
@@ -849,7 +950,7 @@ input:checked + .slider:before {
             <form id="adminAuthForm" onsubmit="handleAdminAuth(event)">
                 <div style="margin-bottom: 18px; text-align: left;">
                     <input type="password" id="adminPasswordInput" placeholder="Enter admin password..." autocomplete="current-password" required
-                        style="width: 100%; padding: 11px 14px; background: #06080f; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; outline: none; transition: all 0.2s;"
+                        style="width: 100%; padding: 11px 14px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; outline: none; transition: all 0.2s;"
                         onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
                     <div id="adminAuthError" style="display: none; color: #f87171; font-size: 12px; margin-top: 8px; font-weight: 500; text-align: center;">
                         ❌ Invalid admin password
@@ -857,7 +958,7 @@ input:checked + .slider:before {
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button type="button" class="btn-ctrl" onclick="closeAdminAuthModal()">Cancel</button>
-                    <button type="submit" id="adminAuthSubmitBtn" class="btn-ctrl" style="background: var(--accent); color: #06080f; font-weight: 700; border-color: var(--accent);">Unlock Console</button>
+                    <button type="submit" id="adminAuthSubmitBtn" class="btn-ctrl" style="background: var(--accent); color: var(--btn-accent-text); font-weight: 700; border-color: var(--accent);">Unlock Console</button>
                 </div>
             </form>
         </div>
@@ -866,10 +967,10 @@ input:checked + .slider:before {
 
 <!-- Admin Service Control Panel Modal -->
 <div class="ctrl-overlay" id="adminModal">
-    <div class="ctrl-card" style="max-width: 680px; border-color: rgba(167, 139, 250, 0.4); box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(167,139,250,0.15);">
+    <div class="ctrl-card" style="max-width: 680px; border-color: var(--admin-card-border); box-shadow: var(--modal-shadow);">
         <div class="ctrl-header" style="background: linear-gradient(90deg, rgba(167, 139, 250, 0.12) 0%, transparent 100%);">
-            <div class="ctrl-title" style="color: #c4b5fd;">
-                <span>👑</span> Admin Master Control Panel
+            <div class="ctrl-title" style="color: var(--purple-text);">
+                Admin Control Panel
             </div>
             <div style="display: flex; gap: 8px;">
                 <button class="btn-ctrl" style="padding: 4px 10px; font-size: 11px; background: rgba(248,113,113,0.15); color: #f87171; border-color: rgba(248,113,113,0.3);" onclick="adminLogout()" title="Lock Admin Panel">🔒 Lock</button>
@@ -878,13 +979,64 @@ input:checked + .slider:before {
         </div>
         <div style="padding: 12px 24px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span>Master daemon control. Disabling a service terminates its process and locks it in the standard user panel.</span>
-            <span style="font-family: monospace; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">SESSION: AUTHENTICATED</span>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button class="btn-ctrl" onclick="openSshModal()" style="padding: 3px 10px; font-size: 11px; background: rgba(34,201,151,0.12); color: var(--accent); border-color: rgba(34,201,151,0.3); font-weight: 600; display: inline-flex; align-items: center; gap: 5px;" title="Open Remote SSH Command">
+                    <span>⚡</span> SSH Connect
+                </button>
+                <span style="font-family: monospace; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">SESSION: AUTHENTICATED</span>
+            </div>
         </div>
+
         <div class="ctrl-body" id="adminServicesList">
             <!-- Dynamically populated -->
         </div>
         <div class="ctrl-footer">
             <button class="btn-ctrl" onclick="closeAdminModal()">Done</button>
+        </div>
+    </div>
+</div>
+
+<!-- SSH Connect Modal -->
+<div class="ctrl-overlay" id="sshModal" onclick="if(event.target===this)closeSshModal()" style="z-index: 1100;">
+    <div class="ctrl-card" style="max-width: 560px; box-shadow: var(--modal-shadow); border-color: var(--border);">
+        <div class="ctrl-header" style="background: linear-gradient(90deg, rgba(34, 201, 151, 0.12) 0%, transparent 100%);">
+            <div class="ctrl-title" style="color: var(--accent); display: flex; align-items: center; gap: 8px;">
+                <span>⚡</span> Remote SSH Command
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="sshModalBadge" class="status-pill online" style="font-size: 11px; padding: 3px 8px;">Live Tunnel</span>
+                <button class="btn-ctrl" style="padding: 4px 8px;" onclick="closeSshModal()">✕</button>
+            </div>
+        </div>
+
+        <div style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="font-size: 13px; color: var(--text-dim); line-height: 1.5;">
+                Global terminal access to this device over encrypted ngrok TCP bridge
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim);">SSH Command</span>
+                    <button class="btn-ctrl" id="sshModalCopyBtn" onclick="copyAdminSsh()" style="padding: 5px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; background: rgba(34,201,151,0.15); color: var(--accent); border-color: rgba(34,201,151,0.35);" title="Copy SSH command">
+                        <span id="sshModalCopyIcon">📋</span>
+                        <span id="sshModalCopyText">Copy</span>
+                    </button>
+                </div>
+
+                <div onclick="copyAdminSsh()" title="Click to copy command" style="cursor: pointer; position: relative; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-family: 'JetBrains Mono', 'Courier New', monospace; font-size: 13px; display: flex; align-items: center; gap: 10px; overflow-x: auto; white-space: nowrap; transition: border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+                    <span style="color: var(--text-dim); user-select: none;">$</span>
+                    <code id="sshModalCmd" style="color: var(--accent); font-weight: 600; letter-spacing: 0.3px; user-select: all;">Fetching active tunnel...</code>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-dim); padding-top: 8px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 6px;">
+                <span>User: <code style="color: var(--text); font-weight: 600;">u0_a223</code> &middot; Port: 8022</span>
+                <span id="sshModalMeta" style="font-family: monospace;">Host: -- &middot; Port: --</span>
+            </div>
+        </div>
+
+        <div class="ctrl-footer" style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button class="btn-ctrl" onclick="closeSshModal()">Close</button>
         </div>
     </div>
 </div>
@@ -953,6 +1105,9 @@ async function fetchServices() {
         if (!res.ok) return;
         const data = await res.json();
         servicesList = data.services || [];
+        if (data.public_ssh !== undefined) {
+            updateAdminSsh(data.public_ssh);
+        }
         renderDashboardServices(servicesList);
         renderControlPanel(servicesList);
         const adminMod = document.getElementById("adminModal");
@@ -1126,11 +1281,13 @@ function closeAdminAuthModal() {
 }
 
 function closeAdminModal() {
+    closeSshModal();
     document.getElementById("adminModal").classList.remove("active");
 }
 
 function adminLogout() {
     sessionStorage.removeItem("chimp_admin_pass");
+    closeSshModal();
     closeAdminModal();
     showToast("Admin console locked 🔒");
 }
@@ -1156,7 +1313,7 @@ async function handleAdminAuth(event) {
             sessionStorage.setItem("chimp_admin_pass", pass);
             closeAdminAuthModal();
             showAdminPanel();
-            showToast("Admin Console Unlocked! 👑");
+            showToast("Admin Console Unlocked! 🔒");
         } else {
             errEl.textContent = "❌ " + (data.error || "Invalid password");
             errEl.style.display = "block";
@@ -1169,6 +1326,103 @@ async function handleAdminAuth(event) {
         btn.disabled = false;
         btn.textContent = "Unlock Console";
     }
+}
+
+let currentAdminSsh = "";
+let cachedSshData = null;
+
+function openSshModal() {
+    const modal = document.getElementById("sshModal");
+    if (!modal) return;
+    modal.classList.add("active");
+    if (cachedSshData) updateAdminSsh(cachedSshData);
+}
+
+function closeSshModal() {
+    const modal = document.getElementById("sshModal");
+    if (modal) modal.classList.remove("active");
+}
+
+function updateAdminSsh(sshData) {
+    if (sshData) cachedSshData = sshData;
+    const cmdEl = document.getElementById("sshModalCmd");
+    const badge = document.getElementById("sshModalBadge");
+    const meta = document.getElementById("sshModalMeta");
+    const copyBtn = document.getElementById("sshModalCopyBtn");
+    if (!cmdEl) return;
+
+    if (sshData && sshData.command) {
+        currentAdminSsh = sshData.command;
+        cmdEl.textContent = sshData.command;
+        cmdEl.style.color = "var(--accent)";
+        if (badge) {
+            badge.className = "status-pill online";
+            badge.textContent = "Live Tunnel";
+        }
+        if (meta) {
+            meta.textContent = `Host: ${sshData.host} · Port: ${sshData.port}`;
+        }
+        if (copyBtn) copyBtn.disabled = false;
+    } else if (typeof sshData === "string" && sshData.startsWith("ssh ")) {
+        currentAdminSsh = sshData;
+        cmdEl.textContent = sshData;
+        cmdEl.style.color = "var(--accent)";
+        if (badge) {
+            badge.className = "status-pill online";
+            badge.textContent = "Live Tunnel";
+        }
+        if (copyBtn) copyBtn.disabled = false;
+    } else {
+        currentAdminSsh = "";
+        cmdEl.textContent = "ngrok tcp tunnel inactive (run 'termux-chroot ngrok tcp 8022')";
+        cmdEl.style.color = "var(--text-dim)";
+        if (badge) {
+            badge.className = "status-pill offline";
+            badge.textContent = "Tunnel Inactive";
+        }
+        if (meta) {
+            meta.textContent = "Target: 8022 (Local Only)";
+        }
+        if (copyBtn) copyBtn.disabled = true;
+    }
+}
+
+function copyAdminSsh() {
+    if (!currentAdminSsh) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentAdminSsh).then(() => {
+            showToast("Remote SSH command copied! 📋");
+            const btnText = document.getElementById("sshModalCopyText");
+            const btnIcon = document.getElementById("sshModalCopyIcon");
+            if (btnText) btnText.textContent = "Copied!";
+            if (btnIcon) btnIcon.textContent = "✅";
+            setTimeout(() => {
+                if (btnText) btnText.textContent = "Copy";
+                if (btnIcon) btnIcon.textContent = "📋";
+            }, 2000);
+        }).catch(() => {
+            fallbackCopy(currentAdminSsh);
+        });
+    } else {
+        fallbackCopy(currentAdminSsh);
+    }
+}
+
+function fallbackCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+        document.execCommand("copy");
+        showToast("Remote SSH command copied! 📋");
+    } catch (e) {
+        prompt("Copy Remote SSH Command:", text);
+    }
+    document.body.removeChild(ta);
 }
 
 function renderAdminControlPanel(services) {
@@ -1258,6 +1512,39 @@ function showToast(msg, type = "success") {
     setTimeout(() => t.classList.remove("show"), 2500);
 }
 
+/* Theme Management (Dark Mode by Default) */
+function initTheme() {
+    const saved = localStorage.getItem("chimp_theme") || "dark";
+    applyTheme(saved, false);
+}
+
+function applyTheme(theme, notify = false) {
+    const icon = document.getElementById("themeIcon");
+    const btn = document.getElementById("themeToggleBtn");
+    if (theme === "light") {
+        document.documentElement.setAttribute("data-theme", "light");
+        if (icon) icon.textContent = "🌙";
+        if (btn) btn.title = "Switch to Dark Mode";
+    } else {
+        document.documentElement.removeAttribute("data-theme");
+        if (icon) icon.textContent = "☀️";
+        if (btn) btn.title = "Switch to Light Mode";
+    }
+    localStorage.setItem("chimp_theme", theme);
+    if (notify) {
+        showToast(`Switched to ${theme === "light" ? "Light" : "Dark"} Mode`, "info");
+    }
+}
+
+function toggleTheme() {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    applyTheme(isLight ? "dark" : "light", true);
+}
+
+window.addEventListener('storage', (e) => {
+    if (e.key === 'chimp_theme') applyTheme(e.newValue || 'dark');
+});
+
 async function refresh() {
     try {
         const response = await fetch(API, { cache: "no-store" });
@@ -1333,6 +1620,11 @@ async function refresh() {
             if (netDetail) netDetail.textContent = "WiFi Interface (wlan0)";
         }
 
+        // Dynamic Remote SSH String
+        if (d.public_ssh !== undefined) {
+            updateAdminSsh(d.public_ssh);
+        }
+
         // Clock
         const timeStr = new Date().toLocaleTimeString();
         document.getElementById("updated").textContent = timeStr;
@@ -1345,6 +1637,7 @@ async function refresh() {
 }
 
 // Initial loads
+initTheme();
 refresh();
 fetchServices();
 setInterval(refresh, 3000);

@@ -8,6 +8,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        (function() {
+            const theme = localStorage.getItem("chimp_theme") || "dark";
+            if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
+        })();
+    </script>
     <style>
         :root {
             --bg: #06080f;
@@ -27,6 +33,26 @@
             --purple-dim: rgba(167,139,250,0.12);
             --red: #f87171;
             --radius: 14px;
+            --navbar-bg: rgba(13, 17, 23, 0.85);
+        }
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --card: #ffffff;
+            --card-hover: #f1f5f9;
+            --border: #e2e8f0;
+            --border-glow: #cbd5e1;
+            --text: #0f172a;
+            --text-muted: #475569;
+            --accent: #0d9488;
+            --accent-dim: rgba(13,148,136,0.12);
+            --accent-glow: rgba(13,148,136,0.22);
+            --blue: #2563eb;
+            --blue-dim: rgba(37,99,235,0.1);
+            --purple: #7c3aed;
+            --purple-dim: rgba(124,58,237,0.1);
+            --red: #dc2626;
+            --navbar-bg: rgba(255, 255, 255, 0.88);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -37,7 +63,7 @@
             padding-bottom: 60px;
         }
         .navbar {
-            background: rgba(13, 17, 23, 0.85);
+            background: var(--navbar-bg, rgba(13, 17, 23, 0.85));
             backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
             padding: 14px 24px;
@@ -47,6 +73,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            transition: background 0.25s, border-color 0.25s;
         }
         .brand {
             display: flex;
@@ -371,9 +398,12 @@
             <span style="font-size: 0.75rem; background: var(--accent-dim); color: var(--accent); padding: 2px 8px; border-radius: 12px; margin-left: 4px;">LAN</span>
         </a>
         <div class="nav-links">
-            <a href="http://192.168.1.13:8080" class="nav-btn">🏠 Dashboard</a>
-            <a href="http://192.168.1.13:8081" class="nav-btn">📁 Files</a>
-            <a href="http://192.168.1.13:8091" class="nav-btn">📷 Photos</a>
+            <a href="/" class="nav-btn">🏠 Dashboard</a>
+            <a href="/files/" class="nav-btn">📁 Files</a>
+            <a href="/photos/" class="nav-btn">📷 Photos</a>
+            <button class="nav-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode" style="cursor: pointer;">
+                <span id="themeIcon">☀️</span>
+            </button>
         </div>
     </nav>
 
@@ -706,6 +736,34 @@
                 e.target.value = '';
             }
         });
+
+        // Theme Management
+        function initTheme() {
+            const saved = localStorage.getItem("chimp_theme") || "dark";
+            applyTheme(saved);
+        }
+        function applyTheme(theme) {
+            const icon = document.getElementById("themeIcon");
+            const btn = document.getElementById("themeToggleBtn");
+            if (theme === "light") {
+                document.documentElement.setAttribute("data-theme", "light");
+                if (icon) icon.textContent = "🌙";
+                if (btn) btn.title = "Switch to Dark Mode";
+            } else {
+                document.documentElement.removeAttribute("data-theme");
+                if (icon) icon.textContent = "☀️";
+                if (btn) btn.title = "Switch to Light Mode";
+            }
+            localStorage.setItem("chimp_theme", theme);
+        }
+        function toggleTheme() {
+            const isLight = document.documentElement.getAttribute("data-theme") === "light";
+            applyTheme(isLight ? "dark" : "light");
+        }
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'chimp_theme') applyTheme(e.newValue || 'dark');
+        });
+        initTheme();
 
         // Initialize & Poll every 3 seconds for real-time live sync
         fetchClips();
