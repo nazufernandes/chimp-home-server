@@ -9,10 +9,8 @@ DATA_DIR="$BASE_DIR/data"
 
 mkdir -p "$LOG_DIR" "$DATA_DIR/drop/files" "$DATA_DIR/photos" "$DATA_DIR/shared" "$DATA_DIR/cron" "$DATA_DIR/sites"
 
-# Keep device awake if running inside Termux
-if which termux-wake-lock > /dev/null 2>&1; then
-    termux-wake-lock
-fi
+# Keep device awake if running inside Termux foreground session
+# (Do not call termux-wake-lock automatically over SSH as Android kills background callers)
 
 # Detect local IP
 IP=$(ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "127.0.0.1")
@@ -39,9 +37,6 @@ sys.exit(0)
 
 start_services() {
     echo "Starting Chimp Home Server services..."
-
-    # Ensure wake lock is active
-    which termux-wake-lock > /dev/null 2>&1 && termux-wake-lock
 
     # 0. SSH Daemon
     if which sshd > /dev/null 2>&1; then
@@ -76,7 +71,7 @@ start_services() {
     # 2. ChimpDrive - Cloud Storage & Explorer (port 8081 - Flask)
     if is_service_enabled "files"; then
         if ! pgrep -f "files/app.py" > /dev/null; then
-            nohup python "$BASE_DIR/files/app.py" > "$LOG_DIR/files.log" 2>&1 &
+            nohup python "$BASE_DIR/files/app.py" > "$LOG_DIR/files.log" 2>&1 & disown
             echo "[✓] ChimpDrive started on http://${IP}:8080/files/ (PID $!)"
         else
             echo "[-] ChimpDrive already running"
@@ -88,7 +83,7 @@ start_services() {
     # 3. ChimpDrop - Universal Clipboard (port 8082 - Flask)
     if is_service_enabled "drop"; then
         if ! pgrep -f "drop/app.py" > /dev/null; then
-            nohup python "$BASE_DIR/drop/app.py" > "$LOG_DIR/drop.log" 2>&1 &
+            nohup python "$BASE_DIR/drop/app.py" > "$LOG_DIR/drop.log" 2>&1 & disown
             echo "[✓] ChimpDrop (Clipboard) started on http://${IP}:8080/drop/ (PID $!)"
         else
             echo "[-] ChimpDrop already running"
@@ -99,7 +94,7 @@ start_services() {
 
     # 4. Hardware Telemetry Monitor (port 8090)
     if ! pgrep -f "monitor/monitor.py" > /dev/null; then
-        nohup python "$BASE_DIR/monitor/monitor.py" > "$LOG_DIR/monitor.log" 2>&1 &
+        nohup python "$BASE_DIR/monitor/monitor.py" > "$LOG_DIR/monitor.log" 2>&1 & disown
         echo "[✓] Monitor API started on http://${IP}:8080/api/status (PID $!)"
     else
         echo "[-] Monitor API already running"
@@ -108,7 +103,7 @@ start_services() {
     # 5. ChimpPix - Photo Library & EXIF Gallery (port 8091)
     if is_service_enabled "photos"; then
         if ! pgrep -f "photos/app.py" > /dev/null; then
-            nohup python "$BASE_DIR/photos/app.py" > "$LOG_DIR/photos.log" 2>&1 &
+            nohup python "$BASE_DIR/photos/app.py" > "$LOG_DIR/photos.log" 2>&1 & disown
             echo "[✓] ChimpPix started on http://${IP}:8080/photos/ (PID $!)"
         else
             echo "[-] ChimpPix already running"
@@ -120,7 +115,7 @@ start_services() {
     # 6. ChimpCron - Scheduled Automation (port 8083)
     if is_service_enabled "cron"; then
         if ! pgrep -f "cron/app.py" > /dev/null; then
-            nohup python "$BASE_DIR/cron/app.py" > "$LOG_DIR/cron.log" 2>&1 &
+            nohup python "$BASE_DIR/cron/app.py" > "$LOG_DIR/cron.log" 2>&1 & disown
             echo "[✓] ChimpCron started on http://${IP}:8080/cron/ (PID $!)"
         else
             echo "[-] ChimpCron already running"
@@ -147,14 +142,7 @@ start_services() {
 
         if [ -n "$NGROK_BIN" ] && [ -n "$TUNNEL_DOMAIN" ]; then
             if ! pgrep -f "ngrok http" > /dev/null; then
-                # Prefer native direct execution to avoid PRoot/termux-chroot ptrace overhead & LMK kills
-                if "$NGROK_BIN" version > /dev/null 2>&1; then
-                    nohup "$NGROK_BIN" http --url="https://${TUNNEL_DOMAIN}" 8080 > "$LOG_DIR/ngrok.log" 2>&1 &
-                elif which termux-chroot > /dev/null 2>&1; then
-                    nohup termux-chroot "$NGROK_BIN" http --url="https://${TUNNEL_DOMAIN}" 8080 > "$LOG_DIR/ngrok.log" 2>&1 &
-                else
-                    nohup "$NGROK_BIN" http --url="https://${TUNNEL_DOMAIN}" 8080 > "$LOG_DIR/ngrok.log" 2>&1 &
-                fi
+                nohup termux-chroot "$NGROK_BIN" http --url="https://${TUNNEL_DOMAIN}" 8080 > "$LOG_DIR/ngrok.log" 2>&1 & disown
                 echo "[✓] Public Tunnel started on https://${TUNNEL_DOMAIN} (PID $!)"
             else
                 echo "[-] Public Tunnel already running (https://${TUNNEL_DOMAIN})"
