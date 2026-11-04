@@ -200,11 +200,16 @@ def is_job_due(job, now_dt):
         return False
 
     sched_type = job.get("schedule_type", "interval")
+    if sched_type in ("manual", "ondemand") or job.get("schedule_label") == "On Demand":
+        return False
+
     now_ts = now_dt.timestamp()
     last_run_ts = job.get("last_run_timestamp", 0)
 
     if sched_type == "interval":
         interval_secs = int(job.get("schedule_value", 3600))
+        if not last_run_ts:
+            return False
         return (now_ts - last_run_ts) >= interval_secs
 
     elif sched_type == "daily":

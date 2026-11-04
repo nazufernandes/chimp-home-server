@@ -9,8 +9,8 @@ DATA_DIR="$BASE_DIR/data"
 
 mkdir -p "$LOG_DIR" "$DATA_DIR/drop/files" "$DATA_DIR/photos" "$DATA_DIR/shared" "$DATA_DIR/cron" "$DATA_DIR/sites"
 
-# Keep device awake if running inside Termux foreground session
-# (Do not call termux-wake-lock automatically over SSH as Android kills background callers)
+# Keep device awake in Termux
+termux-wake-lock 2>/dev/null || true
 
 # Detect local IP
 IP=$(ip -4 addr show wlan0 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}' || hostname -I 2>/dev/null | awk '{print $1}' || echo "127.0.0.1")
@@ -35,6 +35,12 @@ sys.exit(0)
     return $?
 }
 
+check_port() {
+    local port="$1"
+    python -c "import socket, sys; s=socket.socket(); s.settimeout(0.5); sys.exit(s.connect_ex(('127.0.0.1', $port)))" 2>/dev/null
+    return $?
+}
+
 start_services() {
     echo "Starting Chimp Home Server services..."
 
@@ -48,8 +54,7 @@ start_services() {
         fi
     fi
 
-    # 1. Gateway & Dashboard (port 8080 - Nginx)
-    pkill -9 -f "http.server 8080" 2>/dev/null || true
+    # 1. Update Nginx configuration
     NGINX_TARGET=""
     if [ -d "/data/data/com.termux/files/usr/etc/nginx" ]; then
         NGINX_TARGET="/data/data/com.termux/files/usr/etc/nginx/nginx.conf"
@@ -60,96 +65,100 @@ start_services() {
         sed "s|__CHIMP_ROOT__|$BASE_DIR|g" "$BASE_DIR/config/nginx.conf" > "$NGINX_TARGET"
     fi
 
-    if ! pgrep -f "nginx" > /dev/null; then
-        nginx > "$LOG_DIR/gateway.log" 2>&1
-        echo "[✓] Unified Gateway & Dashboard started on http://${IP}:8080/ (Nginx)"
-    else
-        nginx -s reload 2>/dev/null || true
-        echo "[✓] Unified Gateway reloaded (Nginx)"
-    fi
+    # 2. TMUX Orchestration
+    # Using tmux ensures services survive SSH disconnects and MIUI battery manager process reaping
+    if which tmux > /dev/null 2>&1; then
+        if ! tmux has-session -t chimp 2>/dev/null; then
+            tmux new-session -d -s chimp -n gateway
+        fi
 
-    # 2. ChimpDrive - Cloud Storage & Explorer (port 8081 - Flask)
-    if is_service_enabled "files"; then
-        if ! pgrep -f "files/app.py" > /dev/null; then
-            nohup python "$BASE_DIR/files/app.py" > "$LOG_DIR/files.log" 2>&1 & disown
-            echo "[✓] ChimpDrive started on http://${IP}:8080/files/ (PID $!)"
+        # Gateway (8080 - Nginx)
+        if ! check_port 8080; then
+            tmux send-keys -t chimp:gateway "while true; do nginx -g 'daemon off;'; sleep 2; done" C-m
+            echo "[✓] Unified Gateway & Dashboard started on http://${IP}:8080/ (Nginx)"
         else
-            echo "[-] ChimpDrive already running"
-        fi
-    else
-        echo "[-] ChimpDrive disabled in Control Panel (skipping)"
-    fi
-
-    # 3. ChimpDrop - Universal Clipboard (port 8082 - Flask)
-    if is_service_enabled "drop"; then
-        if ! pgrep -f "drop/app.py" > /dev/null; then
-            nohup python "$BASE_DIR/drop/app.py" > "$LOG_DIR/drop.log" 2>&1 & disown
-            echo "[✓] ChimpDrop (Clipboard) started on http://${IP}:8080/drop/ (PID $!)"
-        else
-            echo "[-] ChimpDrop already running"
-        fi
-    else
-        echo "[-] ChimpDrop disabled in Control Panel (skipping)"
-    fi
-
-    # 4. Hardware Telemetry Monitor (port 8090)
-    if ! pgrep -f "monitor/monitor.py" > /dev/null; then
-        nohup python "$BASE_DIR/monitor/monitor.py" > "$LOG_DIR/monitor.log" 2>&1 & disown
-        echo "[✓] Monitor API started on http://${IP}:8080/api/status (PID $!)"
-    else
-        echo "[-] Monitor API already running"
-    fi
-
-    # 5. ChimpPix - Photo Library & EXIF Gallery (port 8091)
-    if is_service_enabled "photos"; then
-        if ! pgrep -f "photos/app.py" > /dev/null; then
-            nohup python "$BASE_DIR/photos/app.py" > "$LOG_DIR/photos.log" 2>&1 & disown
-            echo "[✓] ChimpPix started on http://${IP}:8080/photos/ (PID $!)"
-        else
-            echo "[-] ChimpPix already running"
-        fi
-    else
-        echo "[-] ChimpPix disabled in Control Panel (skipping)"
-    fi
-
-    # 6. ChimpCron - Scheduled Automation (port 8083)
-    if is_service_enabled "cron"; then
-        if ! pgrep -f "cron/app.py" > /dev/null; then
-            nohup python "$BASE_DIR/cron/app.py" > "$LOG_DIR/cron.log" 2>&1 & disown
-            echo "[✓] ChimpCron started on http://${IP}:8080/cron/ (PID $!)"
-        else
-            echo "[-] ChimpCron already running"
-        fi
-    else
-        echo "[-] ChimpCron disabled in Control Panel (skipping)"
-    fi
-
-    # 7. Permanent Public Internet Tunnel (Ngrok)
-    if is_service_enabled "tunnel"; then
-        NGROK_BIN=""
-        if [ -x "$HOME/ngrok" ]; then
-            NGROK_BIN="$HOME/ngrok"
-        elif which ngrok > /dev/null 2>&1; then
-            NGROK_BIN="$(which ngrok)"
+            echo "[-] Unified Gateway already running (port 8080)"
         fi
 
-        TUNNEL_DOMAIN=""
-        if [ -f "$DATA_DIR/tunnel.conf" ]; then
-            TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
-        elif [ -f "$BASE_DIR/config/tunnel.conf" ]; then
-            TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
-        fi
-
-        if [ -n "$NGROK_BIN" ] && [ -n "$TUNNEL_DOMAIN" ]; then
-            if ! pgrep -f "ngrok http" > /dev/null; then
-                nohup termux-chroot "$NGROK_BIN" http --url="https://${TUNNEL_DOMAIN}" 8080 > "$LOG_DIR/ngrok.log" 2>&1 & disown
-                echo "[✓] Public Tunnel started on https://${TUNNEL_DOMAIN} (PID $!)"
+        # ChimpDrive (8081)
+        if is_service_enabled "files"; then
+            if ! check_port 8081; then
+                tmux new-window -t chimp:1 -n files 2>/dev/null || true
+                tmux send-keys -t chimp:files "while true; do python $BASE_DIR/files/app.py; sleep 2; done" C-m
+                echo "[✓] ChimpDrive started on http://${IP}:8080/files/"
             else
-                echo "[-] Public Tunnel already running (https://${TUNNEL_DOMAIN})"
+                echo "[-] ChimpDrive already running (port 8081)"
             fi
+        else
+            echo "[-] ChimpDrive disabled in Control Panel (skipping)"
         fi
-    else
-        echo "[-] Public Tunnel disabled in Control Panel (skipping)"
+
+        # ChimpDrop (8082)
+        if is_service_enabled "drop"; then
+            if ! check_port 8082; then
+                tmux new-window -t chimp:2 -n drop 2>/dev/null || true
+                tmux send-keys -t chimp:drop "while true; do python $BASE_DIR/drop/app.py; sleep 2; done" C-m
+                echo "[✓] ChimpDrop (Clipboard) started on http://${IP}:8080/drop/"
+            else
+                echo "[-] ChimpDrop already running (port 8082)"
+            fi
+        else
+            echo "[-] ChimpDrop disabled in Control Panel (skipping)"
+        fi
+
+        # ChimpCron (8083)
+        if is_service_enabled "cron"; then
+            if ! check_port 8083; then
+                tmux new-window -t chimp:3 -n cron 2>/dev/null || true
+                tmux send-keys -t chimp:cron "while true; do python $BASE_DIR/cron/app.py; sleep 2; done" C-m
+                echo "[✓] ChimpCron started on http://${IP}:8080/cron/"
+            else
+                echo "[-] ChimpCron already running (port 8083)"
+            fi
+        else
+            echo "[-] ChimpCron disabled in Control Panel (skipping)"
+        fi
+
+        # Monitor API (8090)
+        if ! check_port 8090; then
+            tmux new-window -t chimp:4 -n monitor 2>/dev/null || true
+            tmux send-keys -t chimp:monitor "while true; do python $BASE_DIR/monitor/monitor.py; sleep 2; done" C-m
+            echo "[✓] Monitor API started on http://${IP}:8080/api/status"
+        else
+            echo "[-] Monitor API already running (port 8090)"
+        fi
+
+        # ChimpPix (8091)
+        if is_service_enabled "photos"; then
+            if ! check_port 8091; then
+                tmux new-window -t chimp:5 -n photos 2>/dev/null || true
+                tmux send-keys -t chimp:photos "while true; do python $BASE_DIR/photos/app.py; sleep 2; done" C-m
+                echo "[✓] ChimpPix started on http://${IP}:8080/photos/"
+            else
+                echo "[-] ChimpPix already running (port 8091)"
+            fi
+        else
+            echo "[-] ChimpPix disabled in Control Panel (skipping)"
+        fi
+
+        # Public Tunnel (Ngrok)
+        if is_service_enabled "tunnel"; then
+            TUNNEL_DOMAIN=""
+            [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
+            [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
+
+            if [ -n "$TUNNEL_DOMAIN" ]; then
+                if ! check_port 4040; then
+                    tmux new-window -t chimp:6 -n ngrok 2>/dev/null || true
+                    tmux send-keys -t chimp:ngrok "while true; do termux-chroot $HOME/ngrok http --url=https://${TUNNEL_DOMAIN} 8080; sleep 5; done" C-m
+                    echo "[✓] Public Tunnel started on https://${TUNNEL_DOMAIN}"
+                else
+                    echo "[-] Public Tunnel already running (https://${TUNNEL_DOMAIN})"
+                fi
+            fi
+        else
+            echo "[-] Public Tunnel disabled in Control Panel (skipping)"
+        fi
     fi
 
     echo ""
@@ -159,7 +168,7 @@ start_services() {
     TUNNEL_DOMAIN=""
     [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
     [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
-    if [ -n "$TUNNEL_DOMAIN" ] && pgrep -f "ngrok http" > /dev/null 2>&1; then
+    if [ -n "$TUNNEL_DOMAIN" ] && check_port 4040; then
         echo "  👉  Internet:  https://${TUNNEL_DOMAIN}/"
     fi
     echo "=========================================================="
@@ -167,15 +176,16 @@ start_services() {
 
 stop_services() {
     echo "Stopping all Chimp Home Server services..."
-    nginx -s stop 2>/dev/null || pkill -9 nginx 2>/dev/null && echo "[✓] Gateway (Nginx) stopped" || true
-    pkill -9 -f "files/app.py" 2>/dev/null && echo "[✓] ChimpDrive stopped" || true
-    pkill -9 -f "drop/app.py" 2>/dev/null && echo "[✓] ChimpDrop stopped" || true
-    pkill -9 -f "monitor/monitor.py" 2>/dev/null && echo "[✓] Monitor API stopped" || true
-    pkill -9 -f "photos/app.py" 2>/dev/null && echo "[✓] ChimpPix stopped" || true
-    pkill -9 -f "cron/app.py" 2>/dev/null && echo "[✓] ChimpCron stopped" || true
-    pkill -9 -f "ngrok http" 2>/dev/null && echo "[✓] Public Tunnel stopped" || true
-    pkill -9 -f "cloudflared" 2>/dev/null || true
-    pkill -9 -f "http.server 8080" 2>/dev/null || true
+    tmux kill-session -t chimp 2>/dev/null || true
+    nginx -s stop 2>/dev/null || pkill -9 -x nginx 2>/dev/null || true
+    pkill -9 -f "server/files/app.py" 2>/dev/null || true
+    pkill -9 -f "server/drop/app.py" 2>/dev/null || true
+    pkill -9 -f "server/monitor/monitor.py" 2>/dev/null || true
+    pkill -9 -f "server/photos/app.py" 2>/dev/null || true
+    pkill -9 -f "server/cron/app.py" 2>/dev/null || true
+    pkill -9 -f "termux-chroot" 2>/dev/null || true
+    pkill -9 -x ngrok 2>/dev/null || true
+    echo "[✓] All services stopped"
 }
 
 status_services() {
@@ -184,29 +194,29 @@ status_services() {
     pgrep -x sshd > /dev/null 2>&1 && echo "RUNNING (PID $(pgrep -x sshd | head -n 1))" || echo "STOPPED"
 
     echo -n "Gateway (8080 - Nginx): "
-    pgrep -f "nginx" > /dev/null && echo "RUNNING (PID $(pgrep -f "nginx" | head -n 1))" || echo "STOPPED"
+    check_port 8080 && echo "RUNNING (Port 8080)" || echo "STOPPED"
 
     echo -n "ChimpDrive (8081):      "
-    pgrep -f "files/app.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'files/app.py' | head -n 1))" || echo "STOPPED"
+    check_port 8081 && echo "RUNNING (Port 8081)" || echo "STOPPED"
 
     echo -n "ChimpDrop (8082):       "
-    pgrep -f "drop/app.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'drop/app.py' | head -n 1))" || echo "STOPPED"
+    check_port 8082 && echo "RUNNING (Port 8082)" || echo "STOPPED"
 
     echo -n "ChimpCron (8083):       "
-    pgrep -f "cron/app.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'cron/app.py' | head -n 1))" || echo "STOPPED"
+    check_port 8083 && echo "RUNNING (Port 8083)" || echo "STOPPED"
 
     echo -n "Monitor API (8090):     "
-    pgrep -f "monitor/monitor.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'monitor/monitor.py' | head -n 1))" || echo "STOPPED"
+    check_port 8090 && echo "RUNNING (Port 8090)" || echo "STOPPED"
 
     echo -n "ChimpPix (8091):        "
-    pgrep -f "photos/app.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'photos/app.py' | head -n 1))" || echo "STOPPED"
+    check_port 8091 && echo "RUNNING (Port 8091)" || echo "STOPPED"
 
     echo -n "Public Tunnel (Ngrok):  "
     TUNNEL_DOMAIN=""
     [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
     [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
-    if pgrep -f "ngrok http" > /dev/null 2>&1; then
-        echo "RUNNING (https://${TUNNEL_DOMAIN}/) (PID $(pgrep -f 'ngrok http' | head -n 1))"
+    if check_port 4040; then
+        echo "RUNNING (https://${TUNNEL_DOMAIN}/) (Port 4040)"
     else
         echo "STOPPED"
     fi
@@ -215,7 +225,7 @@ status_services() {
 case "$1" in
     start)   start_services ;;
     stop)    stop_services ;;
-    restart) stop_services; sleep 1; start_services ;;
+    restart) stop_services; sleep 2; start_services ;;
     status)  status_services ;;
     *)
         echo "Usage: $0 {start|stop|restart|status}"

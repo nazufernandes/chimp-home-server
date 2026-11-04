@@ -463,6 +463,18 @@ class MonitorHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
+class ReusableHTTPServer(HTTPServer):
+    allow_reuse_address = True
+
+    def server_bind(self):
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        except (AttributeError, OSError):
+            pass
+        super().server_bind()
+
 if __name__ == "__main__":
-    print("Chimp monitoring & service controller running on port 8090")
-    HTTPServer(("0.0.0.0", 8090), MonitorHandler).serve_forever()
+    print("Chimp monitoring & service controller running on port 8090", flush=True)
+    server = ReusableHTTPServer(("0.0.0.0", 8090), MonitorHandler)
+    server.serve_forever()
