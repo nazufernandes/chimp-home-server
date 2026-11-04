@@ -67,13 +67,13 @@ Access all web apps, tools, and endpoints through a single clean port (`:8080`) 
 * **QR Code Sharing**: Click the **QR** button on any clip to generate an instant QR code on your PC screen—scan with your phone camera to open it immediately on mobile.
 * **Real-Time Polling**: Live multi-device syncing every 3 seconds without refreshing.
 
-### 📁 Modern Web File Manager
+### 📁 ChimpDrive (Cloud Storage & Explorer)
 * Responsive file explorer with folder tree navigation and search.
 * Built-in code/text editor with in-browser saving.
 * Direct streaming for audio (`.mp3`, `.flac`) and video (`.mp4`, `.mkv`).
 * One-click folder downloading as `.zip`.
 
-### 📷 Photo & EXIF Gallery
+### 📷 ChimpPix (Media Gallery & EXIF Inspector)
 * Responsive media gallery with thumbnail caching.
 * Full EXIF inspector (camera model, original capture date, resolution).
 * Automated photo library syncing.
@@ -157,7 +157,34 @@ The automated script will:
 3. Set up the `~/server` directory and data storage paths.
 4. Configure Nginx reverse proxy routing.
 5. Install the custom ASCII login banner into `~/.bashrc`.
-6. Start all 5 server services in the background.
+6. **Optional Remote Access**: Independently configure Public Web Access (Ngrok) and/or Secure Remote SSH (Tailscale).
+7. Start all server services in the background.
+
+---
+
+## 🌐 Remote Access & Remote SSH Options
+
+Chimp Home Server treats **Public Web Hosting** and **Admin Remote SSH** as separate, modular capabilities during installation:
+
+```text
+  [1/2] Enable Public Web Access via Ngrok (share sites/files with anyone)? (y/N)
+  [2/2] Enable Secure Remote SSH via Tailscale (remote terminal for admin)? (y/N)
+```
+
+You can enable **both, either, or neither** depending on your needs:
+
+| Capability | Powered By | URL / Connection | Who is it for? | Client Setup |
+| :--- | :--- | :--- | :--- | :--- |
+| **Local LAN (Default)** | Home Wi-Fi | `http://192.168.x.x:8080/` | Devices on your home network | None |
+| **Public Web Hosting** | Ngrok | `https://your-domain.ngrok-free.dev/` | Visitors worldwide via standard browser | **Zero** (no apps/VPNs) |
+| **Remote SSH & Admin** | Tailscale | `ssh -p 8022 u0_a223@100.x.y.z` | You (the server admin) | Tailscale app on your device |
+
+### 💡 Public Web vs. Tailscale SSH: How They Complement Each Other
+
+* **Public Web Access (Ngrok)** opens an authentic HTTPS URL to the public web. Anyone can browse your static websites (`/sites/`), download files, or view the dashboard without installing anything.
+* **Remote SSH (Tailscale)** creates an encrypted WireGuard mesh between your personal devices. It allows *you* to SSH into your phone's terminal (`ssh -p 8022 u0_a223@100.x.y.z`) from coffee shops or while traveling to inspect logs, run updates, and manage your server securely.
+* **Can you use both together?**  
+  **Yes!** Many users run Ngrok for their public-facing websites while using Tailscale as a private backchannel for SSH admin access. Tailscale is never required for public web visitors.
 
 ---
 
@@ -167,10 +194,10 @@ The automated script will:
 | :--- | :--- | :--- | :--- |
 | **Dashboard** | `http://<IP>:8080/` | `:8080` | Live telemetry & server launcher |
 | **ChimpDrop** | `http://<IP>:8080/drop/` | `:8082` | Universal clipboard & drag-drop files |
-| **File Manager** | `http://<IP>:8080/files/` | `:8081` | Web file explorer & code editor |
-| **Photo Library**| `http://<IP>:8080/photos/`| `:8091` | Gallery with EXIF viewer |
-| **ChimpCron**    | `http://<IP>:8080/cron/`  | `:8083` | Visual task scheduler & background automation |
-| **ChimpSites**   | `http://<IP>:8080/sites/` | `:8080` | Zero-config static web hosting & launchpad |
+| **ChimpDrive**| `http://<IP>:8080/files/`| `:8081` | Cloud file explorer & code editor |
+| **ChimpPix**  | `http://<IP>:8080/photos/`| `:8091` | Media gallery with EXIF viewer |
+| **ChimpCron** | `http://<IP>:8080/cron/`  | `:8083` | Visual task scheduler & background automation |
+| **ChimpSites**| `http://<IP>:8080/sites/` | `:8080` | Zero-config static web hosting & launchpad |
 | **Telemetry API**| `http://<IP>:8080/api/status`| `:8090` | JSON hardware status endpoint |
 
 *(Replace `<IP>` with your server's local IP address, e.g. `192.168.1.13`)*

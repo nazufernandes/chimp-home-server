@@ -65,7 +65,7 @@ start_services() {
         sed "s|__CHIMP_ROOT__|$BASE_DIR|g" "$BASE_DIR/config/nginx.conf" > "$NGINX_TARGET"
     fi
 
-    if ! pgrep nginx > /dev/null; then
+    if ! pgrep -f "nginx" > /dev/null; then
         nginx > "$LOG_DIR/gateway.log" 2>&1
         echo "[✓] Unified Gateway & Dashboard started on http://${IP}:8080/ (Nginx)"
     else
@@ -73,16 +73,16 @@ start_services() {
         echo "[✓] Unified Gateway reloaded (Nginx)"
     fi
 
-    # 2. Modern Web File Manager (port 8081 - Flask)
+    # 2. ChimpDrive - Cloud Storage & Explorer (port 8081 - Flask)
     if is_service_enabled "files"; then
         if ! pgrep -f "files/app.py" > /dev/null; then
             nohup python "$BASE_DIR/files/app.py" > "$LOG_DIR/files.log" 2>&1 &
-            echo "[✓] Web File Manager started on http://${IP}:8080/files/ (PID $!)"
+            echo "[✓] ChimpDrive started on http://${IP}:8080/files/ (PID $!)"
         else
-            echo "[-] File Manager already running"
+            echo "[-] ChimpDrive already running"
         fi
     else
-        echo "[-] File Manager disabled in Control Panel (skipping)"
+        echo "[-] ChimpDrive disabled in Control Panel (skipping)"
     fi
 
     # 3. ChimpDrop - Universal Clipboard (port 8082 - Flask)
@@ -105,16 +105,16 @@ start_services() {
         echo "[-] Monitor API already running"
     fi
 
-    # 5. Photos App (port 8091)
+    # 5. ChimpPix - Photo Library & EXIF Gallery (port 8091)
     if is_service_enabled "photos"; then
         if ! pgrep -f "photos/app.py" > /dev/null; then
             nohup python "$BASE_DIR/photos/app.py" > "$LOG_DIR/photos.log" 2>&1 &
-            echo "[✓] Photo Library started on http://${IP}:8080/photos/ (PID $!)"
+            echo "[✓] ChimpPix started on http://${IP}:8080/photos/ (PID $!)"
         else
-            echo "[-] Photo Library already running"
+            echo "[-] ChimpPix already running"
         fi
     else
-        echo "[-] Photo Library disabled in Control Panel (skipping)"
+        echo "[-] ChimpPix disabled in Control Panel (skipping)"
     fi
 
     # 6. ChimpCron - Scheduled Automation (port 8083)
@@ -129,21 +129,64 @@ start_services() {
         echo "[-] ChimpCron disabled in Control Panel (skipping)"
     fi
 
+    # 7. Permanent Public Internet Tunnel (Ngrok)
+    if is_service_enabled "tunnel"; then
+        NGROK_BIN=""
+        if [ -x "$HOME/ngrok" ]; then
+            NGROK_BIN="$HOME/ngrok"
+        elif which ngrok > /dev/null 2>&1; then
+            NGROK_BIN="$(which ngrok)"
+        fi
+
+        TUNNEL_DOMAIN=""
+        if [ -f "$DATA_DIR/tunnel.conf" ]; then
+            TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
+        elif [ -f "$BASE_DIR/config/tunnel.conf" ]; then
+            TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
+        fi
+
+        if [ -n "$NGROK_BIN" ] && [ -n "$TUNNEL_DOMAIN" ]; then
+            if ! pgrep -f "ngrok http" > /dev/null; then
+                # Prefer native direct execution to avoid PRoot/termux-chroot ptrace overhead & LMK kills
+                if "$NGROK_BIN" version > /dev/null 2>&1; then
+                    nohup "$NGROK_BIN" http --url="https://${TUNNEL_DOMAIN}" 8080 > "$LOG_DIR/ngrok.log" 2>&1 &
+                elif which termux-chroot > /dev/null 2>&1; then
+                    nohup termux-chroot "$NGROK_BIN" http --url="https://${TUNNEL_DOMAIN}" 8080 > "$LOG_DIR/ngrok.log" 2>&1 &
+                else
+                    nohup "$NGROK_BIN" http --url="https://${TUNNEL_DOMAIN}" 8080 > "$LOG_DIR/ngrok.log" 2>&1 &
+                fi
+                echo "[✓] Public Tunnel started on https://${TUNNEL_DOMAIN} (PID $!)"
+            else
+                echo "[-] Public Tunnel already running (https://${TUNNEL_DOMAIN})"
+            fi
+        fi
+    else
+        echo "[-] Public Tunnel disabled in Control Panel (skipping)"
+    fi
+
     echo ""
     echo "=========================================================="
     echo "  🎉 All services active! Open in your browser:"
-    echo "  👉  http://${IP}:8080/"
+    echo "  👉  Local LAN: http://${IP}:8080/"
+    TUNNEL_DOMAIN=""
+    [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
+    [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
+    if [ -n "$TUNNEL_DOMAIN" ] && pgrep -f "ngrok http" > /dev/null 2>&1; then
+        echo "  👉  Internet:  https://${TUNNEL_DOMAIN}/"
+    fi
     echo "=========================================================="
 }
 
 stop_services() {
     echo "Stopping all Chimp Home Server services..."
     nginx -s stop 2>/dev/null || pkill -9 nginx 2>/dev/null && echo "[✓] Gateway (Nginx) stopped" || true
-    pkill -9 -f "files/app.py" 2>/dev/null && echo "[✓] File Manager stopped" || true
+    pkill -9 -f "files/app.py" 2>/dev/null && echo "[✓] ChimpDrive stopped" || true
     pkill -9 -f "drop/app.py" 2>/dev/null && echo "[✓] ChimpDrop stopped" || true
     pkill -9 -f "monitor/monitor.py" 2>/dev/null && echo "[✓] Monitor API stopped" || true
-    pkill -9 -f "photos/app.py" 2>/dev/null && echo "[✓] Photo Library stopped" || true
+    pkill -9 -f "photos/app.py" 2>/dev/null && echo "[✓] ChimpPix stopped" || true
     pkill -9 -f "cron/app.py" 2>/dev/null && echo "[✓] ChimpCron stopped" || true
+    pkill -9 -f "ngrok http" 2>/dev/null && echo "[✓] Public Tunnel stopped" || true
+    pkill -9 -f "cloudflared" 2>/dev/null || true
     pkill -9 -f "http.server 8080" 2>/dev/null || true
 }
 
@@ -153,9 +196,9 @@ status_services() {
     pgrep -x sshd > /dev/null 2>&1 && echo "RUNNING (PID $(pgrep -x sshd | head -n 1))" || echo "STOPPED"
 
     echo -n "Gateway (8080 - Nginx): "
-    pgrep nginx > /dev/null && echo "RUNNING (PID $(pgrep nginx | head -n 1))" || echo "STOPPED"
+    pgrep -f "nginx" > /dev/null && echo "RUNNING (PID $(pgrep -f "nginx" | head -n 1))" || echo "STOPPED"
 
-    echo -n "File Manager (8081):    "
+    echo -n "ChimpDrive (8081):      "
     pgrep -f "files/app.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'files/app.py' | head -n 1))" || echo "STOPPED"
 
     echo -n "ChimpDrop (8082):       "
@@ -167,8 +210,18 @@ status_services() {
     echo -n "Monitor API (8090):     "
     pgrep -f "monitor/monitor.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'monitor/monitor.py' | head -n 1))" || echo "STOPPED"
 
-    echo -n "Photos App (8091):      "
+    echo -n "ChimpPix (8091):        "
     pgrep -f "photos/app.py" > /dev/null && echo "RUNNING (PID $(pgrep -f 'photos/app.py' | head -n 1))" || echo "STOPPED"
+
+    echo -n "Public Tunnel (Ngrok):  "
+    TUNNEL_DOMAIN=""
+    [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
+    [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
+    if pgrep -f "ngrok http" > /dev/null 2>&1; then
+        echo "RUNNING (https://${TUNNEL_DOMAIN}/) (PID $(pgrep -f 'ngrok http' | head -n 1))"
+    else
+        echo "STOPPED"
+    fi
 }
 
 case "$1" in

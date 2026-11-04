@@ -27,8 +27,8 @@ SERVICES_DEF = [
     },
     {
         "id": "files",
-        "name": "File Manager",
-        "desc": "Web Explorer & File Manager",
+        "name": "ChimpDrive",
+        "desc": "Cloud Explorer & File Storage",
         "icon": "📁",
         "color": "#38bdf8",
         "bg": "rgba(56,189,248,0.12)",
@@ -39,8 +39,8 @@ SERVICES_DEF = [
     },
     {
         "id": "photos",
-        "name": "Photo Library",
-        "desc": "Gallery & EXIF Inspector",
+        "name": "ChimpPix",
+        "desc": "Media Gallery & EXIF Inspector",
         "icon": "📷",
         "color": "#a78bfa",
         "bg": "rgba(167,139,250,0.12)",
@@ -114,9 +114,36 @@ def read_file(path):
     except (PermissionError, OSError):
         return ""
 
+def get_tunnel_domain():
+    conf = os.path.join(DATA_DIR, "tunnel.conf")
+    base_conf = os.path.join(BASE_DIR, "config", "tunnel.conf")
+    if os.path.exists(conf):
+        try:
+            with open(conf) as f:
+                d = f.read().strip()
+                if d: return d
+        except Exception:
+            pass
+    if os.path.exists(base_conf):
+        try:
+            with open(base_conf) as f:
+                d = f.read().strip()
+                if d: return d
+        except Exception:
+            pass
+    return "holstered-meltingly-pablo.ngrok-free.dev"
+
+def get_public_url():
+    if run_cmd(["pgrep", "-f", "ngrok http"]):
+        return f"https://{get_tunnel_domain()}"
+    return None
+
 def is_service_running(svc):
     if svc["type"] == "static":
         return True
+    if svc["type"] == "tunnel":
+        pid = run_cmd(["pgrep", "-f", "ngrok http"])
+        return bool(pid.strip())
     script = svc["script"]
     if not script:
         return True
@@ -126,6 +153,30 @@ def is_service_running(svc):
 def start_service_process(svc):
     if svc["type"] == "static":
         return
+    if svc["type"] == "tunnel":
+        if is_service_running(svc):
+            return
+        ngrok_bin = os.path.expanduser("~/ngrok")
+        if not os.path.exists(ngrok_bin):
+            ngrok_bin = run_cmd(["which", "ngrok"])
+        if not ngrok_bin:
+            return
+        domain = get_tunnel_domain()
+        log_path = os.path.join(LOG_DIR, "ngrok.log")
+        os.makedirs(LOG_DIR, exist_ok=True)
+        cmd = f"termux-chroot {ngrok_bin} http --domain={domain} 8080"
+        try:
+            subprocess.Popen(
+                cmd,
+                shell=True,
+                stdout=open(log_path, "a"),
+                stderr=subprocess.STDOUT,
+                start_new_session=True
+            )
+        except Exception as e:
+            print("Failed to start tunnel:", e)
+        return
+
     script = svc["script"]
     if not script:
         return
@@ -149,6 +200,9 @@ def start_service_process(svc):
 
 def stop_service_process(svc):
     if svc["type"] == "static":
+        return
+    if svc["type"] == "tunnel":
+        run_cmd(["pkill", "-9", "-f", "ngrok http"])
         return
     script = svc["script"]
     if not script:
@@ -302,6 +356,7 @@ def get_metrics():
     return {
         "hostname": "chimp",
         "ip": get_ip(),
+        "public_url": get_public_url(),
         "cpu": uptime["load"],
         "memory": memory,
         "storage": get_storage(),

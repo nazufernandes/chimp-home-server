@@ -624,9 +624,14 @@ input:checked + .slider:before {
             <div class="logo-icon">&#x1f412;</div>
             <div>Chimp<span>Server</span></div>
         </a>
-        <div class="header-status">
-            <div class="status-pulse" id="statusPulse"></div>
-            <span id="connectionStatus">Connecting...</span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a id="publicUrlBadge" href="#" target="_blank" style="display: none; align-items: center; gap: 6px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); color: #818cf8; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all 0.2s;" title="Open permanent public link">
+                <span>🌐</span> <span id="publicUrlDomain">Public Link</span>
+            </a>
+            <div class="header-status">
+                <div class="status-pulse" id="statusPulse"></div>
+                <span id="connectionStatus">Connecting...</span>
+            </div>
         </div>
     </div>
 </div>
@@ -729,7 +734,7 @@ input:checked + .slider:before {
         <div class="info-card">
             <div class="info-label">&#x1f310; Network Address</div>
             <div class="info-value" id="ip">192.168.1.13</div>
-            <div class="info-detail">WiFi Interface (wlan0)</div>
+            <div class="info-detail" id="netDetail">WiFi Interface (wlan0)</div>
         </div>
         <div class="info-card">
             <div class="info-label">&#x1f504; Telemetry Refresh</div>
@@ -978,9 +983,29 @@ async function refresh() {
             document.getElementById("uptimeSub").textContent = "Device uptime";
         }
 
-        // IP
+        // IP & Public Tunnel
         if (d.ip) {
             document.getElementById("ip").textContent = d.ip;
+        }
+        if (d.public_url) {
+            const badge = document.getElementById("publicUrlBadge");
+            const domainSpan = document.getElementById("publicUrlDomain");
+            const netDetail = document.getElementById("netDetail");
+            const cleanDomain = d.public_url.replace(/^https?:\/\//, "");
+
+            if (badge && domainSpan) {
+                badge.href = d.public_url;
+                domainSpan.textContent = cleanDomain;
+                badge.style.display = "inline-flex";
+            }
+            if (netDetail) {
+                netDetail.innerHTML = `Public: <a href="${d.public_url}" target="_blank" style="color:#818cf8;text-decoration:none;font-weight:600;">${cleanDomain}</a>`;
+            }
+        } else {
+            const badge = document.getElementById("publicUrlBadge");
+            if (badge) badge.style.display = "none";
+            const netDetail = document.getElementById("netDetail");
+            if (netDetail) netDetail.textContent = "WiFi Interface (wlan0)";
         }
 
         // Clock

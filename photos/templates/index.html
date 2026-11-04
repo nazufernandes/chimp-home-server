@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chimp Photos</title>
+<title>ChimpPix | Photo Gallery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -598,11 +598,11 @@ select:focus, .btn:focus { border-color: var(--accent); }
     <div class="header-inner">
         <a class="logo" href="/">
             <div class="logo-icon">&#x1f4f7;</div>
-            <div>Chimp<span>Photos</span></div>
+            <div>Chimp<span>Pix</span></div>
         </a>
         <div class="header-right">
-            <a class="nav-link" href="http://192.168.1.13:8080">&#x1f3e0; Dashboard</a>
-            <a class="nav-link" href="http://192.168.1.13:8081">&#x1f4c1; Files</a>
+            <a class="nav-link" href="/">&#x1f3e0; Dashboard</a>
+            <a class="nav-link" href="/files/">&#x1f4c1; ChimpDrive</a>
             <div class="header-stat">
                 <div class="dot"></div>
                 <span id="headerCount">Loading...</span>
@@ -617,7 +617,7 @@ select:focus, .btn:focus { border-color: var(--accent); }
     <!-- Top Bar -->
     <div class="top-bar">
         <div>
-            <h1>Photo <span>Library</span></h1>
+            <h1>Chimp<span>Pix</span></h1>
             <div class="top-sub">Personal media gallery with on-device backup &amp; EXIF metadata.</div>
         </div>
         <div class="action-buttons">
@@ -702,6 +702,7 @@ select:focus, .btn:focus { border-color: var(--accent); }
 </div>
 
 <script>
+const API_BASE = window.location.pathname.startsWith('/photos') ? '/photos/api' : '/api';
 const grid = document.getElementById("grid");
 const search = document.getElementById("search");
 const folder = document.getElementById("folder");
@@ -746,7 +747,7 @@ async function loadPhotos() {
 
     statsEl.innerHTML = '<span>Loading...</span>';
     try {
-        const response = await fetch("/api/photos?" + params.toString());
+        const response = await fetch(`${API_BASE}/photos?` + params.toString());
         if (!response.ok) throw new Error("Server returned " + response.status);
 
         const data = await response.json();
@@ -842,7 +843,7 @@ async function viewExif() {
     const photo = allPhotos[currentIndex];
     if (!photo) return;
     try {
-        const res = await fetch("/api/photo/info/" + encodeURIComponent(photo.path));
+        const res = await fetch(`${API_BASE}/photo/info/` + encodeURIComponent(photo.path));
         const data = await res.json();
         let details = `File: ${data.name}\nSize: ${formatSize(data.size)}\nFolder: ${photo.folder}`;
         if (data.exif) {
@@ -862,7 +863,7 @@ async function deleteCurrent() {
     if (!confirm("Are you sure you want to delete " + photo.name + "?")) return;
 
     try {
-        const res = await fetch("/api/photo/delete/" + encodeURIComponent(photo.path), {
+        const res = await fetch(`${API_BASE}/photo/delete/` + encodeURIComponent(photo.path), {
             method: "POST"
         });
         if (!res.ok) throw new Error("Delete failed");
@@ -882,7 +883,7 @@ async function triggerSync() {
     text.textContent = "Syncing...";
 
     try {
-        const res = await fetch("/api/sync", { method: "POST" });
+        const res = await fetch(`${API_BASE}/sync`, { method: "POST" });
         const data = await res.json();
         if (data.status === "already_running") {
             showToast("Sync already in progress", "&#x23f3;");
@@ -903,7 +904,7 @@ async function pollSync() {
 
     const check = async () => {
         try {
-            const res = await fetch("/api/sync/status");
+            const res = await fetch(`${API_BASE}/sync/status`);
             const data = await res.json();
             if (data.running) {
                 setTimeout(check, 2000);
@@ -958,7 +959,7 @@ document.getElementById("upload").addEventListener("change", async event => {
     for (const file of files) form.append("files", file);
 
     try {
-        const response = await fetch("/api/upload", { method: "POST", body: form });
+        const response = await fetch(`${API_BASE}/upload`, { method: "POST", body: form });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "Upload failed");
 

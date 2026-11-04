@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chimp Files | Web File Manager</title>
+<title>ChimpDrive | Cloud File Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -455,11 +455,11 @@ tr:hover .file-actions { opacity: 1; }
     <div class="header-inner">
         <a class="logo" href="/">
             <div class="logo-icon">&#x1f4c1;</div>
-            <div>Chimp<span>Files</span></div>
+            <div>Chimp<span>Drive</span></div>
         </a>
         <div class="nav-links">
-            <a class="nav-link" href="http://192.168.1.13:8080">&#x1f3e0; Dashboard</a>
-            <a class="nav-link" href="http://192.168.1.13:8091">&#x1f4f7; Photos</a>
+            <a class="nav-link" href="/">&#x1f3e0; Dashboard</a>
+            <a class="nav-link" href="/photos/">&#x1f4f7; ChimpPix</a>
         </div>
     </div>
 </div>
@@ -561,6 +561,7 @@ tr:hover .file-actions { opacity: 1; }
 <div class="toast" id="toast"></div>
 
 <script>
+const API_BASE = window.location.pathname.startsWith('/files') ? '/files/api' : '/api';
 let currentPath = "";
 let currentItems = [];
 let editingPath = "";
@@ -594,7 +595,7 @@ function getIcon(item) {
 async function loadDirectory(path = "") {
     currentPath = path;
     try {
-        const res = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
+        const res = await fetch(`${API_BASE}/files?path=${encodeURIComponent(path)}`);
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
@@ -708,7 +709,7 @@ async function openTextEditor(relPath) {
     modal.classList.add("active");
 
     try {
-        const res = await fetch(`/api/file/content?path=${encodeURIComponent(relPath)}`);
+        const res = await fetch(`${API_BASE}/file/content?path=${encodeURIComponent(relPath)}`);
         const data = await res.json();
         if (data.error) throw new Error(data.error);
 
@@ -728,7 +729,7 @@ function openMediaPreview(relPath, mediaType) {
     title.textContent = relPath.split('/').pop();
     saveBtn.hidden = true;
 
-    const fileUrl = `/api/file/raw?path=${encodeURIComponent(relPath)}`;
+    const fileUrl = `${API_BASE}/file/raw?path=${encodeURIComponent(relPath)}`;
     if (mediaType === "image") {
         body.innerHTML = `<img class="preview-media" src="${fileUrl}">`;
     } else if (mediaType === "video") {
@@ -742,7 +743,7 @@ function openMediaPreview(relPath, mediaType) {
 async function saveFileContent() {
     const content = document.getElementById("codeEditorArea").value;
     try {
-        const res = await fetch("/api/file/save", {
+        const res = await fetch(`${API_BASE}/file/save`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ path: editingPath, content: content })
@@ -757,17 +758,17 @@ async function saveFileContent() {
 }
 
 function downloadFile(relPath) {
-    window.location.href = `/api/file/raw?path=${encodeURIComponent(relPath)}&download=1`;
+    window.location.href = `${API_BASE}/file/raw?path=${encodeURIComponent(relPath)}&download=1`;
 }
 
 function downloadCurrentZip() {
-    window.location.href = `/api/zip?path=${encodeURIComponent(currentPath)}`;
+    window.location.href = `${API_BASE}/zip?path=${encodeURIComponent(currentPath)}`;
 }
 
 async function deleteItem(relPath, name) {
     if (!confirm(`Are you sure you want to delete '${name}'?`)) return;
     try {
-        const res = await fetch("/api/item/delete", {
+        const res = await fetch(`${API_BASE}/item/delete`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ path: relPath })
@@ -793,7 +794,7 @@ function openNewFolderModal() {
         const name = input.value.trim();
         if (!name) return;
         try {
-            const res = await fetch("/api/folder/create", {
+            const res = await fetch(`${API_BASE}/folder/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ path: currentPath, name: name })
@@ -823,7 +824,7 @@ function openRenameModal(relPath, currentName) {
         const newName = input.value.trim();
         if (!newName || newName === currentName) return;
         try {
-            const res = await fetch("/api/item/rename", {
+            const res = await fetch(`${API_BASE}/item/rename`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ path: relPath, new_name: newName })
@@ -875,7 +876,7 @@ async function uploadFiles(files) {
 
     showToast(`Uploading ${files.length} file(s)...`);
     try {
-        const res = await fetch("/api/upload", { method: "POST", body: form });
+        const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form });
         const data = await res.json();
         if (!data.success) throw new Error(data.error || "Upload failed");
         showToast(`${data.saved} file(s) uploaded successfully!`);

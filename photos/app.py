@@ -122,8 +122,8 @@ def api_photos():
     folders = sorted(list(set(p["folder"] for p in all_raw if p["folder"] and p["folder"] != ".")))
 
     for photo in photos:
-        photo["thumbnail"] = "/thumb/" + photo["path"]
-        photo["url"] = "/photo/" + photo["path"]
+        photo["thumbnail"] = "/photos/thumb/" + photo["path"]
+        photo["url"] = "/photos/photo/" + photo["path"]
 
     return jsonify({
         "count": len(photos),
