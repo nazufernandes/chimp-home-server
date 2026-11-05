@@ -4,7 +4,7 @@
   <img src="web/chimp-ascii.svg" alt="Chimp Mascot" width="170">
 </a>
 
-# 🐒 Chimp Home Server
+# Chimp Home Server
 
 <a href="https://github.com/nazufernandes/chimp-home-server/blob/main/web/preview.png">
   <img src="https://github.com/nazufernandes/chimp-home-server/blob/main/web/preview.png?raw=true" alt="Chimp Home Server" width="100%">
@@ -46,31 +46,31 @@ Access all web apps, tools, and endpoints through a single clean port (`:8080`) 
 * Storage disk usage analyzer.
 * Real-time uptime counter and connection heartbeat.
 
-### 📋 ChimpDrop (Universal Web Clipboard)
+### <img src="web/icon-drop.svg" width="20" height="20" align="center" /> ChimpDrop (Universal Web Clipboard)
 * **Instant Text & Code Syncing**: Seamlessly share snippets, URLs, notes, and code between your PC and phone.
 * **Direct Image Paste (`Ctrl+V`)**: Press `Ctrl+V` with any screenshot in your clipboard to upload it directly with instant image preview.
 * **Drag-and-Drop File Sharing**: Send PDFs, APKs, videos, or documents across your local network in seconds.
 * **QR Code Sharing**: Click the **QR** button on any clip to generate an instant QR code on your PC screen—scan with your phone camera to open it immediately on mobile.
 * **Real-Time Polling**: Live multi-device syncing every 3 seconds without refreshing.
 
-### 📁 ChimpDrive (Cloud Storage & Explorer)
+### <img src="web/icon-drive.svg" width="20" height="20" align="center" /> ChimpDrive (Cloud Storage & Explorer)
 * Responsive file explorer with folder tree navigation and search.
 * Built-in code/text editor with in-browser saving.
 * Direct streaming for audio (`.mp3`, `.flac`) and video (`.mp4`, `.mkv`).
 * One-click folder downloading as `.zip`.
 
-### 📷 ChimpPix (Media Gallery & EXIF Inspector)
+### <img src="web/icon-pix.svg" width="20" height="20" align="center" /> ChimpPix (Media Gallery & EXIF Inspector)
 * Responsive media gallery with thumbnail caching.
 * Full EXIF inspector (camera model, original capture date, resolution).
 * Automated photo library syncing.
 
-### ⏰ ChimpCron (Visual Task Scheduler & Automation)
+### <img src="web/icon-cron.svg" width="20" height="20" align="center" /> ChimpCron (Visual Task Scheduler & Automation)
 * **Web-Based Schedule Manager**: Run automated shell scripts, backups, or disk cleanup routines without cryptic crontab syntax.
 * **Flexible Triggering**: Repeat intervals (e.g. every 15 mins, every 4 hours), daily at specific times (e.g. `03:00`), or standard 5-field cron syntax (`*/10 * * * *`).
 * **Instant Manual Execution**: Run any scheduled script on demand with live status indicators and real-time execution duration.
 * **Execution Logs & Drawer**: Full capture of stdout, stderr, and exit codes for every run with one-click output inspection.
 
-### 🌐 ChimpSites (Zero-Config Static Web Hosting)
+### <img src="web/icon-sites.svg" width="20" height="20" align="center" /> ChimpSites (Zero-Config Static Web Hosting)
 * **Instant Local Web Hosting**: Host SPAs (React, Vue, Vite, Astro), HTML prototypes, or documentation sites directly from your phone.
 * **Zero Configuration**: Any folder dropped into `~/server/data/sites/` is instantly served at `http://<IP>:8080/sites/<folder>/`.
 * **Zero Python Overhead**: Served at native C-speed directly through Nginx with automatic MIME type mapping.
@@ -169,11 +169,11 @@ Chimp Home Server includes built-in global access for both web browsing and term
 | Service | Clean Gateway URL | Direct Port | Description |
 | :--- | :--- | :--- | :--- |
 | **Dashboard** | `http://<IP>:8080/` | `:8080` | Live telemetry & server launcher |
-| **ChimpDrop** | `http://<IP>:8080/drop/` | `:8082` | Universal clipboard & drag-drop files |
-| **ChimpDrive**| `http://<IP>:8080/files/`| `:8081` | Cloud file explorer & code editor |
-| **ChimpPix**  | `http://<IP>:8080/photos/`| `:8091` | Media gallery with EXIF viewer |
-| **ChimpCron** | `http://<IP>:8080/cron/`  | `:8083` | Visual task scheduler & background automation |
-| **ChimpSites**| `http://<IP>:8080/sites/` | `:8080` | Zero-config static web hosting & launchpad |
+| <img src="web/icon-drop.svg" width="16" height="16" align="center" /> **ChimpDrop** | `http://<IP>:8080/drop/` | `:8082` | Universal clipboard & drag-drop files |
+| <img src="web/icon-drive.svg" width="16" height="16" align="center" /> **ChimpDrive**| `http://<IP>:8080/files/`| `:8081` | Cloud file explorer & code editor |
+| <img src="web/icon-pix.svg" width="16" height="16" align="center" /> **ChimpPix**  | `http://<IP>:8080/photos/`| `:8091` | Media gallery with EXIF viewer |
+| <img src="web/icon-cron.svg" width="16" height="16" align="center" /> **ChimpCron** | `http://<IP>:8080/cron/`  | `:8083` | Visual task scheduler & background automation |
+| <img src="web/icon-sites.svg" width="16" height="16" align="center" /> **ChimpSites**| `http://<IP>:8080/sites/` | `:8080` | Zero-config static web hosting & launchpad |
 | **Telemetry API**| `http://<IP>:8080/api/status`| `:8090` | JSON hardware status endpoint |
 
 *(Replace `<IP>` with your server's local IP address, e.g. `192.168.1.13`)*
@@ -187,9 +187,11 @@ Chimp Server includes a multi-tier management model:
 * **Standard User Control Panel (`⚙️ Control Panel`)**:
   Accessible by anyone on your network from the main dashboard. Standard users can toggle which services are shown or hidden on their dashboard launcher. Any service disabled by an administrator is automatically **blurred** with a **`🔒 Locked by Admin`** badge and cannot be launched or shown.
 * **Secret Admin Master Panel**:
-  Click the monkey logo (`🐒`) in the top navbar **7 times continuously** (within 1-second gaps) to open the Master Password Prompt.
+  Click the Chimp mascot logo in the top navbar **7 times continuously** (within 1-second gaps) to open the Master Password Prompt.
   * Configured during `install.sh` (or anytime in `.env` under `CHIMP_ADMIN_PASSWORD`).
-  * Gain master control to start, stop, kill, and lock/unlock backend background service daemons directly from the web interface.
+  * **Tab 1: ⚙️ Services**: Start, stop, and lock/unlock backend background service daemons directly from the web interface.
+  * **Tab 2: 📊 Task Manager**: Real-time live process monitor (`ps aux`), search filter, 3s auto-refresh, and instant `🚫 Kill` controls with PID 1 system protection.
+  * **Tab 3: 🌐 Tunnels & Network**: One-click Public Ngrok switch, live Web/SSH endpoints, and an 8-port listener bindings inspector.
   * Your admin session is securely cached in browser session storage and can be locked at any time with the **🔒 Lock** button.
 
 ```bash
@@ -221,6 +223,12 @@ chimp console
 
 # Display dynamic public SSH connection command
 chimp ssh
+
+# Take public remote SSH tunnel offline (turn off public SSH access)
+chimp ssh -off
+
+# Turn public remote SSH tunnel online (start public SSH tunnel)
+chimp ssh -on
 
 # Display local LAN and Internet public URLs
 chimp url

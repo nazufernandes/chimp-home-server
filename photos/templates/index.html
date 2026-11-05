@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>ChimpPix | Photo Gallery</title>
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐒</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="/chimp-ascii.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -27,19 +26,23 @@
             --text: #e8ecf2;
             --text-muted: #6b7d95;
             --text-dim: #4a5568;
-            --accent: #a78bfa;
-            --accent-dim: rgba(167, 139, 250, 0.12);
-            --accent-glow: rgba(167, 139, 250, 0.25);
+            --accent: #22c997;
+            --accent-dim: rgba(34, 201, 151, 0.12);
+            --accent-glow: rgba(34, 201, 151, 0.25);
+            --logo-bg: rgba(34, 201, 151, 0.12);
+            --logo-border: rgba(34, 201, 151, 0.28);
             --green: #22c997;
             --green-dim: rgba(34, 201, 151, 0.12);
-            --blue: #60a5fa;
-            --blue-dim: rgba(96, 165, 250, 0.12);
+            --blue: #38bdf8;
+            --blue-dim: rgba(56, 189, 248, 0.12);
+            --purple: #a78bfa;
+            --purple-dim: rgba(167, 139, 250, 0.12);
             --red: #f87171;
             --red-dim: rgba(248, 113, 113, 0.12);
             --radius: 16px;
             --radius-sm: 10px;
             --header-bg: rgba(6, 8, 15, 0.85);
-            --glow-bg: radial-gradient(ellipse, rgba(167, 139, 250, 0.05) 0%, transparent 70%);
+            --glow-bg: radial-gradient(ellipse, rgba(34, 201, 151, 0.05) 0%, transparent 70%);
         }
 
         [data-theme="light"] {
@@ -52,17 +55,21 @@
             --text: #0f172a;
             --text-muted: #475569;
             --text-dim: #64748b;
-            --accent: #7c3aed;
-            --accent-dim: rgba(124, 58, 237, 0.1);
-            --accent-glow: rgba(124, 58, 237, 0.22);
+            --accent: #0d9488;
+            --accent-dim: rgba(13, 148, 136, 0.12);
+            --accent-glow: rgba(13, 148, 136, 0.22);
+            --logo-bg: rgba(13, 148, 136, 0.1);
+            --logo-border: rgba(13, 148, 136, 0.25);
             --green: #0d9488;
             --green-dim: rgba(13, 148, 136, 0.12);
             --blue: #2563eb;
             --blue-dim: rgba(37, 99, 235, 0.1);
+            --purple: #7c3aed;
+            --purple-dim: rgba(124, 58, 237, 0.1);
             --red: #dc2626;
             --red-dim: rgba(220, 38, 38, 0.1);
             --header-bg: rgba(255, 255, 255, 0.88);
-            --glow-bg: radial-gradient(ellipse, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+            --glow-bg: radial-gradient(ellipse, rgba(13, 148, 136, 0.06) 0%, transparent 70%);
         }
 
         * {
@@ -130,12 +137,34 @@
             width: 36px;
             height: 36px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #7c3aed, var(--accent));
+            background: var(--logo-bg, rgba(34, 201, 151, 0.12));
+            border: 1px solid var(--logo-border, rgba(34, 201, 151, 0.28));
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            box-shadow: 0 4px 16px var(--accent-glow);
+            box-shadow: 0 4px 16px rgba(34, 201, 151, 0.25);
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, border-color 0.2s;
+            overflow: hidden;
+        }
+
+        .logo-icon:active {
+            transform: scale(0.92);
+        }
+
+        .nav-svg-icon {
+            width: 15px;
+            height: 15px;
+            object-fit: contain;
+            display: inline-block;
+            vertical-align: -2px;
+        }
+
+        .svc-vector-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            display: block;
         }
 
         .logo span {
@@ -803,12 +832,13 @@
     <div class="header">
         <div class="header-inner">
             <a class="logo" href="/">
-                <div class="logo-icon">&#x1f4f7;</div>
+                <div class="logo-icon"><img src="/icon-pix.svg" class="svc-vector-icon" alt="Pix"></div>
                 <div>Chimp<span>Pix</span></div>
             </a>
             <div class="header-right">
-                <a class="nav-link" href="/">&#x1f3e0; Dashboard</a>
-                <a class="nav-link" href="/files/">&#x1f4c1; ChimpDrive</a>
+                <a class="nav-link" href="/"><img src="/chimp-ascii.svg" class="nav-svg-icon" alt="Dashboard"> Dashboard</a>
+                <a class="nav-link" href="/drop/"><img src="/icon-drop.svg" class="nav-svg-icon" alt="Drop"> ChimpDrop</a>
+                <a class="nav-link" href="/files/"><img src="/icon-drive.svg" class="nav-svg-icon" alt="Files"> ChimpDrive</a>
                 <div class="header-stat">
                     <div class="dot"></div>
                     <span id="headerCount">Loading...</span>

@@ -5,8 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChimpSites | Static Web Hosting Hub</title>
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐒</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="/chimp-ascii.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -30,6 +29,8 @@
             --text-muted: #8b9bb4;
             --accent: #22c997;
             --accent-dim: rgba(34, 201, 151, 0.12);
+            --logo-bg: rgba(34, 201, 151, 0.12);
+            --logo-border: rgba(34, 201, 151, 0.28);
             --blue: #38bdf8;
             --blue-dim: rgba(56, 189, 248, 0.12);
             --purple: #a78bfa;
@@ -51,6 +52,8 @@
             --text-muted: #475569;
             --accent: #0d9488;
             --accent-dim: rgba(13, 148, 136, 0.12);
+            --logo-bg: rgba(13, 148, 136, 0.1);
+            --logo-border: rgba(13, 148, 136, 0.25);
             --blue: #2563eb;
             --blue-dim: rgba(37, 99, 235, 0.1);
             --purple: #7c3aed;
@@ -105,12 +108,34 @@
             width: 36px;
             height: 36px;
             border-radius: 10px;
-            background: linear-gradient(135deg, #0ea37a, var(--accent));
+            background: var(--logo-bg, rgba(34, 201, 151, 0.12));
+            border: 1px solid var(--logo-border, rgba(34, 201, 151, 0.28));
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            box-shadow: 0 4px 16px rgba(34, 201, 151, 0.3);
+            box-shadow: 0 4px 16px rgba(34, 201, 151, 0.25);
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, border-color 0.2s;
+            overflow: hidden;
+        }
+
+        .logo-icon:active {
+            transform: scale(0.92);
+        }
+
+        .nav-svg-icon {
+            width: 15px;
+            height: 15px;
+            object-fit: contain;
+            display: inline-block;
+            vertical-align: -2px;
+        }
+
+        .svc-vector-icon {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            display: block;
         }
 
         .logo span {
@@ -549,16 +574,16 @@
     <!-- Navbar -->
     <nav class="navbar">
         <a class="logo" href="/">
-            <div class="logo-icon">&#x1f310;</div>
+            <div class="logo-icon"><img src="/icon-sites.svg" class="svc-vector-icon" alt="Sites"></div>
             <div>Chimp<span>Sites</span></div>
         </a>
         <div class="nav-links">
-            <a href="/" class="nav-link"><span>📊</span> <span class="nav-text">Dashboard</span></a>
-            <a href="/drop/" class="nav-link"><span>📋</span> <span class="nav-text">ChimpDrop</span></a>
-            <a href="/files/" class="nav-link"><span>📁</span> <span class="nav-text">Files</span></a>
-            <a href="/photos/" class="nav-link"><span>📷</span> <span class="nav-text">Photos</span></a>
-            <a href="/cron/" class="nav-link"><span>⏰</span> <span class="nav-text">Cron</span></a>
-            <a href="/sites/" class="nav-link active"><span>🌐</span> <span class="nav-text">Sites</span></a>
+            <a href="/" class="nav-link"><span><img src="/chimp-ascii.svg" class="nav-svg-icon" alt="Dashboard"></span> <span class="nav-text">Dashboard</span></a>
+            <a href="/drop/" class="nav-link"><span><img src="/icon-drop.svg" class="nav-svg-icon" alt="Drop"></span> <span class="nav-text">ChimpDrop</span></a>
+            <a href="/files/" class="nav-link"><span><img src="/icon-drive.svg" class="nav-svg-icon" alt="Files"></span> <span class="nav-text">Files</span></a>
+            <a href="/photos/" class="nav-link"><span><img src="/icon-pix.svg" class="nav-svg-icon" alt="Photos"></span> <span class="nav-text">Photos</span></a>
+            <a href="/cron/" class="nav-link"><span><img src="/icon-cron.svg" class="nav-svg-icon" alt="Cron"></span> <span class="nav-text">Cron</span></a>
+            <a href="/sites/" class="nav-link active"><span><img src="/icon-sites.svg" class="nav-svg-icon" alt="Sites"></span> <span class="nav-text">Sites</span></a>
             <button class="nav-link" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode"
                 style="cursor: pointer; background: transparent; border: 1px solid var(--border);">
                 <span id="themeIcon">☀️</span>
@@ -570,12 +595,12 @@
         <!-- Header -->
         <div class="header-bar">
             <div class="header-title">
-                <h1>🌐 Hosted Static Sites</h1>
+                <h1><img src="/icon-sites.svg" class="nav-svg-icon" style="width:24px; height:24px; vertical-align:-3px; margin-right:8px;" alt="Sites">Hosted Static Sites</h1>
                 <p>Zero-config hosting. Any folder placed in <code>~/server/data/sites/</code> is instantly live over
                     HTTP.</p>
             </div>
             <div class="header-actions">
-                <a href="/files/" class="btn"><span>📁</span> File Explorer</a>
+                <a href="/files/" class="btn"><span><img src="/icon-drive.svg" class="nav-svg-icon" alt="Files"></span> File Explorer</a>
                 <button class="btn btn-primary"
                     onclick="document.getElementById('siteUploadInput').click()"><span>➕</span> Upload New Site</button>
                 <input type="file" id="siteUploadInput" multiple style="display: none;"
@@ -586,7 +611,7 @@
         <!-- Metrics Row -->
         <div class="metrics-grid">
             <div class="metric-card">
-                <div class="metric-icon" style="background: var(--accent-dim); color: var(--accent);">🌐</div>
+                <div class="metric-icon" style="background: var(--accent-dim); color: var(--accent);"><img src="/icon-sites.svg" class="svc-vector-icon" alt="Sites"></div>
                 <div>
                     <div class="metric-val" id="siteCount">--</div>
                     <div class="metric-lbl">Live Sites</div>
@@ -600,7 +625,7 @@
                 </div>
             </div>
             <div class="metric-card">
-                <div class="metric-icon" style="background: var(--purple-dim); color: var(--purple);">📁</div>
+                <div class="metric-icon" style="background: var(--purple-dim); color: var(--purple);"><img src="/icon-drive.svg" class="svc-vector-icon" alt="Files"></div>
                 <div>
                     <div class="metric-val" id="storageVal">data/sites/</div>
                     <div class="metric-lbl">Root Directory</div>

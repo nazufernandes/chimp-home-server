@@ -419,15 +419,64 @@ show_urls() {
     echo ""
 }
 
-show_ssh() {
-    SSH_CMD=$(get_public_ssh)
-    if [ -n "$SSH_CMD" ]; then
-        echo "$SSH_CMD"
-    else
-        echo -e "${RED}[!] Remote SSH tunnel is not active.${NC}"
-        echo -e "Check tunnel status with: ${GREEN}chimp status${NC}"
-        exit 1
-    fi
+handle_ssh() {
+    local action="$1"
+    case "$action" in
+        -off|--off|off|stop|disable|down)
+            echo -e "${BOLD}${RED}  🛑 Taking Public Remote SSH Tunnel offline...${NC}"
+            if tmux has-session -t chimp 2>/dev/null; then
+                tmux kill-window -t chimp:ngrok-ssh 2>/dev/null || true
+            fi
+            pkill -9 -f "ngrok tcp 8022" 2>/dev/null || true
+            pkill -9 -f "ngrok tcp" 2>/dev/null || true
+            echo -e "  ${GREEN}[✓]${NC} Public Remote SSH tunnel taken offline."
+            echo -e "  ${DIM}Local LAN SSH is active: ${BLUE}ssh u0_a223@${IP} -p 8022${NC}"
+            echo -e "  ${DIM}To turn public SSH back online: ${GREEN}chimp ssh -on${NC}"
+            ;;
+        -on|--on|on|start|enable|up)
+            echo -e "${BOLD}${GREEN}  🚀 Starting Public Remote SSH Tunnel...${NC}"
+            if tmux has-session -t chimp 2>/dev/null; then
+                tmux kill-window -t chimp:ngrok-ssh 2>/dev/null || true
+            fi
+            pkill -9 -f "ngrok tcp" 2>/dev/null || true
+            sleep 0.5
+            tmux new-window -t chimp -n ngrok-ssh 2>/dev/null || true
+            tmux send-keys -t chimp:ngrok-ssh "while true; do termux-chroot \$HOME/ngrok tcp 8022; sleep 5; done" C-m
+            echo -e "  ${DIM}Connecting to tunnel broker...${NC}"
+            sleep 2.5
+            local ssh_cmd
+            ssh_cmd=$(get_public_ssh)
+            if [ -n "$ssh_cmd" ]; then
+                echo -e "  ${GREEN}[✓]${NC} Public SSH tunnel is ${BOLD}${GREEN}ONLINE${NC}!"
+                echo -e "  👉 Connect with: ${BOLD}${YELLOW}${ssh_cmd}${NC}"
+            else
+                echo -e "  ${GREEN}[✓]${NC} Public SSH tunnel launched. Check status with: ${GREEN}chimp ssh${NC}"
+            fi
+            ;;
+        status|"")
+            local ssh_cmd
+            ssh_cmd=$(get_public_ssh)
+            if [ -n "$ssh_cmd" ]; then
+                echo -e "${BOLD}${GREEN}Public Remote SSH Tunnel is ONLINE:${NC}"
+                echo -e "  👉 ${BOLD}${YELLOW}${ssh_cmd}${NC}"
+                echo -e ""
+                echo -e "  ${DIM}To turn offline: ${RED}chimp ssh -off${NC}"
+            else
+                echo -e "${RED}[!] Public Remote SSH tunnel is currently OFFLINE.${NC}"
+                echo -e "  Local LAN SSH is active: ${BLUE}ssh u0_a223@${IP} -p 8022${NC}"
+                echo -e ""
+                echo -e "  ${DIM}To turn public SSH online: ${GREEN}chimp ssh -on${NC}"
+            fi
+            ;;
+        *)
+            echo -e "${RED}[!] Unknown ssh parameter: '${action}'${NC}"
+            echo -e "Usage:"
+            echo -e "  ${GREEN}chimp ssh${NC}           Show current remote SSH connection command"
+            echo -e "  ${GREEN}chimp ssh -off${NC}      Take public SSH tunnel offline"
+            echo -e "  ${GREEN}chimp ssh -on${NC}       Turn public SSH tunnel online"
+            exit 1
+            ;;
+    esac
 }
 
 update_server() {
@@ -458,7 +507,7 @@ show_help() {
     echo -e "    ${GREEN}logs${NC} [service]    View service logs (gateway, monitor, files, drop, cron, photos)"
     echo -e "                        Add ${BOLD}-f${NC} to stream live logs (e.g. ${DIM}chimp logs monitor -f${NC})"
     echo -e "    ${GREEN}console${NC}           Attach directly to the live tmux server terminal"
-    echo -e "    ${GREEN}ssh${NC}               Print live dynamic Remote SSH connection command"
+    echo -e "    ${GREEN}ssh${NC} [-off|-on]     Print dynamic Remote SSH command, or toggle tunnel (-off/-on)"
     echo -e "    ${GREEN}url${NC}               Print local LAN and public Internet URLs"
     echo -e "    ${GREEN}ip${NC}                Print device local IP address"
     echo -e "    ${GREEN}update${NC}            Pull latest git changes and restart server"
@@ -492,7 +541,7 @@ case "$1" in
         attach_console
         ;;
     ssh)
-        show_ssh
+        handle_ssh "$2"
         ;;
     url|urls)
         show_urls

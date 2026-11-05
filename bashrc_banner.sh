@@ -69,8 +69,8 @@ if [[ $- == *i* ]]; then
 
     echo -e "${C_DARK}  ╭───────────────────────────────────────────────────────────────╮${C_RESET}"
 
-    local_hdr="  🐒 CHIMP HOME SERVER · Personal Linux Lab"
-    print_card_row $(( ${#local_hdr} + 1 )) "  ${C_BOLD}${C_GREEN}🐒 CHIMP HOME SERVER${C_RESET} ${C_GRAY}· Personal Linux Lab${C_RESET}"
+    local_hdr="CHIMP HOME SERVER · Personal Linux Lab"
+    print_card_row $(( ${#local_hdr} + 1 )) "  ${C_BOLD}${C_GREEN} CHIMP HOME SERVER${C_RESET} ${C_GRAY}· Personal Linux Lab${C_RESET}"
 
     echo -e "${C_DARK}  ├───────────────────────────────────────────────────────────────┤${C_RESET}"
 

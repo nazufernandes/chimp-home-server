@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chimp | Home Server Dashboard</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐒</text></svg>">
+<link rel="icon" type="image/svg+xml" href="chimp-ascii.svg">
 
 <!-- Open Graph / Facebook / WhatsApp / Telegram Preview -->
 <meta property="og:type" content="website">
@@ -48,6 +48,8 @@
     --accent: #22c997;
     --accent-dim: rgba(34,201,151,0.12);
     --accent-glow: rgba(34,201,151,0.25);
+    --logo-bg: rgba(34,201,151,0.12);
+    --logo-border: rgba(34,201,151,0.28);
     --purple: #a78bfa;
     --purple-dim: rgba(167,139,250,0.12);
     --purple-text: #c4b5fd;
@@ -92,6 +94,8 @@
     --accent: #0d9488;
     --accent-dim: rgba(13,148,136,0.12);
     --accent-glow: rgba(13,148,136,0.22);
+    --logo-bg: rgba(13,148,136,0.1);
+    --logo-border: rgba(13,148,136,0.25);
     --purple: #7c3aed;
     --purple-dim: rgba(124,58,237,0.1);
     --purple-text: #6d28d9;
@@ -207,7 +211,8 @@ body::before {
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent) 0%, #0ea37a 100%);
+    background: var(--logo-bg);
+    border: 1px solid var(--logo-border);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -216,10 +221,18 @@ body::before {
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
-    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, border-color 0.2s;
+    overflow: hidden;
 }
 .logo-icon:active {
     transform: scale(0.92);
+}
+.logo-svg {
+    width: 23px;
+    height: 21px;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
 }
 .logo span { color: var(--accent); }
 .header-status {
@@ -491,6 +504,23 @@ body::before {
     justify-content: center;
     font-size: 20px;
     flex-shrink: 0;
+}
+.svc-vector-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    display: block;
+}
+.ctrl-service-icon .svc-vector-icon {
+    width: 22px;
+    height: 22px;
+}
+.nav-svg-icon {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: -2px;
 }
 .service-icon.s-dash { background: linear-gradient(135deg, #0ea37a, var(--accent)); }
 .service-icon.s-files { background: linear-gradient(135deg, #2563eb, var(--blue)); }
@@ -959,6 +989,10 @@ input:checked + .slider:before {
         font-size: 16px;
         border-radius: 8px;
     }
+    .logo-icon .logo-svg {
+        width: 20px;
+        height: 19px;
+    }
     .header-right {
         gap: 6px;
     }
@@ -1127,6 +1161,832 @@ input:checked + .slider:before {
         font-size: 13px;
     }
 }
+
+/* Sick Chimp Hyper-Zoom Pixel Explosion Animation */
+.admin-explosion-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    background: rgba(6, 8, 15, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow: hidden;
+    perspective: 1000px;
+}
+.admin-explosion-overlay.active {
+    display: flex;
+}
+.explosion-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(34, 201, 151, 0.95) 0%, rgba(0, 255, 157, 0.35) 45%, rgba(6, 8, 15, 0.98) 75%);
+    opacity: 0;
+    pointer-events: none;
+}
+.admin-explosion-overlay.active .explosion-flash {
+    animation: explosionFlashBurst 1.8s ease-out forwards;
+}
+@keyframes explosionFlashBurst {
+    0% { opacity: 0; }
+    22% { opacity: 0.3; }
+    60% { opacity: 0.88; }
+    85% { opacity: 0.45; }
+    100% { opacity: 0; }
+}
+.explosion-chimp-wrap {
+    position: relative;
+    width: 140px;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center center;
+    z-index: 10;
+}
+.admin-explosion-overlay.active .explosion-chimp-wrap {
+    animation: chimpHyperZoom 1.8s cubic-bezier(0.18, 0.82, 0.28, 1.1) forwards;
+}
+@keyframes chimpHyperZoom {
+    0% {
+        transform: scale(0.7) rotate(0deg);
+        filter: drop-shadow(0 0 12px #22c997) brightness(1);
+        opacity: 1;
+    }
+    16% {
+        transform: scale(1.05) rotate(-3deg);
+        filter: drop-shadow(0 0 25px #00ff9d) brightness(1.35);
+    }
+    32% {
+        transform: scale(1.4) rotate(4deg);
+        filter: drop-shadow(0 0 50px #00ff9d) brightness(1.7);
+    }
+    52% {
+        transform: scale(5) rotate(-3deg);
+        filter: drop-shadow(0 0 90px #22c997) brightness(2.6);
+        opacity: 1;
+    }
+    72% {
+        transform: scale(15) rotate(2deg);
+        filter: drop-shadow(0 0 145px #00ff9d) brightness(3.8);
+        opacity: 0.95;
+    }
+    88% {
+        transform: scale(30) rotate(-1deg);
+        filter: drop-shadow(0 0 200px #ffffff) brightness(5.5);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(46) rotate(0deg);
+        filter: drop-shadow(0 0 260px #ffffff) brightness(7.5);
+        opacity: 0;
+    }
+}
+.shockwave-ring {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid #22c997;
+    box-shadow: 0 0 35px #22c997, inset 0 0 25px #00ff9d;
+    opacity: 0;
+    pointer-events: none;
+}
+.admin-explosion-overlay.active .shockwave-ring {
+    animation: shockwaveExpand 1.8s cubic-bezier(0.12, 0.85, 0.25, 1) forwards;
+}
+@keyframes shockwaveExpand {
+    0% { transform: scale(0.1); opacity: 1; border-width: 8px; }
+    40% { opacity: 0.85; }
+    80% { opacity: 0.35; }
+    100% { transform: scale(22); opacity: 0; border-width: 1px; }
+}
+.pixel-particle {
+    position: absolute;
+    width: 9px;
+    height: 15px;
+    background: #22c997;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 15;
+}
+.explosion-hud-text {
+    position: absolute;
+    bottom: 14%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 3.5px;
+    color: #22c997;
+    text-shadow: 0 0 20px rgba(34, 201, 151, 0.95);
+    opacity: 0;
+    text-align: center;
+    z-index: 20;
+}
+.admin-explosion-overlay.active .explosion-hud-text {
+    animation: hudTextPulse 1.8s ease-out forwards;
+}
+@keyframes hudTextPulse {
+    0% { opacity: 0; transform: translateY(12px) scale(0.9); }
+    22% { opacity: 0.35; transform: translateY(6px) scale(0.96); }
+    48% { opacity: 1; transform: translateY(0) scale(1.05); }
+    82% { opacity: 1; transform: translateY(-3px) scale(1); }
+    100% { opacity: 0; transform: translateY(-12px) scale(1.12); }
+}
+.modal-shake {
+    animation: modalShakeAnim 0.38s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes modalShakeAnim {
+    10%, 90% { transform: translate3d(-3px, 0, 0); }
+    20%, 80% { transform: translate3d(5px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+    40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+/* Signature Mint Emerald Theme for Master Admin Control Panel */
+.admin-ctrl-card {
+    max-width: 820px;
+    width: 95vw;
+    background: linear-gradient(180deg, #071510 0%, #030a08 100%) !important;
+    border: 1px solid rgba(34, 201, 151, 0.42) !important;
+    box-shadow: 0 0 50px rgba(34, 201, 151, 0.22), 0 25px 70px rgba(0, 0, 0, 0.9) !important;
+    position: relative;
+    overflow: hidden;
+}
+.admin-ctrl-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #22c997 30%, #00ff9d 70%, transparent 100%);
+    box-shadow: 0 0 16px #22c997, 0 0 30px #00ff9d;
+    pointer-events: none;
+    z-index: 10;
+}
+#adminModal.active .admin-ctrl-card {
+    animation: adminEmeraldEntrance 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes adminEmeraldEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(28px) rotateX(4deg);
+        box-shadow: 0 0 90px rgba(34, 201, 151, 0.75), 0 35px 90px rgba(0, 0, 0, 0.95);
+        border-color: rgba(34, 201, 151, 0.95);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.02) translateY(-3px) rotateX(-1deg);
+        box-shadow: 0 0 55px rgba(34, 201, 151, 0.45), 0 28px 75px rgba(0, 0, 0, 0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0) rotateX(0deg);
+        box-shadow: 0 0 45px rgba(34, 201, 151, 0.22), 0 20px 60px rgba(0, 0, 0, 0.85);
+        border-color: rgba(34, 201, 151, 0.42);
+    }
+}
+.admin-ctrl-card .ctrl-header {
+    background: linear-gradient(90deg, rgba(34, 201, 151, 0.16) 0%, rgba(14, 163, 122, 0.05) 100%) !important;
+    border-bottom: 1px solid rgba(34, 201, 151, 0.22) !important;
+}
+.admin-ctrl-card .ctrl-title {
+    color: #22c997 !important;
+    text-shadow: 0 0 16px rgba(34, 201, 151, 0.6);
+    font-weight: 800;
+    letter-spacing: -0.2px;
+}
+.admin-ctrl-card .admin-sub-bar {
+    background: rgba(34, 201, 151, 0.03) !important;
+    border-bottom: 1px solid rgba(34, 201, 151, 0.16) !important;
+    color: #a7f3d0 !important;
+}
+.admin-ctrl-card .btn-ssh-electric {
+    padding: 4px 12px;
+    font-size: 11px;
+    background: rgba(34, 201, 151, 0.14) !important;
+    color: #22c997 !important;
+    border: 1px solid rgba(34, 201, 151, 0.4) !important;
+    font-weight: 700;
+    box-shadow: 0 0 12px rgba(34, 201, 151, 0.2);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.admin-ctrl-card .btn-ssh-electric:hover {
+    background: rgba(34, 201, 151, 0.26) !important;
+    box-shadow: 0 0 20px rgba(34, 201, 151, 0.45);
+    transform: translateY(-1px);
+}
+.admin-ctrl-card .session-badge {
+    font-family: monospace;
+    color: #22c997 !important;
+    background: rgba(34, 201, 151, 0.1) !important;
+    border: 1px solid rgba(34, 201, 151, 0.3);
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 12px rgba(34, 201, 151, 0.15);
+}
+.admin-ctrl-card .ctrl-service-row {
+    border-bottom: 1px solid rgba(34, 201, 151, 0.1) !important;
+    transition: background 0.15s;
+}
+.admin-ctrl-card .ctrl-service-row:hover {
+    background: rgba(34, 201, 151, 0.04) !important;
+}
+.admin-ctrl-card .switch input:checked + .slider {
+    background: linear-gradient(135deg, #22c997 0%, #0ea37a 100%) !important;
+    box-shadow: 0 0 14px rgba(34, 201, 151, 0.6) !important;
+}
+.admin-ctrl-card .ctrl-footer {
+    border-top: 1px solid rgba(34, 201, 151, 0.16) !important;
+    background: rgba(0, 0, 0, 0.25) !important;
+}
+.admin-ctrl-card .btn-done-electric {
+    background: linear-gradient(135deg, #22c997 0%, #0ea37a 100%) !important;
+    color: #030a08 !important;
+    font-weight: 800 !important;
+    border: none !important;
+    box-shadow: 0 0 16px rgba(34, 201, 151, 0.35) !important;
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.admin-ctrl-card .btn-done-electric:hover {
+    box-shadow: 0 0 24px rgba(34, 201, 151, 0.6) !important;
+    transform: translateY(-1px);
+}
+#sshModal .ctrl-card {
+    background: linear-gradient(180deg, #071510 0%, #030a08 100%) !important;
+    border: 1px solid rgba(34, 201, 151, 0.38) !important;
+    box-shadow: 0 0 40px rgba(34, 201, 151, 0.2), 0 20px 60px rgba(0, 0, 0, 0.85) !important;
+}
+#sshModal .ctrl-header {
+    background: linear-gradient(90deg, rgba(34, 201, 151, 0.14) 0%, rgba(14, 163, 122, 0.04) 100%) !important;
+    border-bottom: 1px solid rgba(34, 201, 151, 0.2) !important;
+}
+#sshModal .ctrl-title {
+    color: #22c997 !important;
+    text-shadow: 0 0 14px rgba(34, 201, 151, 0.5);
+}
+
+/* ========================================================
+   Admin Console Tabs, Task Manager & Public Tunnel Styles
+   ======================================================== */
+.admin-tab-nav {
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px 0 16px;
+    background: rgba(0, 0, 0, 0.45);
+    border-bottom: 1px solid rgba(34, 201, 151, 0.2);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.admin-tab-nav::-webkit-scrollbar {
+    display: none;
+}
+.admin-nav-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: rgba(167, 243, 208, 0.65);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    border-radius: 8px 8px 0 0;
+}
+.admin-nav-tab:hover {
+    color: #22c997;
+    background: rgba(34, 201, 151, 0.06);
+}
+.admin-nav-tab.active {
+    color: #00ff9d;
+    background: rgba(34, 201, 151, 0.12);
+    border-bottom: 2px solid #22c997;
+    box-shadow: inset 0 -2px 10px rgba(34, 201, 151, 0.3);
+}
+.admin-nav-tab .tab-badge {
+    background: rgba(34, 201, 151, 0.2);
+    color: #22c997;
+    border: 1px solid rgba(34, 201, 151, 0.35);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-family: monospace;
+}
+.admin-nav-tab .tab-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #64748b;
+    box-shadow: none;
+    transition: all 0.25s;
+}
+.admin-nav-tab .tab-dot.online {
+    background: #00ff9d;
+    box-shadow: 0 0 10px #00ff9d;
+}
+
+.admin-tab-pane {
+    animation: tabFadeIn 0.22s ease-out;
+}
+@keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Task Manager Styles */
+.admin-taskmgr-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: rgba(34, 201, 151, 0.03);
+    border-bottom: 1px solid rgba(34, 201, 151, 0.15);
+    flex-wrap: wrap;
+}
+.taskmgr-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+.taskmgr-search-wrap .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    opacity: 0.6;
+    pointer-events: none;
+}
+.taskmgr-search-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(34, 201, 151, 0.28);
+    border-radius: 7px;
+    color: #e2e8f0;
+    padding: 7px 30px 7px 30px;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.taskmgr-search-input:focus {
+    border-color: #22c997;
+    box-shadow: 0 0 12px rgba(34, 201, 151, 0.3);
+}
+.taskmgr-clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 11px;
+}
+.taskmgr-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.taskmgr-auto-refresh-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: #a7f3d0;
+    cursor: pointer;
+    user-select: none;
+}
+.taskmgr-auto-refresh-label input[type="checkbox"] {
+    accent-color: #22c997;
+    cursor: pointer;
+}
+.pulse-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00ff9d;
+    box-shadow: 0 0 8px #00ff9d;
+    animation: livePulse 1.8s infinite;
+}
+@keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
+}
+.taskmgr-summary-strip {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(34, 201, 151, 0.1);
+    font-size: 11px;
+    color: #94a3b8;
+    overflow-x: auto;
+}
+.taskmgr-summary-strip b {
+    color: #22c997;
+    font-family: monospace;
+}
+.summary-sep {
+    color: rgba(34, 201, 151, 0.3);
+}
+.taskmgr-table-wrap {
+    max-height: 420px;
+    overflow-y: auto;
+    position: relative;
+}
+.taskmgr-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+}
+.taskmgr-table thead th {
+    position: sticky;
+    top: 0;
+    background: #071510;
+    padding: 9px 16px;
+    font-size: 10px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #a7f3d0;
+    border-bottom: 1px solid rgba(34, 201, 151, 0.2);
+    z-index: 2;
+}
+.taskmgr-table tbody tr {
+    border-bottom: 1px solid rgba(34, 201, 151, 0.08);
+    transition: background 0.15s;
+}
+.taskmgr-table tbody tr:hover {
+    background: rgba(34, 201, 151, 0.06);
+}
+.taskmgr-table td {
+    padding: 9px 16px;
+    color: #e2e8f0;
+    vertical-align: middle;
+}
+.proc-name-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.proc-name-title {
+    font-weight: 700;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.proc-cmd-sub {
+    font-size: 10px;
+    color: #64748b;
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 260px;
+}
+.proc-cat-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.proc-cat-badge.chimp {
+    background: rgba(34, 201, 151, 0.2);
+    color: #00ff9d;
+    border: 1px solid rgba(34, 201, 151, 0.4);
+}
+.proc-cat-badge.tunnel {
+    background: rgba(251, 191, 36, 0.18);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.35);
+}
+.proc-cat-badge.server {
+    background: rgba(56, 189, 248, 0.18);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.35);
+}
+.proc-cat-badge.system {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+}
+.proc-pid-pill {
+    font-family: monospace;
+    font-size: 11px;
+    color: #94a3b8;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.proc-cpu-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.proc-cpu-val {
+    font-family: monospace;
+    font-weight: 700;
+    min-width: 40px;
+}
+.proc-mini-bar {
+    width: 46px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.proc-mini-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+.btn-proc-kill {
+    background: rgba(248, 113, 113, 0.12);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+.btn-proc-kill:hover:not(:disabled) {
+    background: rgba(248, 113, 113, 0.28);
+    border-color: #f87171;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.35);
+    transform: scale(1.03);
+}
+.btn-proc-kill:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #64748b;
+}
+.taskmgr-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: #64748b;
+    font-size: 12px;
+}
+
+/* Tunnels & Network Tab Styles */
+.tunnel-pane-wrap {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 440px;
+    overflow-y: auto;
+}
+.tunnel-master-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(34, 201, 151, 0.05);
+    border: 1px solid rgba(34, 201, 151, 0.28);
+    border-radius: 12px;
+    transition: all 0.25s;
+}
+.tunnel-master-card.active {
+    background: linear-gradient(135deg, rgba(34, 201, 151, 0.12) 0%, rgba(14, 163, 122, 0.06) 100%);
+    border-color: rgba(34, 201, 151, 0.5);
+    box-shadow: 0 0 25px rgba(34, 201, 151, 0.18);
+}
+.tunnel-master-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.tunnel-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(34, 201, 151, 0.14);
+    border: 1px solid rgba(34, 201, 151, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+.tunnel-main-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: #f1f5f9;
+}
+.tunnel-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.tunnel-desc {
+    margin: 3px 0 0 0;
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.4;
+    max-width: 420px;
+}
+.tunnel-live-pill {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 2px 7px;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+.tunnel-live-pill.online {
+    background: rgba(34, 201, 151, 0.2);
+    color: #00ff9d;
+    border: 1px solid rgba(34, 201, 151, 0.45);
+    box-shadow: 0 0 10px rgba(34, 201, 151, 0.25);
+}
+.tunnel-live-pill.offline {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+}
+.switch.switch-lg {
+    width: 52px;
+    height: 28px;
+}
+.switch.switch-lg .slider::before {
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+}
+.switch.switch-lg input:checked + .slider::before {
+    transform: translateX(24px);
+}
+.tunnel-endpoints-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(34, 201, 151, 0.16);
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+.endpoint-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(34, 201, 151, 0.15);
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+.endpoint-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #a7f3d0;
+}
+.endpoint-val {
+    font-family: monospace;
+    font-size: 12px;
+    color: #00ff9d;
+    word-break: break-all;
+}
+.endpoint-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn-endpoint {
+    background: rgba(34, 201, 151, 0.12);
+    border: 1px solid rgba(34, 201, 151, 0.3);
+    color: #22c997;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.btn-endpoint:hover {
+    background: rgba(34, 201, 151, 0.25);
+    color: #00ff9d;
+    box-shadow: 0 0 10px rgba(34, 201, 151, 0.3);
+}
+
+/* Local Port Bindings Inspector */
+.port-inspector-card {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(34, 201, 151, 0.16);
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+.port-inspector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.port-inspector-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.ports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
+.port-tile {
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.2s;
+}
+.port-tile.open {
+    border-color: rgba(34, 201, 151, 0.35);
+    background: rgba(34, 201, 151, 0.04);
+}
+.port-tile.open:hover {
+    border-color: #22c997;
+    box-shadow: 0 0 12px rgba(34, 201, 151, 0.2);
+}
+.port-tile-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.port-number {
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 800;
+    color: #22c997;
+}
+.port-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+.port-status-dot.active {
+    background: #00ff9d;
+    box-shadow: 0 0 8px #00ff9d;
+}
+.port-status-dot.inactive {
+    background: #ef4444;
+    opacity: 0.6;
+}
+.port-tile-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+.port-tile-desc {
+    font-size: 10px;
+    color: #64748b;
+    line-height: 1.3;
+}
 </style>
 </head>
 <body>
@@ -1135,12 +1995,14 @@ input:checked + .slider:before {
 <div class="header">
     <div class="header-inner">
         <a class="logo" href="/">
-            <div class="logo-icon" id="chimpLogoBtn" onclick="handleLogoClick(event)" title="Chimp Server">&#x1f412;</div>
+            <div class="logo-icon" id="chimpLogoBtn" onclick="handleLogoClick(event)" title="Chimp Server">
+                <img src="chimp-ascii.svg" class="logo-svg" alt="Chimp">
+            </div>
             <div>Chimp<span>Server</span></div>
         </a>
         <div class="header-right">
             <a id="publicUrlBadge" class="public-url-badge" href="#" target="_blank" title="Open permanent public link">
-                <span>🌐</span> <span id="publicUrlDomain">Public Link</span>
+                <img src="/icon-sites.svg" class="nav-svg-icon" alt="Globe" style="width:14px; height:14px; margin-right:4px;"> <span id="publicUrlDomain">Public Link</span>
             </a>
             <div class="header-status">
                 <div class="status-pulse" id="statusPulse"></div>
@@ -1309,6 +2171,18 @@ input:checked + .slider:before {
     </div>
 </div>
 
+<!-- Sick Chimp Hyper-Zoom Pixel Explosion Overlay -->
+<div id="adminExplosionOverlay" class="admin-explosion-overlay">
+    <div class="explosion-flash"></div>
+    <div class="shockwave-ring"></div>
+    <div class="shockwave-ring" style="animation-delay: 0.12s;"></div>
+    <div class="explosion-chimp-wrap">
+        <img src="chimp-ascii.svg" style="width: 130px; height: 120px; object-fit: contain;" alt="Chimp">
+    </div>
+    <div id="explosionParticlesContainer" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;"></div>
+    <div class="explosion-hud-text">⚡ OVERRIDE ACCEPTED // SYSTEM UNLOCKED</div>
+</div>
+
 <!-- Admin Password Prompt Modal -->
 <div class="ctrl-overlay" id="adminAuthModal">
     <div class="ctrl-card" style="max-width: 420px; text-align: center; border-color: rgba(167, 139, 250, 0.3);">
@@ -1319,7 +2193,11 @@ input:checked + .slider:before {
             <button class="btn-ctrl" style="position: absolute; right: 16px; top: 16px; padding: 4px 8px;" onclick="closeAdminAuthModal()">✕</button>
         </div>
         <div style="padding: 24px;">
-            <div style="font-size: 38px; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(167,139,250,0.3));">🐒</div>
+            <div style="display: flex; justify-content: center; margin-bottom: 14px;">
+                <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.3); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(167,139,250,0.2);">
+                    <img src="chimp-ascii.svg" style="width: 36px; height: 33px; object-fit: contain;" alt="Chimp">
+                </div>
+            </div>
             <div style="font-size: 15px; font-weight: 700; margin-bottom: 20px;">Chimp Admin Console</div>
             <form id="adminAuthForm" onsubmit="handleAdminAuth(event)">
                 <div style="margin-bottom: 18px; text-align: left;">
@@ -1341,31 +2219,148 @@ input:checked + .slider:before {
 
 <!-- Admin Service Control Panel Modal -->
 <div class="ctrl-overlay" id="adminModal">
-    <div class="ctrl-card" style="max-width: 680px; border-color: var(--admin-card-border); box-shadow: var(--modal-shadow);">
-        <div class="ctrl-header" style="background: linear-gradient(90deg, rgba(167, 139, 250, 0.12) 0%, transparent 100%);">
-            <div class="ctrl-title" style="color: var(--purple-text);">
-                Admin Control Panel
+    <div class="ctrl-card admin-ctrl-card">
+        <div class="ctrl-header">
+            <div class="ctrl-title" style="display: flex; align-items: center; gap: 8px;">
+                <span>⚡</span> Master Admin Console
             </div>
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
                 <button class="btn-ctrl" style="padding: 4px 10px; font-size: 11px; background: rgba(248,113,113,0.15); color: #f87171; border-color: rgba(248,113,113,0.3);" onclick="adminLogout()" title="Lock Admin Panel">🔒 Lock</button>
                 <button class="btn-ctrl" style="padding: 4px 8px;" onclick="closeAdminModal()">✕</button>
             </div>
         </div>
-        <div class="admin-sub-bar" style="padding: 12px 24px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-            <span>Master daemon control. Disabling a service terminates its process and locks it in the standard user panel.</span>
-            <div class="admin-sub-bar-actions" style="display: flex; align-items: center; gap: 10px;">
-                <button class="btn-ctrl" onclick="openSshModal()" style="padding: 3px 10px; font-size: 11px; background: rgba(34,201,151,0.12); color: var(--accent); border-color: rgba(34,201,151,0.3); font-weight: 600; display: inline-flex; align-items: center; gap: 5px;" title="Open Remote SSH Command">
-                    <span>⚡</span> SSH Connect
-                </button>
-                <span style="font-family: monospace; color: var(--accent); background: var(--accent-dim); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">SESSION: AUTHENTICATED</span>
+
+        <!-- Tab Navigation Bar -->
+        <div class="admin-tab-nav">
+            <button class="admin-nav-tab active" id="tabBtn-services" onclick="switchAdminTab('services')">
+                <span>⚙️ Services</span>
+            </button>
+            <button class="admin-nav-tab" id="tabBtn-tasks" onclick="switchAdminTab('tasks')">
+                <span>📊 Task Manager</span>
+                <span class="tab-badge" id="adminTasksCountBadge">0</span>
+            </button>
+            <button class="admin-nav-tab" id="tabBtn-tunnels" onclick="switchAdminTab('tunnels')">
+                <span style="display:inline-flex; align-items:center; gap:6px;"><img src="/icon-sites.svg" class="nav-svg-icon" alt="Network" style="width:14px; height:14px;"> Tunnels & Network</span>
+                <span class="tab-dot" id="adminTunnelDot"></span>
+            </button>
+        </div>
+
+        <!-- TAB 1: Services -->
+        <div class="admin-tab-pane active" id="adminPane-services">
+            <div class="admin-sub-bar" style="padding: 12px 24px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span>Master daemon control. Disabling a service terminates its background process and locks it in the standard panel.</span>
+                <div class="admin-sub-bar-actions" style="display: flex; align-items: center; gap: 10px;">
+                    <button class="btn-ssh-electric" onclick="openSshModal()" title="Open Remote SSH Command">
+                        <span>⚡</span> SSH Connect
+                    </button>
+                    <span class="session-badge">SESSION: AUTHENTICATED</span>
+                </div>
+            </div>
+            <div class="ctrl-body" id="adminServicesList">
+                <!-- Dynamically populated -->
             </div>
         </div>
 
-        <div class="ctrl-body" id="adminServicesList">
-            <!-- Dynamically populated -->
+        <!-- TAB 2: Task Manager (Live Process Monitor) -->
+        <div class="admin-tab-pane" id="adminPane-tasks" style="display: none;">
+            <div class="admin-taskmgr-bar">
+                <div class="taskmgr-search-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="adminProcSearch" class="taskmgr-search-input" placeholder="Filter by name, PID, command..." oninput="filterAdminProcesses()">
+                    <button class="taskmgr-clear-btn" onclick="clearAdminProcSearch()" id="adminProcSearchClear" style="display:none;">✕</button>
+                </div>
+                <div class="taskmgr-actions">
+                    <label class="taskmgr-auto-refresh-label" title="Automatically poll top processes every 3 seconds">
+                        <input type="checkbox" id="adminProcAutoRefresh" checked onchange="toggleAdminProcAutoRefresh()">
+                        <span class="pulse-indicator"></span>
+                        <span>Auto (3s)</span>
+                    </label>
+                    <button class="btn-ssh-electric" onclick="fetchAdminProcesses(true)" title="Refresh Process List">
+                        <span>🔄</span> Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="taskmgr-summary-strip" id="adminProcSummaryStrip">
+                <div class="summary-stat"><span>Active:</span> <b id="taskmgrStatTotal">0</b> procs</div>
+                <div class="summary-sep">•</div>
+                <div class="summary-stat"><span>Top CPU:</span> <b id="taskmgrStatCpu">0.0%</b></div>
+                <div class="summary-sep">•</div>
+                <div class="summary-stat"><span>Total RSS:</span> <b id="taskmgrStatRam">0.0 MB</b></div>
+            </div>
+            <div class="taskmgr-table-wrap">
+                <table class="taskmgr-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 32%;">PROCESS / SERVICE</th>
+                            <th style="width: 12%;">PID</th>
+                            <th style="width: 18%;">CPU%</th>
+                            <th style="width: 14%;">RAM</th>
+                            <th style="width: 12%;">STAT</th>
+                            <th style="width: 12%; text-align: right;">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminProcTableBody">
+                        <!-- Dynamically populated -->
+                    </tbody>
+                </table>
+                <div id="adminProcEmpty" class="taskmgr-empty" style="display: none;">
+                    No processes found matching query.
+                </div>
+            </div>
         </div>
+
+        <!-- TAB 3: Tunnels & Network -->
+        <div class="admin-tab-pane" id="adminPane-tunnels" style="display: none;">
+            <div class="tunnel-pane-wrap">
+                <!-- Master Tunnel Toggle Card -->
+                <div class="tunnel-master-card" id="tunnelMasterCard">
+                    <div class="tunnel-master-info">
+                        <div class="tunnel-icon-wrap" id="tunnelIconWrap">
+                            <img src="/icon-sites.svg" style="width:26px; height:26px;" alt="Network">
+                        </div>
+                        <div>
+                            <div class="tunnel-title-row">
+                                <h3 class="tunnel-main-title">Public Internet Gateway</h3>
+                                <span class="tunnel-live-pill" id="tunnelLivePill">CHECKING...</span>
+                            </div>
+                            <p class="tunnel-desc">
+                                Encrypted Ngrok reverse tunnel routing public HTTPS web traffic and TCP SSH directly to your phone.
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="switch switch-lg" title="Toggle Public Internet Tunnel">
+                            <input type="checkbox" id="tunnelMasterToggle" onchange="togglePublicTunnel(this.checked)">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Live Tunnel Endpoints Display -->
+                <div class="tunnel-endpoints-card" id="tunnelEndpointsCard">
+                    <!-- Dynamic URL display & copy controls -->
+                </div>
+
+                <!-- Local Port Bindings Inspector -->
+                <div class="port-inspector-card">
+                    <div class="port-inspector-header">
+                        <div class="port-inspector-title">
+                            <span>🔌</span>
+                            <span>Local Port Bindings & Listener Inspector</span>
+                        </div>
+                        <button class="btn-ssh-electric" onclick="fetchAdminTunnel()" title="Re-scan port listeners">
+                            <span>⚡</span> Scan Ports
+                        </button>
+                    </div>
+                    <div class="ports-grid" id="adminPortsGrid">
+                        <!-- Dynamically populated port tiles -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="ctrl-footer">
-            <button class="btn-ctrl" onclick="closeAdminModal()">Done</button>
+            <button class="btn-done-electric" onclick="closeAdminModal()">Done</button>
         </div>
     </div>
 </div>
@@ -1436,7 +2431,7 @@ function setBar(id, percent) {
     bar.className = "progress-fill " + (percent >= 90 ? "red" : percent >= 75 ? "yellow" : "green");
 }
 
-/* 7-Click Easter Egg on 🐒 Logo (must be continuous within 1-second gaps) */
+/* 7-Click Secret Easter Egg on Chimp Logo to reveal Admin Console */
 function handleLogoClick(event) {
     if (event) {
         event.preventDefault();
@@ -1453,7 +2448,9 @@ function handleLogoClick(event) {
 
     const logoEl = document.getElementById("chimpLogoBtn");
     if (logoEl) {
-        logoEl.style.transform = `scale(${1 + Math.min(logoClicks, 7) * 0.05}) rotate(${logoClicks % 2 === 0 ? -10 : 10}deg)`;
+        const tilt = (logoClicks % 2 === 0 ? -12 : 12);
+        const scale = 1 + Math.min(logoClicks, 7) * 0.06;
+        logoEl.style.transform = `scale(${scale}) rotate(${tilt}deg)`;
         setTimeout(() => {
             if (logoEl) logoEl.style.transform = "scale(1) rotate(0deg)";
         }, 130);
@@ -1493,6 +2490,22 @@ async function fetchServices() {
     }
 }
 
+function renderSvcIcon(s) {
+    if (!s) return "";
+    const iconMap = {
+        "drop": "/icon-drop.svg",
+        "files": "/icon-drive.svg",
+        "photos": "/icon-pix.svg",
+        "cron": "/icon-cron.svg",
+        "sites": "/icon-sites.svg"
+    };
+    const iconSrc = iconMap[s.id] || (s.icon && (s.icon.endsWith(".svg") || s.icon.startsWith("/")) ? s.icon : null);
+    if (iconSrc) {
+        return `<img src="${iconSrc}" class="svc-vector-icon" alt="${escapeHtml(s.name)}" />`;
+    }
+    return s.icon || "⚙️";
+}
+
 function renderDashboardServices(services) {
     const grid = document.getElementById("servicesGrid");
     const activeCount = services.filter(s => s.enabled && s.running).length;
@@ -1517,7 +2530,7 @@ function renderDashboardServices(services) {
 
         return `
         <a class="service-card" href="${s.url}" style="${!s.enabled ? 'opacity: 0.5; filter: grayscale(0.5);' : ''}">
-            <div class="service-icon" style="background: ${s.bg}; color: ${s.color};">${s.icon}</div>
+            <div class="service-icon" style="background: ${s.bg}; color: ${s.color};">${renderSvcIcon(s)}</div>
             <div>
                 <div class="service-name" style="display: flex; align-items: center; gap: 8px;">
                     <span>${s.name}</span>
@@ -1543,7 +2556,7 @@ function renderControlPanel(services) {
             return `
             <div class="ctrl-service-row locked-service" title="Service disabled and locked by Admin">
                 <div class="ctrl-service-left">
-                    <div class="ctrl-service-icon" style="background: ${s.bg}; color: ${s.color};">${s.icon}</div>
+                    <div class="ctrl-service-icon" style="background: ${s.bg}; color: ${s.color};">${renderSvcIcon(s)}</div>
                     <div>
                         <div class="ctrl-service-name">
                             <span>${s.name}</span>
@@ -1572,7 +2585,7 @@ function renderControlPanel(services) {
         return `
         <div class="ctrl-service-row">
             <div class="ctrl-service-left">
-                <div class="ctrl-service-icon" style="background: ${s.bg}; color: ${s.color};">${s.icon}</div>
+                <div class="ctrl-service-icon" style="background: ${s.bg}; color: ${s.color};">${renderSvcIcon(s)}</div>
                 <div>
                     <div class="ctrl-service-name">
                         <span>${s.name}</span>
@@ -1644,10 +2657,40 @@ async function openAdminModal() {
     }, 150);
 }
 
+let adminActiveTab = "services";
+let adminProcRefreshTimer = null;
+let adminProcList = [];
+let adminTunnelData = null;
+
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function copyToClipboard(text, msg = "Copied to clipboard! 📋") {
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(msg);
+        }).catch(() => {
+            fallbackCopy(text);
+        });
+    } else {
+        fallbackCopy(text);
+    }
+}
+
 function showAdminPanel() {
     document.getElementById("adminModal").classList.add("active");
-    renderAdminControlPanel(servicesList);
-    fetchServices();
+    switchAdminTab(adminActiveTab || "services");
+    // Pre-fetch task counts and tunnel indicators in the background
+    fetchAdminProcesses(false);
+    fetchAdminTunnel();
 }
 
 function closeAdminAuthModal() {
@@ -1655,15 +2698,485 @@ function closeAdminAuthModal() {
 }
 
 function closeAdminModal() {
+    stopAdminProcAutoRefresh();
     closeSshModal();
     document.getElementById("adminModal").classList.remove("active");
 }
 
 function adminLogout() {
     sessionStorage.removeItem("chimp_admin_pass");
+    stopAdminProcAutoRefresh();
     closeSshModal();
     closeAdminModal();
     showToast("Admin console locked 🔒");
+}
+
+/* Tab Navigation Switcher */
+function switchAdminTab(tabName) {
+    adminActiveTab = tabName;
+    
+    // Update navigation button active state
+    ["services", "tasks", "tunnels"].forEach(t => {
+        const btn = document.getElementById(`tabBtn-${t}`);
+        const pane = document.getElementById(`adminPane-${t}`);
+        if (btn) btn.classList.toggle("active", t === tabName);
+        if (pane) {
+            pane.style.display = (t === tabName) ? "block" : "none";
+            if (t === tabName) pane.classList.add("active");
+            else pane.classList.remove("active");
+        }
+    });
+
+    if (tabName !== "tasks") {
+        stopAdminProcAutoRefresh();
+    }
+
+    if (tabName === "services") {
+        renderAdminControlPanel(servicesList);
+        fetchServices();
+    } else if (tabName === "tasks") {
+        fetchAdminProcesses();
+        startAdminProcAutoRefresh();
+    } else if (tabName === "tunnels") {
+        fetchAdminTunnel();
+    }
+}
+
+/* Task Manager (Live Process Monitor) Logic */
+function startAdminProcAutoRefresh() {
+    stopAdminProcAutoRefresh();
+    const chk = document.getElementById("adminProcAutoRefresh");
+    if (chk && !chk.checked) return;
+    
+    adminProcRefreshTimer = setInterval(() => {
+        const modal = document.getElementById("adminModal");
+        if (modal && modal.classList.contains("active") && adminActiveTab === "tasks") {
+            fetchAdminProcesses(false);
+        } else {
+            stopAdminProcAutoRefresh();
+        }
+    }, 3000);
+}
+
+function stopAdminProcAutoRefresh() {
+    if (adminProcRefreshTimer) {
+        clearInterval(adminProcRefreshTimer);
+        adminProcRefreshTimer = null;
+    }
+}
+
+function toggleAdminProcAutoRefresh() {
+    const chk = document.getElementById("adminProcAutoRefresh");
+    if (chk && chk.checked) {
+        startAdminProcAutoRefresh();
+    } else {
+        stopAdminProcAutoRefresh();
+    }
+}
+
+async function fetchAdminProcesses(manual = false) {
+    if (manual) showToast("Refreshing processes...", "info");
+    try {
+        const res = await fetch("/api/admin/processes");
+        if (!res.ok) throw new Error("Failed to load processes");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.processes)) {
+            adminProcList = data.processes;
+            
+            // Update badges & stats
+            const badge = document.getElementById("adminTasksCountBadge");
+            if (badge) badge.textContent = data.count || data.processes.length;
+            
+            const totalStat = document.getElementById("taskmgrStatTotal");
+            if (totalStat) totalStat.textContent = data.count || data.processes.length;
+
+            if (data.processes.length > 0) {
+                const maxCpu = Math.max(...data.processes.map(p => p.cpu || 0));
+                const totalRam = data.processes.reduce((acc, p) => acc + (p.rss_mb || 0), 0);
+                const cpuStat = document.getElementById("taskmgrStatCpu");
+                if (cpuStat) cpuStat.textContent = maxCpu.toFixed(1) + "%";
+                const ramStat = document.getElementById("taskmgrStatRam");
+                if (ramStat) ramStat.textContent = totalRam.toFixed(1) + " MB";
+            }
+
+            renderAdminProcessesTable();
+            if (manual) showToast("Processes updated", "success");
+        }
+    } catch (e) {
+        console.error("Error loading processes:", e);
+        if (manual) showToast("Failed to refresh processes", "error");
+    }
+}
+
+function filterAdminProcesses() {
+    renderAdminProcessesTable();
+}
+
+function clearAdminProcSearch() {
+    const inp = document.getElementById("adminProcSearch");
+    if (inp) {
+        inp.value = "";
+        renderAdminProcessesTable();
+        inp.focus();
+    }
+}
+
+function renderAdminProcessesTable() {
+    const tbody = document.getElementById("adminProcTableBody");
+    const emptyEl = document.getElementById("adminProcEmpty");
+    const searchInp = document.getElementById("adminProcSearch");
+    const clearBtn = document.getElementById("adminProcSearchClear");
+    if (!tbody) return;
+
+    const query = searchInp ? searchInp.value.trim().toLowerCase() : "";
+    if (clearBtn) clearBtn.style.display = query ? "block" : "none";
+
+    let procs = adminProcList || [];
+    if (query) {
+        procs = procs.filter(p => 
+            p.name.toLowerCase().includes(query) ||
+            String(p.pid).includes(query) ||
+            p.command.toLowerCase().includes(query) ||
+            p.user.toLowerCase().includes(query) ||
+            p.category.toLowerCase().includes(query)
+        );
+    }
+
+    if (procs.length === 0) {
+        tbody.innerHTML = "";
+        if (emptyEl) emptyEl.style.display = "block";
+        return;
+    }
+    if (emptyEl) emptyEl.style.display = "none";
+
+    tbody.innerHTML = procs.map(p => {
+        const cpuPercent = p.cpu || 0;
+        let cpuColor = "#22c997";
+        if (cpuPercent > 60) cpuColor = "#f87171";
+        else if (cpuPercent > 20) cpuColor = "#fbbf24";
+
+        const fillWidth = Math.min(100, Math.max(3, cpuPercent));
+        const catClass = ["chimp", "tunnel", "server", "system"].includes(p.category) ? p.category : "system";
+
+        return `
+        <tr>
+            <td>
+                <div class="proc-name-cell">
+                    <div class="proc-name-title">
+                        <span>${escapeHtml(p.name)}</span>
+                        <span class="proc-cat-badge ${catClass}">${escapeHtml(p.category)}</span>
+                        ${p.is_self ? '<span style="font-size: 9px; color: #22c997; border: 1px solid rgba(34,201,151,0.4); padding: 0 4px; border-radius: 3px;">MONITOR</span>' : ''}
+                    </div>
+                    <div class="proc-cmd-sub" title="${escapeHtml(p.command)}">${escapeHtml(p.command)}</div>
+                </div>
+            </td>
+            <td>
+                <span class="proc-pid-pill">${p.pid}</span>
+            </td>
+            <td>
+                <div class="proc-cpu-bar-wrap">
+                    <span class="proc-cpu-val" style="color: ${cpuColor};">${cpuPercent.toFixed(1)}%</span>
+                    <div class="proc-mini-bar">
+                        <div class="proc-mini-fill" style="width: ${fillWidth}%; background: ${cpuColor};"></div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <span style="font-family: monospace; font-weight: 600; color: #cbd5e1;">${(p.rss_mb || 0).toFixed(1)} MB</span>
+            </td>
+            <td>
+                <span style="font-family: monospace; font-size: 11px; color: #94a3b8;" title="User: ${escapeHtml(p.user)} | Stat: ${escapeHtml(p.stat)} | Time: ${escapeHtml(p.time)}">${escapeHtml(p.stat)} &middot; ${escapeHtml(p.time)}</span>
+            </td>
+            <td style="text-align: right;">
+                <button class="btn-proc-kill" ${p.killable ? "" : "disabled title=\"Protected process\""} onclick="adminKillProcess(${p.pid}, '${escapeHtml(p.name).replace(/'/g, "\\'")}')">
+                    ${p.killable ? "🚫 Kill" : "🔒 System"}
+                </button>
+            </td>
+        </tr>`;
+    }).join("");
+}
+
+async function adminKillProcess(pid, name) {
+    if (!confirm(`Are you sure you want to terminate ${name} (PID: ${pid})?`)) {
+        return;
+    }
+    const pass = sessionStorage.getItem("chimp_admin_pass");
+    if (!pass) {
+        showToast("Admin session expired. Please unlock.", "error");
+        closeAdminModal();
+        openAdminModal();
+        return;
+    }
+
+    showToast(`Terminating PID ${pid}...`, "info");
+    try {
+        const res = await fetch("/api/admin/processes/kill", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pid, password: pass })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            showToast(`Process ${pid} terminated`, "success");
+            if (data.processes) {
+                adminProcList = data.processes;
+                renderAdminProcessesTable();
+            } else {
+                fetchAdminProcesses(false);
+            }
+        } else {
+            showToast(data.error || data.message || "Failed to terminate process", "error");
+        }
+    } catch (e) {
+        showToast("Network error terminating process", "error");
+    }
+}
+
+/* Tunnels & Network Tab Logic */
+async function fetchAdminTunnel() {
+    try {
+        const res = await fetch("/api/admin/tunnel");
+        if (!res.ok) throw new Error("Failed to load tunnel");
+        const data = await res.json();
+        if (data.success && data.tunnel) {
+            adminTunnelData = data.tunnel;
+            renderAdminTunnelView();
+        }
+    } catch (e) {
+        console.error("Error loading tunnel:", e);
+    }
+}
+
+function renderAdminTunnelView() {
+    if (!adminTunnelData) return;
+    const t = adminTunnelData;
+    
+    // Master toggle & indicators
+    const toggle = document.getElementById("tunnelMasterToggle");
+    if (toggle) toggle.checked = !!t.enabled;
+
+    const masterCard = document.getElementById("tunnelMasterCard");
+    if (masterCard) {
+        masterCard.classList.toggle("active", !!t.running);
+    }
+
+    const pill = document.getElementById("tunnelLivePill");
+    if (pill) {
+        if (t.running) {
+            pill.textContent = "● ONLINE: PUBLIC";
+            pill.className = "tunnel-live-pill online";
+        } else {
+            pill.textContent = "○ LOCAL ONLY (LAN)";
+            pill.className = "tunnel-live-pill offline";
+        }
+    }
+
+    const dot = document.getElementById("adminTunnelDot");
+    if (dot) {
+        dot.className = "tab-dot " + (t.running ? "online" : "");
+    }
+
+    // Endpoints display
+    const endpointsCard = document.getElementById("tunnelEndpointsCard");
+    if (endpointsCard) {
+        if (t.running && t.public_url) {
+            const sshCmd = t.public_ssh ? t.public_ssh.command : null;
+            endpointsCard.innerHTML = `
+                <div class="endpoint-row">
+                    <div class="endpoint-label">
+                        <img src="/icon-sites.svg" class="nav-svg-icon" alt="Globe">
+                        <span>Public Web Gateway:</span>
+                    </div>
+                    <div class="endpoint-val">${escapeHtml(t.public_url)}</div>
+                    <div class="endpoint-btn-group">
+                        <a href="${escapeHtml(t.public_url)}" target="_blank" class="btn-endpoint">Open ↗</a>
+                        <button class="btn-endpoint" onclick="copyToClipboard('${escapeHtml(t.public_url)}', 'Web URL copied! 📋')">Copy 📋</button>
+                    </div>
+                </div>
+                ${sshCmd ? `
+                <div class="endpoint-row">
+                    <div class="endpoint-label">
+                        <span>⚡</span>
+                        <span>Public SSH Tunnel:</span>
+                    </div>
+                    <div class="endpoint-val">${escapeHtml(sshCmd)}</div>
+                    <div class="endpoint-btn-group">
+                        <button class="btn-endpoint" onclick="copyToClipboard('${escapeHtml(sshCmd)}', 'SSH command copied! 📋')">Copy Command 📋</button>
+                    </div>
+                </div>` : ''}
+            `;
+        } else {
+            endpointsCard.innerHTML = `
+                <div style="padding: 12px; text-align: center; color: #94a3b8; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <span style="font-size: 20px;">🔒</span>
+                    <span>Public Internet Tunnel is currently <b>DISABLED</b>.</span>
+                    <span style="color: #64748b; font-size: 11px;">The server is strictly accessible on your local Wi-Fi network (http://${window.location.hostname}:8080).</span>
+                </div>
+            `;
+        }
+    }
+
+    // Ports Grid
+    const portsGrid = document.getElementById("adminPortsGrid");
+    if (portsGrid && Array.isArray(t.ports)) {
+        portsGrid.innerHTML = t.ports.map(p => `
+            <div class="port-tile ${p.open ? 'open' : ''}">
+                <div class="port-tile-top">
+                    <span class="port-number">:${p.port}</span>
+                    <span class="port-status-dot ${p.open ? 'active' : 'inactive'}" title="${p.open ? 'Listening & accepting connections' : 'Inactive / Port closed'}"></span>
+                </div>
+                <div class="port-tile-name">${escapeHtml(p.name)}</div>
+                <div class="port-tile-desc">${escapeHtml(p.desc)}</div>
+            </div>
+        `).join("");
+    }
+}
+
+async function togglePublicTunnel(enabled) {
+    const pass = sessionStorage.getItem("chimp_admin_pass");
+    if (!pass) {
+        showToast("Admin session expired. Please unlock.", "error");
+        closeAdminModal();
+        openAdminModal();
+        return;
+    }
+
+    showToast(`${enabled ? "Starting" : "Stopping"} Public Tunnel...`, "info");
+    try {
+        const res = await fetch("/api/admin/tunnel/toggle", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ enabled, password: pass })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+            adminTunnelData = data.tunnel;
+            renderAdminTunnelView();
+            showToast(`Public tunnel ${enabled ? "activated" : "disabled"}!`, "success");
+            fetchStatus(); // update header badge & public url
+        } else {
+            showToast(data.error || "Failed to toggle public tunnel", "error");
+            const toggle = document.getElementById("tunnelMasterToggle");
+            if (toggle) toggle.checked = !enabled;
+        }
+    } catch (e) {
+        showToast("Network error toggling tunnel", "error");
+        const toggle = document.getElementById("tunnelMasterToggle");
+        if (toggle) toggle.checked = !enabled;
+    }
+}
+
+/* High-tech Web Audio Synthesizer for Pixel Explosion (Cinematic 1.8s Timing) */
+function playExplosionSound() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        if (ctx.state === "suspended") ctx.resume();
+        const now = ctx.currentTime;
+
+        // Charge-up oscillator (rising frequency from 120Hz to 520Hz during 0-0.8s)
+        const oscCharge = ctx.createOscillator();
+        const gainCharge = ctx.createGain();
+        oscCharge.type = "sawtooth";
+        oscCharge.connect(gainCharge);
+        gainCharge.connect(ctx.destination);
+
+        oscCharge.frequency.setValueAtTime(120, now);
+        oscCharge.frequency.exponentialRampToValueAtTime(520, now + 0.8);
+        gainCharge.gain.setValueAtTime(0.01, now);
+        gainCharge.gain.linearRampToValueAtTime(0.2, now + 0.4);
+        gainCharge.gain.exponentialRampToValueAtTime(0.001, now + 0.85);
+
+        oscCharge.start(now);
+        oscCharge.stop(now + 0.88);
+
+        // Sub-bass detonation boom (triggers at 0.75s as chimp hyper-zooms)
+        const oscBoom = ctx.createOscillator();
+        const gainBoom = ctx.createGain();
+        oscBoom.type = "triangle";
+        oscBoom.connect(gainBoom);
+        gainBoom.connect(ctx.destination);
+
+        const boomStart = now + 0.7;
+        oscBoom.frequency.setValueAtTime(220, boomStart);
+        oscBoom.frequency.exponentialRampToValueAtTime(65, boomStart + 0.35);
+        oscBoom.frequency.exponentialRampToValueAtTime(28, boomStart + 1.0);
+
+        gainBoom.gain.setValueAtTime(0.01, boomStart);
+        gainBoom.gain.linearRampToValueAtTime(0.35, boomStart + 0.08);
+        gainBoom.gain.exponentialRampToValueAtTime(0.001, boomStart + 1.05);
+
+        oscBoom.start(boomStart);
+        oscBoom.stop(boomStart + 1.1);
+
+        // High frequency cyber laser / powerup chirp at peak detonation
+        const oscLaser = ctx.createOscillator();
+        const gainLaser = ctx.createGain();
+        oscLaser.type = "sine";
+        oscLaser.connect(gainLaser);
+        gainLaser.connect(ctx.destination);
+
+        oscLaser.frequency.setValueAtTime(800, boomStart);
+        oscLaser.frequency.exponentialRampToValueAtTime(2200, boomStart + 0.35);
+
+        gainLaser.gain.setValueAtTime(0.12, boomStart);
+        gainLaser.gain.exponentialRampToValueAtTime(0.001, boomStart + 0.45);
+
+        oscLaser.start(boomStart);
+        oscLaser.stop(boomStart + 0.48);
+    } catch (e) {}
+}
+
+/* Sick Chimp Hyper-Zoom Pixel Explosion Animation (Cinematic 1.8s) */
+function triggerChimpExplosionAnimation() {
+    return new Promise((resolve) => {
+        playExplosionSound();
+        const overlay = document.getElementById("adminExplosionOverlay");
+        if (!overlay) {
+            resolve();
+            return;
+        }
+
+        const container = document.getElementById("explosionParticlesContainer");
+        if (container) {
+            container.innerHTML = "";
+            const colors = ["#22c997", "#00ff9d", "#34d399", "#a7f3d0", "#ffffff", "#059669", "#0ea37a"];
+            const count = window.innerWidth <= 600 ? 38 : 62;
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement("div");
+                p.className = "pixel-particle";
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 160 + Math.random() * (window.innerWidth <= 600 ? 320 : 680);
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                const rot = (Math.random() - 0.5) * 900;
+                const scale = 0.6 + Math.random() * 2.2;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                p.style.backgroundColor = color;
+                p.style.boxShadow = `0 0 16px ${color}`;
+                p.style.transform = `translate(0px, 0px) scale(${scale}) rotate(0deg)`;
+                p.style.opacity = "1";
+                p.style.transition = `transform 1.4s cubic-bezier(0.14, 0.86, 0.28, 1), opacity 1.4s ease-out`;
+                container.appendChild(p);
+
+                // Burst outward at peak detonation moment
+                setTimeout(() => {
+                    p.style.transform = `translate(${tx}px, ${ty}px) scale(${scale * 0.3}) rotate(${rot}deg)`;
+                    p.style.opacity = "0";
+                }, 380);
+            }
+        }
+
+        overlay.classList.add("active");
+
+        setTimeout(() => {
+            overlay.classList.remove("active");
+            if (container) container.innerHTML = "";
+            resolve();
+        }, 1800);
+    });
 }
 
 async function handleAdminAuth(event) {
@@ -1686,12 +3199,19 @@ async function handleAdminAuth(event) {
         if (res.ok && data.success) {
             sessionStorage.setItem("chimp_admin_pass", pass);
             closeAdminAuthModal();
+            // Trigger sick hyper-zoom pixel explosion!
+            await triggerChimpExplosionAnimation();
             showAdminPanel();
-            showToast("Admin Console Unlocked! 🔒");
+            showToast("⚡ Admin Console Unlocked! 🔓");
         } else {
             errEl.textContent = "❌ " + (data.error || "Invalid password");
             errEl.style.display = "block";
             document.getElementById("adminPasswordInput").select();
+            const card = document.querySelector("#adminAuthModal .ctrl-card");
+            if (card) {
+                card.classList.add("modal-shake");
+                setTimeout(() => card.classList.remove("modal-shake"), 400);
+            }
         }
     } catch (err) {
         errEl.textContent = "❌ Network error. Try again.";
@@ -1810,12 +3330,12 @@ function renderAdminControlPanel(services) {
         return `
         <div class="ctrl-service-row">
             <div class="ctrl-service-left">
-                <div class="ctrl-service-icon" style="background: ${s.bg}; color: ${s.color};">${s.icon}</div>
+                <div class="ctrl-service-icon" style="background: ${s.bg}; color: ${s.color};">${renderSvcIcon(s)}</div>
                 <div>
                     <div class="ctrl-service-name">
                         <span>${s.name}</span>
                         <span class="status-pill ${isRunning ? 'online' : 'offline'}">${isRunning ? 'Online' : 'Stopped'}</span>
-                        ${s.enabled ? '<span style="font-size: 10px; background: rgba(34,201,151,0.15); color: #22c997; padding: 2px 6px; border-radius: 4px; font-weight: 600;">ENABLED</span>' : '<span style="font-size: 10px; background: rgba(248,113,113,0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-weight: 600;">LOCKED</span>'}
+                        ${s.enabled ? '<span style="font-size: 10px; background: rgba(34,201,151,0.15); color: #22c997; border: 1px solid rgba(34,201,151,0.35); padding: 2px 7px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(34,201,151,0.2);">ENABLED</span>' : '<span style="font-size: 10px; background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); padding: 2px 7px; border-radius: 4px; font-weight: 700; letter-spacing: 0.5px;">LOCKED</span>'}
                     </div>
                     <div class="ctrl-service-sub">${s.desc} &middot; <code>${s.url}</code> ${s.port ? `&middot; Port ${s.port}` : ''}</div>
                 </div>
@@ -1823,7 +3343,7 @@ function renderAdminControlPanel(services) {
 
             <div class="ctrl-toggles">
                 <div class="toggle-wrap">
-                    <span style="font-weight: 600; color: ${s.enabled ? 'var(--accent)' : 'var(--red)'};">${s.enabled ? 'Enabled' : 'Disabled'}</span>
+                    <span style="font-weight: 700; color: ${s.enabled ? '#22c997' : 'var(--red)'}; text-shadow: ${s.enabled ? '0 0 10px rgba(34,201,151,0.4)' : 'none'};">${s.enabled ? 'Enabled' : 'Disabled'}</span>
                     <label class="switch" title="Master process control">
                         <input type="checkbox" ${s.enabled ? 'checked' : ''} ${isStatic ? 'disabled' : ''} onchange="adminToggleService('${s.id}', this.checked)">
                         <span class="slider"></span>

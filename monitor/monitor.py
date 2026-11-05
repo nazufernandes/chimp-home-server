@@ -37,7 +37,7 @@ SERVICES_DEF = [
         "id": "drop",
         "name": "ChimpDrop",
         "desc": "Universal Clipboard & File Drop",
-        "icon": "📋",
+        "icon": "/icon-drop.svg",
         "color": "#22c997",
         "bg": "rgba(34,201,151,0.12)",
         "url": "/drop/",
@@ -49,7 +49,7 @@ SERVICES_DEF = [
         "id": "files",
         "name": "ChimpDrive",
         "desc": "Cloud Explorer & File Storage",
-        "icon": "📁",
+        "icon": "/icon-drive.svg",
         "color": "#38bdf8",
         "bg": "rgba(56,189,248,0.12)",
         "url": "/files/",
@@ -61,7 +61,7 @@ SERVICES_DEF = [
         "id": "photos",
         "name": "ChimpPix",
         "desc": "Media Gallery & EXIF Inspector",
-        "icon": "📷",
+        "icon": "/icon-pix.svg",
         "color": "#a78bfa",
         "bg": "rgba(167,139,250,0.12)",
         "url": "/photos/",
@@ -73,7 +73,7 @@ SERVICES_DEF = [
         "id": "cron",
         "name": "ChimpCron",
         "desc": "Scheduled Automation & Tasks",
-        "icon": "⏰",
+        "icon": "/icon-cron.svg",
         "color": "#fbbf24",
         "bg": "rgba(251,191,36,0.12)",
         "url": "/cron/",
@@ -85,7 +85,7 @@ SERVICES_DEF = [
         "id": "sites",
         "name": "ChimpSites",
         "desc": "Zero-Config Static Web Host",
-        "icon": "🌐",
+        "icon": "/icon-sites.svg",
         "color": "#22c997",
         "bg": "rgba(34,201,151,0.12)",
         "url": "/sites/",
@@ -286,6 +286,197 @@ def stop_service_process(svc):
         run_cmd(["tmux", "kill-window", "-t", f"chimp:{s_id}"])
     run_cmd(["pkill", "-9", "-f", script])
 
+PORT_CATALOG = {
+    8080: {"name": "Gateway (Nginx)", "desc": "Reverse Proxy & Web Dashboard"},
+    8081: {"name": "ChimpDrive", "desc": "Files Cloud Storage Service"},
+    8082: {"name": "ChimpDrop", "desc": "Universal Clipboard & Drop"},
+    8083: {"name": "ChimpCron", "desc": "Scheduled Automation & Tasks"},
+    8090: {"name": "ChimpMonitor", "desc": "Metrics Monitor & Admin API"},
+    8091: {"name": "ChimpPix", "desc": "Photo Gallery & EXIF Inspector"},
+    8022: {"name": "SSH Daemon", "desc": "Termux OpenSSH Server"},
+    4040: {"name": "Ngrok API", "desc": "Public Web Tunnel Inspector"}
+}
+
+def get_port_bindings():
+    bindings = []
+    for port, meta in PORT_CATALOG.items():
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(0.12)
+        is_open = (s.connect_ex(("127.0.0.1", port)) == 0)
+        s.close()
+        bindings.append({
+            "port": port,
+            "name": meta["name"],
+            "desc": meta["desc"],
+            "open": is_open
+        })
+    return bindings
+
+def get_tunnel_status_data():
+    is_running = bool(run_cmd(["pgrep", "-f", "ngrok http"]).strip())
+    state = load_services_state()
+    tunnel_cfg = state.get("tunnel", {"enabled": is_running})
+    enabled = tunnel_cfg.get("enabled", is_running)
+    domain = get_tunnel_domain()
+    public_url = get_public_url() if is_running else None
+    public_ssh = get_public_ssh() if is_running else None
+    port_bindings = get_port_bindings()
+
+    return {
+        "enabled": enabled,
+        "running": is_running,
+        "domain": domain,
+        "public_url": public_url,
+        "public_ssh": public_ssh,
+        "ports": port_bindings
+    }
+
+def set_tunnel_state(enabled):
+    state = load_services_state()
+    state["tunnel"] = {"enabled": bool(enabled)}
+    save_services_state(state)
+
+    if enabled:
+        if has_tmux_session():
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ngrok-web"])
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ngrok-ssh"])
+            run_cmd(["tmux", "new-window", "-t", "chimp", "-n", "ngrok-web"])
+            run_cmd(["tmux", "send-keys", "-t", "chimp:ngrok-web", f"while true; do termux-chroot $HOME/ngrok http --url=https://{get_tunnel_domain()} 8080; sleep 5; done", "C-m"])
+            run_cmd(["tmux", "new-window", "-t", "chimp", "-n", "ngrok-ssh"])
+            run_cmd(["tmux", "send-keys", "-t", "chimp:ngrok-ssh", "while true; do termux-chroot $HOME/ngrok tcp 8022; sleep 5; done", "C-m"])
+        time.sleep(1.0)
+    else:
+        if has_tmux_session():
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ngrok-web"])
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ngrok-ssh"])
+        run_cmd(["pkill", "-9", "-f", "ngrok"])
+        run_cmd(["pkill", "-9", "-f", "proot"])
+        time.sleep(0.5)
+
+    return get_tunnel_status_data()
+
+def get_processes_list():
+    try:
+        out = subprocess.check_output(['ps', 'aux'], text=True, stderr=subprocess.DEVNULL)
+        lines = out.strip().splitlines()
+    except Exception:
+        return []
+    
+    if not lines:
+        return []
+    
+    procs = []
+    my_pid = os.getpid()
+    for line in lines[1:]:
+        parts = line.split(None, 10)
+        if len(parts) < 11:
+            continue
+        user, pid, cpu, mem, vsz, rss, tty, stat, start, time_str, cmd = parts
+        
+        cmd_lower = cmd.lower()
+        category = "system"
+        friendly_name = cmd.split()[0].split('/')[-1]
+        
+        if "monitor.py" in cmd:
+            friendly_name = "ChimpMonitor (API)"
+            category = "chimp"
+        elif "files/app.py" in cmd:
+            friendly_name = "ChimpDrive (Files)"
+            category = "chimp"
+        elif "drop/app.py" in cmd:
+            friendly_name = "ChimpDrop (Clipboard)"
+            category = "chimp"
+        elif "photos/app.py" in cmd:
+            friendly_name = "ChimpPix (Photos)"
+            category = "chimp"
+        elif "cron/app.py" in cmd:
+            friendly_name = "ChimpCron (Scheduler)"
+            category = "chimp"
+        elif "nginx" in cmd_lower:
+            friendly_name = "Nginx Gateway"
+            category = "server"
+        elif "ngrok http" in cmd_lower:
+            friendly_name = "Ngrok Web Tunnel"
+            category = "tunnel"
+        elif "ngrok tcp" in cmd_lower:
+            friendly_name = "Ngrok SSH Tunnel"
+            category = "tunnel"
+        elif "proot" in cmd_lower:
+            friendly_name = "PRoot Sandbox"
+            category = "tunnel"
+        elif "sshd" in cmd_lower:
+            friendly_name = "OpenSSH Daemon"
+            category = "server"
+        elif "tmux" in cmd_lower:
+            friendly_name = "Tmux Master Session"
+            category = "system"
+        elif cmd.startswith("-bash") or cmd.startswith("bash"):
+            friendly_name = "Bash Shell"
+            category = "system"
+        elif "python" in cmd_lower:
+            friendly_name = "Python Process"
+            category = "chimp"
+
+        try:
+            pid_int = int(pid)
+        except ValueError:
+            continue
+
+        is_self = (pid_int == my_pid)
+        killable = (pid_int > 1) and not is_self
+
+        try:
+            cpu_val = float(cpu)
+        except ValueError:
+            cpu_val = 0.0
+
+        try:
+            mem_val = float(mem)
+        except ValueError:
+            mem_val = 0.0
+
+        try:
+            rss_mb = round(int(rss) / 1024.0, 1)
+        except ValueError:
+            rss_mb = 0.0
+
+        procs.append({
+            "pid": pid_int,
+            "user": user,
+            "cpu": cpu_val,
+            "mem": mem_val,
+            "rss_mb": rss_mb,
+            "stat": stat,
+            "time": time_str,
+            "command": cmd,
+            "name": friendly_name,
+            "category": category,
+            "is_self": is_self,
+            "killable": killable
+        })
+    
+    procs.sort(key=lambda x: (x["cpu"], x["mem"]), reverse=True)
+    return procs
+
+def kill_process(pid):
+    try:
+        pid = int(pid)
+    except ValueError:
+        return False, "Invalid PID"
+        
+    my_pid = os.getpid()
+    if pid <= 1 or pid == my_pid:
+        return False, "Cannot terminate protected system process"
+    try:
+        os.kill(pid, 9)
+        return True, f"Process {pid} terminated successfully"
+    except ProcessLookupError:
+        return False, f"Process {pid} does not exist"
+    except PermissionError:
+        return False, f"Permission denied to terminate PID {pid}"
+    except Exception as e:
+        return False, str(e)
+
 def get_services_catalog():
     state = load_services_state()
     res = []
@@ -485,6 +676,53 @@ class MonitorHandler(BaseHTTPRequestHandler):
                 self.wfile.write(data)
             except Exception as e:
                 self.send_error(500, f"Services catalog error: {e}")
+        elif path in ("/api/admin/processes", "/api/monitor/admin/processes"):
+            try:
+                procs = get_processes_list()
+                data = json.dumps({
+                    "success": True,
+                    "processes": procs,
+                    "count": len(procs),
+                    "timestamp": int(time.time())
+                }).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Cache-Control", "no-store")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"Process list error: {e}")
+        elif path in ("/api/admin/tunnel", "/api/monitor/admin/tunnel"):
+            try:
+                status_data = get_tunnel_status_data()
+                data = json.dumps({
+                    "success": True,
+                    "tunnel": status_data
+                }).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Cache-Control", "no-store")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"Tunnel status error: {e}")
+        elif path in ("/api/admin/ports", "/api/monitor/admin/ports"):
+            try:
+                ports = get_port_bindings()
+                data = json.dumps({
+                    "success": True,
+                    "ports": ports
+                }).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Cache-Control", "no-store")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(data)
+            except Exception as e:
+                self.send_error(500, f"Port bindings error: {e}")
         else:
             self.send_error(404, "Endpoint not found")
 
@@ -511,6 +749,69 @@ class MonitorHandler(BaseHTTPRequestHandler):
                 return
             except Exception as e:
                 self.send_error(500, f"Auth error: {e}")
+                return
+
+        elif path in ("/api/admin/processes/kill", "/api/monitor/admin/processes/kill"):
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                data = json.loads(body)
+                provided_pw = data.get("password", "")
+                if provided_pw != get_admin_password():
+                    resp_data = json.dumps({"success": False, "error": "Admin password required"}).encode()
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(resp_data)
+                    return
+
+                pid = data.get("pid")
+                ok, msg = kill_process(pid)
+                resp_data = json.dumps({
+                    "success": ok,
+                    "message": msg,
+                    "processes": get_processes_list() if ok else None
+                }).encode()
+                self.send_response(200 if ok else 400)
+                self.send_header("Content-Type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(resp_data)
+                return
+            except Exception as e:
+                self.send_error(500, f"Error terminating process: {e}")
+                return
+
+        elif path in ("/api/admin/tunnel/toggle", "/api/monitor/admin/tunnel/toggle"):
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
+                data = json.loads(body)
+                provided_pw = data.get("password", "")
+                if provided_pw != get_admin_password():
+                    resp_data = json.dumps({"success": False, "error": "Admin password required"}).encode()
+                    self.send_response(403)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(resp_data)
+                    return
+
+                enabled = data.get("enabled", True)
+                tunnel_data = set_tunnel_state(enabled)
+                resp_data = json.dumps({
+                    "success": True,
+                    "tunnel": tunnel_data
+                }).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(resp_data)
+                return
+            except Exception as e:
+                self.send_error(500, f"Error toggling tunnel: {e}")
                 return
 
         elif path in ("/api/services/toggle", "/api/monitor/services/toggle"):
