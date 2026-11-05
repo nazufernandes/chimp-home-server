@@ -424,23 +424,27 @@ handle_ssh() {
     case "$action" in
         -off|--off|off|stop|disable|down)
             echo -e "${BOLD}${RED}  🛑 Taking Public Remote SSH Tunnel offline...${NC}"
-            if tmux has-session -t chimp 2>/dev/null; then
-                tmux kill-window -t chimp:ngrok-ssh 2>/dev/null || true
-            fi
             pkill -9 -f "ngrok tcp 8022" 2>/dev/null || true
             pkill -9 -f "ngrok tcp" 2>/dev/null || true
+            if tmux has-session -t chimp 2>/dev/null; then
+                for w in $(tmux list-windows -t chimp -F '#{window_id}:#{window_name}' 2>/dev/null | grep 'ngrok-ssh' | cut -d: -f1); do
+                    tmux kill-window -t "$w" 2>/dev/null || true
+                done
+            fi
             echo -e "  ${GREEN}[✓]${NC} Public Remote SSH tunnel taken offline."
             echo -e "  ${DIM}Local LAN SSH is active: ${BLUE}ssh u0_a223@${IP} -p 8022${NC}"
             echo -e "  ${DIM}To turn public SSH back online: ${GREEN}chimp ssh -on${NC}"
             ;;
         -on|--on|on|start|enable|up)
             echo -e "${BOLD}${GREEN}  🚀 Starting Public Remote SSH Tunnel...${NC}"
-            if tmux has-session -t chimp 2>/dev/null; then
-                tmux kill-window -t chimp:ngrok-ssh 2>/dev/null || true
-            fi
             pkill -9 -f "ngrok tcp" 2>/dev/null || true
+            if tmux has-session -t chimp 2>/dev/null; then
+                for w in $(tmux list-windows -t chimp -F '#{window_id}:#{window_name}' 2>/dev/null | grep 'ngrok-ssh' | cut -d: -f1); do
+                    tmux kill-window -t "$w" 2>/dev/null || true
+                done
+            fi
             sleep 0.5
-            tmux new-window -t chimp -n ngrok-ssh 2>/dev/null || true
+            tmux new-window -t chimp:7 -n ngrok-ssh 2>/dev/null || tmux new-window -t chimp -n ngrok-ssh 2>/dev/null || true
             tmux send-keys -t chimp:ngrok-ssh "while true; do termux-chroot \$HOME/ngrok tcp 8022; sleep 5; done" C-m
             echo -e "  ${DIM}Connecting to tunnel broker...${NC}"
             sleep 2.5
