@@ -8,18 +8,47 @@ import io
 
 app = Flask(__name__)
 
-# Base root served by the file manager
-SERVER_ROOT = (Path.home() / "server").resolve()
-STORAGE_ROOT = (Path.home() / "storage").resolve()
+# Dedicated root folder strictly confined for ChimpDrive
+CHIMPDRIVE_ROOT = (Path.home() / "ChimpDrive").resolve()
+CHIMPDRIVE_ROOT.mkdir(parents=True, exist_ok=True)
+
+def is_system_file(name: str) -> bool:
+    """Return True if the name corresponds to a hidden or system file/folder."""
+    if not name:
+        return False
+    # Hidden files / dotfiles (e.g. .bashrc, .git, .env, .trashed-*, .DS_Store)
+    if name.startswith("."):
+        return True
+    lower = name.lower()
+    # System & runtime directories / caches
+    if lower in {
+        "__pycache__",
+        "lost+found",
+        "thumbs.db",
+        "desktop.ini",
+        "$recycle.bin",
+        "system volume information",
+        ".ds_store",
+        "node_modules"
+    }:
+        return True
+    if lower.endswith(".pyc") or lower.endswith(".pyo"):
+        return True
+    return False
 
 def get_real_path(rel_path):
     rel_path = (rel_path or "").strip().lstrip("/")
-    # Support virtual shortcuts: "storage/..." -> ~/storage
-    if rel_path.startswith("storage"):
-        sub = rel_path[len("storage"):].lstrip("/")
-        target = (STORAGE_ROOT / sub).resolve()
-    else:
-        target = (SERVER_ROOT / rel_path).resolve()
+    target = (CHIMPDRIVE_ROOT / rel_path).resolve()
+    # Jail check: must remain inside CHIMPDRIVE_ROOT
+    if target != CHIMPDRIVE_ROOT and not target.is_relative_to(CHIMPDRIVE_ROOT):
+        abort(403)
+    # Check that no path component inside relative parts is a hidden/system file
+    try:
+        rel_parts = target.relative_to(CHIMPDRIVE_ROOT).parts
+        if any(is_system_file(p) for p in rel_parts):
+            abort(403)
+    except ValueError:
+        abort(403)
     return target
 
 def format_size(bytes_val):
@@ -74,6 +103,9 @@ def list_files():
     try:
         with os.scandir(target) as entries:
             for entry in entries:
+                # Strictly filter out system and hidden files
+                if is_system_file(entry.name):
+                    continue
                 try:
                     stat = entry.stat()
                     is_dir = entry.is_dir()
@@ -181,7 +213,11 @@ def upload_files():
     for f in files:
         if not f.filename:
             continue
-        dest = target_dir / Path(f.filename).name
+        fname = Path(f.filename).name
+        # Never save hidden or system files
+        if is_system_file(fname):
+            continue
+        dest = target_dir / fname
         f.save(dest)
         saved_count += 1
 
@@ -193,7 +229,7 @@ def create_folder():
     rel = data.get("path", "").strip()
     name = (data.get("name", "")).strip()
 
-    if not name or "/" in name or "\\" in name:
+    if not name or "/" in name or "\\" in name or is_system_file(name):
         return jsonify({"error": "Invalid folder name"}), 400
 
     parent = get_real_path(rel)
@@ -211,7 +247,12 @@ def create_folder():
 def delete_item():
     data = request.get_json() or {}
     rel = data.get("path", "").strip()
+    if not rel:
+        return jsonify({"error": "Cannot delete home directory"}), 400
+
     target = get_real_path(rel)
+    if target == CHIMPDRIVE_ROOT:
+        return jsonify({"error": "Cannot delete home directory"}), 400
 
     if not target.exists():
         return jsonify({"error": "Item not found"}), 404
@@ -231,10 +272,14 @@ def rename_item():
     rel = data.get("path", "").strip()
     new_name = (data.get("new_name", "")).strip()
 
-    if not new_name or "/" in new_name or "\\" in new_name:
+    if not rel:
+        return jsonify({"error": "Cannot rename home directory"}), 400
+    if not new_name or "/" in new_name or "\\" in new_name or is_system_file(new_name):
         return jsonify({"error": "Invalid target name"}), 400
 
     target = get_real_path(rel)
+    if target == CHIMPDRIVE_ROOT:
+        return jsonify({"error": "Cannot rename home directory"}), 400
     if not target.exists():
         return jsonify({"error": "Item not found"}), 404
 
@@ -259,13 +304,17 @@ def download_zip():
     memory_file = io.BytesIO()
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(target):
+            # Exclude hidden and system dirs in-place to avoid traversing them
+            dirs[:] = [d for d in dirs if not is_system_file(d)]
             for file in files:
+                if is_system_file(file):
+                    continue
                 filepath = Path(root) / file
                 arcname = filepath.relative_to(target)
                 zf.write(filepath, arcname)
 
     memory_file.seek(0)
-    zip_name = f"{target.name or 'server_files'}.zip"
+    zip_name = f"{target.name if target != CHIMPDRIVE_ROOT else 'ChimpDrive'}.zip"
     return send_file(
         memory_file,
         mimetype="application/zip",

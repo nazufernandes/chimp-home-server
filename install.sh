@@ -44,9 +44,18 @@ mkdir -p "$CHIMP_DIR/logs" \
          "$CHIMP_DIR/data/shared" \
          "$CHIMP_DIR/data/cron" \
          "$CHIMP_DIR/data/sites" \
-         "$CHIMP_DIR/photos/thumbnails"
+         "$CHIMP_DIR/photos/thumbnails" \
+         "$HOME/ChimpDrive"
 
 chmod +x "$CHIMP_DIR/manage.sh"
+
+# Install global 'chimp' CLI tool in PATH
+if [ -d "/data/data/com.termux/files/usr/bin" ]; then
+    ln -sf "$CHIMP_DIR/manage.sh" "/data/data/com.termux/files/usr/bin/chimp"
+    chmod +x "/data/data/com.termux/files/usr/bin/chimp"
+elif [ -d "/usr/local/bin" ]; then
+    sudo ln -sf "$CHIMP_DIR/manage.sh" "/usr/local/bin/chimp" 2>/dev/null || ln -sf "$CHIMP_DIR/manage.sh" "$HOME/.local/bin/chimp" 2>/dev/null || true
+fi
 
 # 4. Admin Security & Password Configuration
 echo ""

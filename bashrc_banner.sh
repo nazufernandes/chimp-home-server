@@ -85,35 +85,15 @@ if [[ $- == *i* ]]; then
 
     echo -e "${C_DARK}  ├───────────────────────────────────────────────────────────────┤${C_RESET}"
 
-    local_svc_hdr="  ACTIVE SERVICES (Unified Gateway)"
-    print_card_row ${#local_svc_hdr} "  ${C_BOLD}${C_WHITE}ACTIVE SERVICES${C_RESET} ${C_GRAY}(Unified Gateway)${C_RESET}"
-
     local_s1="  ● Dashboard:     http://${IP}:8080/"
     print_card_row ${#local_s1} "  ${C_MINT}●${C_RESET} Dashboard:     ${C_BLUE}http://${IP}:8080/${C_RESET}"
-
-    local_s2="  ● File Manager:  http://${IP}:8080/files/"
-    print_card_row ${#local_s2} "  ${C_MINT}●${C_RESET} File Manager:  ${C_BLUE}http://${IP}:8080/files/${C_RESET}"
-
-    local_s3="  ● ChimpDrop:     http://${IP}:8080/drop/"
-    print_card_row ${#local_s3} "  ${C_MINT}●${C_RESET} ChimpDrop:     ${C_BLUE}http://${IP}:8080/drop/${C_RESET}"
-
-    local_s4="  ● Photos:        http://${IP}:8080/photos/"
-    print_card_row ${#local_s4} "  ${C_MINT}●${C_RESET} Photos:        ${C_BLUE}http://${IP}:8080/photos/${C_RESET}"
-
-    local_s5="  ● ChimpCron:     http://${IP}:8080/cron/"
-    print_card_row ${#local_s5} "  ${C_MINT}●${C_RESET} ChimpCron:     ${C_BLUE}http://${IP}:8080/cron/${C_RESET}"
-
-    local_s6="  ● ChimpSites:    http://${IP}:8080/sites/"
-    print_card_row ${#local_s6} "  ${C_MINT}●${C_RESET} ChimpSites:    ${C_BLUE}http://${IP}:8080/sites/${C_RESET}"
-
-    local_s7="  ● Monitor API:   http://${IP}:8080/api/status"
-    print_card_row ${#local_s7} "  ${C_MINT}●${C_RESET} Monitor API:   ${C_BLUE}http://${IP}:8080/api/status${C_RESET}"
 
     echo -e "${C_DARK}  ╰───────────────────────────────────────────────────────────────╯${C_RESET}"
     echo ""
 fi
 
 # Handy Server Aliases
+alias chimp="~/server/manage.sh"
 alias server-status="~/server/manage.sh status"
 alias server-restart="~/server/manage.sh restart"
 alias server-start="~/server/manage.sh start"

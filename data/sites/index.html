@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌐 ChimpSites | Static Web Hosting Hub</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+    <title>ChimpSites | Static Web Hosting Hub</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐒</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <script>
-        (function() {
+        (function () {
             const theme = localStorage.getItem("chimp_theme") || "dark";
             if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
         })();
@@ -25,13 +29,13 @@
             --text: #e8ecf2;
             --text-muted: #8b9bb4;
             --accent: #22c997;
-            --accent-dim: rgba(34,201,151,0.12);
+            --accent-dim: rgba(34, 201, 151, 0.12);
             --blue: #38bdf8;
-            --blue-dim: rgba(56,189,248,0.12);
+            --blue-dim: rgba(56, 189, 248, 0.12);
             --purple: #a78bfa;
-            --purple-dim: rgba(167,139,250,0.12);
+            --purple-dim: rgba(167, 139, 250, 0.12);
             --yellow: #fbbf24;
-            --yellow-dim: rgba(251,191,36,0.12);
+            --yellow-dim: rgba(251, 191, 36, 0.12);
             --radius: 12px;
             --navbar-bg: rgba(13, 17, 23, 0.9);
         }
@@ -46,17 +50,21 @@
             --text: #0f172a;
             --text-muted: #475569;
             --accent: #0d9488;
-            --accent-dim: rgba(13,148,136,0.12);
+            --accent-dim: rgba(13, 148, 136, 0.12);
             --blue: #2563eb;
-            --blue-dim: rgba(37,99,235,0.1);
+            --blue-dim: rgba(37, 99, 235, 0.1);
             --purple: #7c3aed;
-            --purple-dim: rgba(124,58,237,0.1);
+            --purple-dim: rgba(124, 58, 237, 0.1);
             --yellow: #d97706;
-            --yellow-dim: rgba(217,119,6,0.12);
+            --yellow-dim: rgba(217, 119, 6, 0.12);
             --navbar-bg: rgba(255, 255, 255, 0.88);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             background: var(--bg);
@@ -81,33 +89,32 @@
             z-index: 100;
             transition: background 0.25s, border-color 0.25s;
         }
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
 
-        .brand {
+        .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
             text-decoration: none;
             color: var(--text);
-            font-weight: 700;
-            font-size: 1.15rem;
         }
 
-        .brand-badge {
-            background: var(--accent-dim);
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0ea37a, var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 16px rgba(34, 201, 151, 0.3);
+        }
+
+        .logo span {
             color: var(--accent);
-            font-size: 0.72rem;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: 600;
-            border: 1px solid rgba(34,201,151,0.3);
         }
 
         .nav-links {
@@ -130,7 +137,7 @@
 
         .nav-link:hover {
             color: var(--text);
-            background: rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.06);
         }
 
         .nav-link.active {
@@ -269,7 +276,8 @@
             margin-bottom: 28px;
         }
 
-        .upload-zone:hover, .upload-zone.dragover {
+        .upload-zone:hover,
+        .upload-zone.dragover {
             border-color: var(--accent);
             background: var(--accent-dim);
         }
@@ -320,7 +328,7 @@
         .site-card:hover {
             border-color: var(--accent);
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
         .site-card-header {
@@ -360,7 +368,7 @@
         .badge-live {
             background: var(--accent-dim);
             color: var(--accent);
-            border: 1px solid rgba(34,201,151,0.25);
+            border: 1px solid rgba(34, 201, 151, 0.25);
         }
 
         .site-url {
@@ -452,47 +460,107 @@
             padding: 12px 18px;
             border-radius: 8px;
             font-size: 0.88rem;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
             display: none;
             align-items: center;
             gap: 10px;
             z-index: 2000;
         }
 
-        .toast.show { display: flex; animation: slideUp 0.3s forwards; }
+        .toast.show {
+            display: flex;
+            animation: slideUp 0.3s forwards;
+        }
 
         @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 600px) {
-            .navbar { padding: 10px 14px; }
-            .container { padding: 0 10px; margin: 16px auto; }
-            .header-bar { flex-direction: column; align-items: stretch; gap: 10px; }
-            .sites-grid { grid-template-columns: 1fr; }
-            .site-card { padding: 14px; }
-            .toast { left: 12px; right: 12px; max-width: none; width: auto; justify-content: center; }
+            .navbar {
+                padding: 10px 14px;
+            }
+
+            .logo {
+                font-size: 17px;
+                gap: 8px;
+            }
+
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+                border-radius: 8px;
+            }
+
+            .nav-links {
+                gap: 6px;
+            }
+
+            .nav-link {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+
+            .nav-link .nav-text {
+                display: none;
+            }
+
+            .container {
+                padding: 0 12px;
+                margin: 16px auto;
+            }
+
+            .header-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .sites-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .site-card {
+                padding: 14px;
+            }
+
+            .toast {
+                left: 12px;
+                right: 12px;
+                max-width: none;
+                width: auto;
+                justify-content: center;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="/" class="brand">
-            <span>🐒</span>
-            <span>ChimpSites</span>
-            <span class="brand-badge">Static Host</span>
+        <a class="logo" href="/">
+            <div class="logo-icon">&#x1f310;</div>
+            <div>Chimp<span>Sites</span></div>
         </a>
         <div class="nav-links">
-            <a href="/" class="nav-link"><span>📊</span> Dashboard</a>
-            <a href="/drop/" class="nav-link"><span>📋</span> ChimpDrop</a>
-            <a href="/files/" class="nav-link"><span>📁</span> Files</a>
-            <a href="/photos/" class="nav-link"><span>📷</span> Photos</a>
-            <a href="/cron/" class="nav-link"><span>⏰</span> Cron</a>
-            <a href="/sites/" class="nav-link active"><span>🌐</span> Sites</a>
-            <button class="nav-link" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode" style="cursor: pointer; background: transparent; border: 1px solid var(--border);">
+            <a href="/" class="nav-link"><span>📊</span> <span class="nav-text">Dashboard</span></a>
+            <a href="/drop/" class="nav-link"><span>📋</span> <span class="nav-text">ChimpDrop</span></a>
+            <a href="/files/" class="nav-link"><span>📁</span> <span class="nav-text">Files</span></a>
+            <a href="/photos/" class="nav-link"><span>📷</span> <span class="nav-text">Photos</span></a>
+            <a href="/cron/" class="nav-link"><span>⏰</span> <span class="nav-text">Cron</span></a>
+            <a href="/sites/" class="nav-link active"><span>🌐</span> <span class="nav-text">Sites</span></a>
+            <button class="nav-link" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode"
+                style="cursor: pointer; background: transparent; border: 1px solid var(--border);">
                 <span id="themeIcon">☀️</span>
             </button>
         </div>
@@ -503,12 +571,15 @@
         <div class="header-bar">
             <div class="header-title">
                 <h1>🌐 Hosted Static Sites</h1>
-                <p>Zero-config hosting. Any folder placed in <code>~/server/data/sites/</code> is instantly live over HTTP.</p>
+                <p>Zero-config hosting. Any folder placed in <code>~/server/data/sites/</code> is instantly live over
+                    HTTP.</p>
             </div>
             <div class="header-actions">
-                <a href="/files/?path=data/sites" class="btn"><span>📁</span> File Explorer</a>
-                <button class="btn btn-primary" onclick="document.getElementById('siteUploadInput').click()"><span>➕</span> Upload New Site</button>
-                <input type="file" id="siteUploadInput" multiple style="display: none;" onchange="handleSiteUpload(this)">
+                <a href="/files/" class="btn"><span>📁</span> File Explorer</a>
+                <button class="btn btn-primary"
+                    onclick="document.getElementById('siteUploadInput').click()"><span>➕</span> Upload New Site</button>
+                <input type="file" id="siteUploadInput" multiple style="display: none;"
+                    onchange="handleSiteUpload(this)">
             </div>
         </div>
 
@@ -556,7 +627,8 @@
         <!-- Sites List -->
         <div class="section-title">
             <span>Active Deployments</span>
-            <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: normal;" id="refreshIndicator">Auto-synced with storage</span>
+            <span style="font-size: 0.82rem; color: var(--text-muted); font-weight: normal;"
+                id="refreshIndicator">Auto-synced with storage</span>
         </div>
 
         <div class="sites-grid" id="sitesGrid">
@@ -566,32 +638,33 @@
         <!-- Developer Cheat Sheet -->
         <div class="guide-card">
             <h3><span>💡</span> How to Deploy Your Projects to ChimpSites</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem;">You can host Vite, React, Vue, MkDocs, Astro, or plain HTML/CSS static builds:</p>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">You can host Vite, React, Vue, MkDocs, Astro, or
+                plain HTML/CSS static builds:</p>
 
             <div class="guide-steps">
                 <div class="guide-step">
                     <div class="guide-step-title">1. React / Vite / Vue (SPA)</div>
                     <div class="guide-code"># Build production files
-npm run build
+                        npm run build
 
-# Copy build folder to server
-scp -r dist/* u0_a223@&lt;IP&gt;:~/server/data/sites/my-app/</div>
+                        # Copy build folder to server
+                        scp -r dist/* u0_a223@&lt;IP&gt;:~/server/data/sites/my-app/</div>
                 </div>
 
                 <div class="guide-step">
                     <div class="guide-step-title">2. In-Browser / Drag &amp; Drop</div>
                     <div class="guide-code">1. Open Chimp File Manager
-2. Navigate to data/sites/
-3. Create folder: "portfolio"
-4. Drag &amp; drop index.html &amp; assets</div>
+                        2. Navigate to data/sites/
+                        3. Create folder: "portfolio"
+                        4. Drag &amp; drop index.html &amp; assets</div>
                 </div>
 
                 <div class="guide-step">
                     <div class="guide-step-title">3. Instant URL Route</div>
                     <div class="guide-code">Any folder "my-app" is served at:
-http://&lt;IP&gt;:8080/sites/my-app/
+                        http://&lt;IP&gt;:8080/sites/my-app/
 
-Index file served automatically.</div>
+                        Index file served automatically.</div>
                 </div>
             </div>
         </div>
@@ -609,7 +682,7 @@ Index file served automatically.</div>
                 const res = await fetch('/files/api/files?path=data/sites');
                 const data = await res.json();
                 const items = data.items || [];
-                
+
                 // Filter only directories (hosted site folders)
                 const sites = items.filter(item => item.type === 'folder');
 
@@ -781,5 +854,5 @@ Index file served automatically.</div>
         setInterval(fetchSites, 10000);
     </script>
 </body>
-</html>
 
+</html>

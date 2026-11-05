@@ -1,708 +1,848 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>📁 ChimpDrive | Cloud File Manager</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📁</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script>
-    (function() {
-        const theme = localStorage.getItem("chimp_theme") || "dark";
-        if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
-    })();
-</script>
-<style>
-:root {
-    --bg: #06080f;
-    --surface: #0d1117;
-    --card: #131920;
-    --card-hover: #18202a;
-    --border: #1e2a3a;
-    --border-glow: #1a3a5c;
-    --text: #e8ecf2;
-    --text-muted: #6b7d95;
-    --text-dim: #4a5568;
-    --accent: #22c997;
-    --accent-dim: rgba(34,201,151,0.12);
-    --accent-glow: rgba(34,201,151,0.25);
-    --purple: #a78bfa;
-    --purple-dim: rgba(167,139,250,0.12);
-    --blue: #60a5fa;
-    --blue-dim: rgba(96,165,250,0.12);
-    --red: #f87171;
-    --red-dim: rgba(248,113,113,0.12);
-    --radius: 14px;
-    --radius-sm: 8px;
-    --header-bg: rgba(6,8,15,0.85);
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ChimpDrive | Cloud File Manager</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐒</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script>
+        (function () {
+            const theme = localStorage.getItem("chimp_theme") || "dark";
+            if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #06080f;
+            --surface: #0d1117;
+            --card: #131920;
+            --card-hover: #18202a;
+            --border: #1e2a3a;
+            --border-glow: #1a3a5c;
+            --text: #e8ecf2;
+            --text-muted: #6b7d95;
+            --text-dim: #4a5568;
+            --accent: #22c997;
+            --accent-dim: rgba(34, 201, 151, 0.12);
+            --accent-glow: rgba(34, 201, 151, 0.25);
+            --purple: #a78bfa;
+            --purple-dim: rgba(167, 139, 250, 0.12);
+            --blue: #60a5fa;
+            --blue-dim: rgba(96, 165, 250, 0.12);
+            --red: #f87171;
+            --red-dim: rgba(248, 113, 113, 0.12);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --header-bg: rgba(6, 8, 15, 0.85);
+        }
 
-[data-theme="light"] {
-    --bg: #f8fafc;
-    --surface: #ffffff;
-    --card: #ffffff;
-    --card-hover: #f1f5f9;
-    --border: #e2e8f0;
-    --border-glow: #cbd5e1;
-    --text: #0f172a;
-    --text-muted: #475569;
-    --text-dim: #64748b;
-    --accent: #0d9488;
-    --accent-dim: rgba(13,148,136,0.12);
-    --accent-glow: rgba(13,148,136,0.22);
-    --purple: #7c3aed;
-    --purple-dim: rgba(124,58,237,0.1);
-    --blue: #2563eb;
-    --blue-dim: rgba(37,99,235,0.1);
-    --red: #dc2626;
-    --red-dim: rgba(220,38,38,0.1);
-    --header-bg: rgba(255, 255, 255, 0.88);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', system-ui, sans-serif;
-    min-height: 100vh;
-    transition: background 0.25s, color 0.25s;
-}
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --card: #ffffff;
+            --card-hover: #f1f5f9;
+            --border: #e2e8f0;
+            --border-glow: #cbd5e1;
+            --text: #0f172a;
+            --text-muted: #475569;
+            --text-dim: #64748b;
+            --accent: #0d9488;
+            --accent-dim: rgba(13, 148, 136, 0.12);
+            --accent-glow: rgba(13, 148, 136, 0.22);
+            --purple: #7c3aed;
+            --purple-dim: rgba(124, 58, 237, 0.1);
+            --blue: #2563eb;
+            --blue-dim: rgba(37, 99, 235, 0.1);
+            --red: #dc2626;
+            --red-dim: rgba(220, 38, 38, 0.1);
+            --header-bg: rgba(255, 255, 255, 0.88);
+        }
 
-/* === HEADER === */
-.header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    backdrop-filter: blur(20px) saturate(1.8);
-    -webkit-backdrop-filter: blur(20px) saturate(1.8);
-    background: var(--header-bg);
-    border-bottom: 1px solid var(--border);
-    transition: background 0.25s, border-color 0.25s;
-}
-.header-inner {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 32px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-    text-decoration: none;
-    color: var(--text);
-}
-.logo-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #2563eb, var(--blue));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    box-shadow: 0 4px 16px rgba(96,165,250,0.3);
-}
-.logo span { color: var(--blue); }
-.nav-links {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.nav-link {
-    color: var(--text-muted);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 6px 12px;
-    border-radius: 8px;
-    transition: all 0.2s;
-}
-.nav-link:hover {
-    color: var(--text);
-    background: var(--surface);
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-/* === MAIN === */
-.main {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 28px 32px;
-}
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            transition: background 0.25s, color 0.25s;
+        }
 
-/* === TOOLBAR === */
-.top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-.breadcrumbs {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    font-size: 14px;
-    font-weight: 600;
-}
-.crumb {
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: all 0.2s;
-    text-decoration: none;
-}
-.crumb:hover {
-    color: var(--text);
-    background: var(--surface);
-}
-.crumb.current {
-    color: var(--blue);
-    cursor: default;
-}
-.crumb-sep {
-    color: var(--text-dim);
-    font-size: 12px;
-}
+        /* === HEADER === */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(20px) saturate(1.8);
+            -webkit-backdrop-filter: blur(20px) saturate(1.8);
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.25s, border-color 0.25s;
+        }
 
-.action-buttons {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 16px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: var(--radius-sm);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.btn:hover {
-    border-color: var(--blue);
-    background: var(--card-hover);
-}
-.btn.primary {
-    background: linear-gradient(135deg, #1d4ed8, var(--blue));
-    border: none;
-    color: white;
-    box-shadow: 0 4px 14px rgba(96,165,250,0.25);
-}
-.btn.primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(96,165,250,0.35);
-}
-.btn input[type="file"] { display: none; }
+        .header-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-/* Filter bar */
-.filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-}
-.search-input {
-    flex: 1;
-    max-width: 320px;
-    padding: 10px 14px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-}
-.search-input:focus { border-color: var(--blue); }
-.search-input::placeholder { color: var(--text-dim); }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            text-decoration: none;
+            color: var(--text);
+        }
 
-/* Storage Shortcuts */
-.shortcuts {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 6px;
-    margin-bottom: 18px;
-}
-.shortcut-chip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-muted);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-}
-.shortcut-chip:hover {
-    border-color: var(--blue);
-    color: var(--text);
-}
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2563eb, var(--blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 16px rgba(96, 165, 250, 0.3);
+        }
 
-/* Drag & Drop Zone */
-.dropzone {
-    border: 2px dashed var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    text-align: center;
-    margin-bottom: 20px;
-    background: rgba(13,17,23,0.4);
-    transition: all 0.2s;
-}
-.dropzone.dragover {
-    border-color: var(--blue);
-    background: var(--blue-dim);
-}
-.dropzone-text {
-    font-size: 13px;
-    color: var(--text-muted);
-}
-.dropzone-text span {
-    color: var(--blue);
-    font-weight: 600;
-    cursor: pointer;
-}
+        .logo span {
+            color: var(--blue);
+        }
 
-/* File Table */
-.file-table-wrap {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-th {
-    background: var(--surface);
-    color: var(--text-muted);
-    font-weight: 600;
-    text-align: left;
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-td {
-    padding: 13px 18px;
-    border-bottom: 1px solid rgba(30,42,58,0.5);
-    color: var(--text);
-}
-tr:last-child td { border-bottom: none; }
-tr:hover td {
-    background: var(--card-hover);
-}
-.file-row {
-    cursor: pointer;
-}
-.file-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 500;
-}
-.file-icon {
-    font-size: 18px;
-    width: 28px;
-    text-align: center;
-    flex-shrink: 0;
-}
-.file-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    opacity: 0.4;
-    transition: opacity 0.2s;
-}
-tr:hover .file-actions { opacity: 1; }
-.action-icon-btn {
-    background: none;
-    border: 1px solid transparent;
-    color: var(--text-muted);
-    font-size: 14px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.action-icon-btn:hover {
-    color: var(--text);
-    background: var(--surface);
-    border-color: var(--border);
-}
-.action-icon-btn.danger:hover {
-    color: var(--red);
-    background: var(--red-dim);
-    border-color: transparent;
-}
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-/* Empty state */
-.empty-table {
-    padding: 50px 20px;
-    text-align: center;
-    color: var(--text-muted);
-}
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
 
-/* Modals */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    background: rgba(4,6,12,0.85);
-    backdrop-filter: blur(14px);
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-}
-.modal-overlay.active { display: flex; }
-.modal-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    max-width: 800px;
-    width: 100%;
-    max-height: 88vh;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-}
-.modal-header {
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.modal-title {
-    font-size: 15px;
-    font-weight: 700;
-}
-.modal-close {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 18px;
-    cursor: pointer;
-}
-.modal-body {
-    padding: 20px 22px;
-    overflow-y: auto;
-    flex: 1;
-}
-.modal-footer {
-    padding: 14px 22px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-.code-editor {
-    width: 100%;
-    height: 480px;
-    background: #0a0d14;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: #f1f5f9;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    padding: 14px;
-    resize: none;
-    outline: none;
-    line-height: 1.5;
-}
-.preview-media {
-    max-width: 100%;
-    max-height: 65vh;
-    display: block;
-    margin: 0 auto;
-    border-radius: 8px;
-}
+        .nav-link:hover {
+            color: var(--text);
+            background: var(--surface);
+        }
 
-/* Prompt input */
-.prompt-input {
-    width: 100%;
-    padding: 12px 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 14px;
-    outline: none;
-    margin-top: 10px;
-}
-.prompt-input:focus { border-color: var(--blue); }
+        /* === MAIN === */
+        .main {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 28px 32px;
+        }
 
-/* Toast */
-.toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 200;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 18px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    font-size: 13px;
-    font-weight: 500;
-    transform: translateY(80px);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.toast.show {
-    transform: translateY(0);
-    opacity: 1;
-}
+        /* === TOOLBAR === */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
 
-@media (max-width: 768px) {
-    .header-inner { padding: 0 16px; height: 58px; }
-    .main { padding: 16px; }
-    .top-bar { gap: 12px; margin-bottom: 16px; }
-    .action-buttons { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
-    .toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
-    .search-box { max-width: none; }
-    th, td { padding: 10px 12px; }
-}
-@media (max-width: 480px) {
-    .header-inner { padding: 0 10px; height: 54px; }
-    .main { padding: 12px 10px; }
-    .logo { font-size: 17px; gap: 8px; }
-    .logo-icon { width: 32px; height: 32px; font-size: 16px; border-radius: 8px; }
-    .nav-link { padding: 4px 8px; font-size: 12px; }
-    .btn { padding: 7px 12px; font-size: 12px; }
-    .action-buttons { gap: 6px; }
-    .storage-bar-wrap { width: 100%; margin-left: 0; }
-    th:nth-child(3), td:nth-child(3) { display: none; }
-    .toast { left: 12px; right: 12px; max-width: none; width: auto; text-align: center; justify-content: center; }
-}
-</style>
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .crumb {
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .crumb:hover {
+            color: var(--text);
+            background: var(--surface);
+        }
+
+        .crumb.current {
+            color: var(--blue);
+            cursor: default;
+        }
+
+        .crumb-sep {
+            color: var(--text-dim);
+            font-size: 12px;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--blue);
+            background: var(--card-hover);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, #1d4ed8, var(--blue));
+            border: none;
+            color: white;
+            box-shadow: 0 4px 14px rgba(96, 165, 250, 0.25);
+        }
+
+        .btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(96, 165, 250, 0.35);
+        }
+
+        .btn input[type="file"] {
+            display: none;
+        }
+
+        /* Filter bar */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .search-input {
+            flex: 1;
+            max-width: 320px;
+            padding: 10px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--blue);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        /* Storage Shortcuts */
+        .shortcuts {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 18px;
+        }
+
+        .shortcut-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .shortcut-chip:hover {
+            border-color: var(--blue);
+            color: var(--text);
+        }
+
+        /* Drag & Drop Zone */
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            background: rgba(13, 17, 23, 0.4);
+            transition: all 0.2s;
+        }
+
+        .dropzone.dragover {
+            border-color: var(--blue);
+            background: var(--blue-dim);
+        }
+
+        .dropzone-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .dropzone-text span {
+            color: var(--blue);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* File Table */
+        .file-table-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: var(--surface);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-align: left;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 13px 18px;
+            border-bottom: 1px solid rgba(30, 42, 58, 0.5);
+            color: var(--text);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--card-hover);
+        }
+
+        .file-row {
+            cursor: pointer;
+        }
+
+        .file-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .file-icon {
+            font-size: 18px;
+            width: 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .file-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+
+        tr:hover .file-actions {
+            opacity: 1;
+        }
+
+        .action-icon-btn {
+            background: none;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-icon-btn:hover {
+            color: var(--text);
+            background: var(--surface);
+            border-color: var(--border);
+        }
+
+        .action-icon-btn.danger:hover {
+            color: var(--red);
+            background: var(--red-dim);
+            border-color: transparent;
+        }
+
+        /* Empty state */
+        .empty-table {
+            padding: 50px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        /* Modals */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(4, 6, 12, 0.85);
+            backdrop-filter: blur(14px);
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 800px;
+            width: 100%;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-header {
+            padding: 16px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 20px 22px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 14px 22px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .code-editor {
+            width: 100%;
+            height: 480px;
+            background: #0a0d14;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: #f1f5f9;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            padding: 14px;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        .preview-media {
+            max-width: 100%;
+            max-height: 65vh;
+            display: block;
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+
+        /* Prompt input */
+        .prompt-input {
+            width: 100%;
+            padding: 12px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            margin-top: 10px;
+        }
+
+        .prompt-input:focus {
+            border-color: var(--blue);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 200;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            font-size: 13px;
+            font-weight: 500;
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .header-inner {
+                padding: 0 16px;
+                height: 58px;
+            }
+
+            .main {
+                padding: 16px;
+            }
+
+            .top-bar {
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .search-box {
+                max-width: none;
+            }
+
+            th,
+            td {
+                padding: 10px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-inner {
+                padding: 0 10px;
+                height: 54px;
+            }
+
+            .main {
+                padding: 12px 10px;
+            }
+
+            .logo {
+                font-size: 17px;
+                gap: 8px;
+            }
+
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+                border-radius: 8px;
+            }
+
+            .nav-link {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .btn {
+                padding: 7px 12px;
+                font-size: 12px;
+            }
+
+            .action-buttons {
+                gap: 6px;
+            }
+
+            .storage-bar-wrap {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            th:nth-child(3),
+            td:nth-child(3) {
+                display: none;
+            }
+
+            .toast {
+                left: 12px;
+                right: 12px;
+                max-width: none;
+                width: auto;
+                text-align: center;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- Header -->
-<div class="header">
-    <div class="header-inner">
-        <a class="logo" href="/">
-            <div class="logo-icon">&#x1f4c1;</div>
-            <div>Chimp<span>Drive</span></div>
-        </a>
-        <div class="nav-links">
-            <a class="nav-link" href="/">&#x1f3e0; Dashboard</a>
-            <a class="nav-link" href="/photos/">&#x1f4f7; ChimpPix</a>
-            <button class="nav-link" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode" style="cursor: pointer; background: transparent; border: 1px solid var(--border);">
-                <span id="themeIcon">☀️</span>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Main -->
-<div class="main">
-
-    <!-- Storage Shortcuts -->
-    <div class="shortcuts">
-        <div class="shortcut-chip" onclick="navigateTo('')">&#x1f3e0; Server Root</div>
-        <div class="shortcut-chip" onclick="navigateTo('data/photos')">&#x1f4f7; Photo Storage</div>
-        <div class="shortcut-chip" onclick="navigateTo('scripts')">&#x1f4dc; Scripts</div>
-        <div class="shortcut-chip" onclick="navigateTo('logs')">&#x1f4ca; Logs</div>
-        <div class="shortcut-chip" onclick="navigateTo('storage/downloads')">&#x2b07;&#xfe0f; Phone Downloads</div>
-        <div class="shortcut-chip" onclick="navigateTo('storage/dcim/Camera')">&#x1f4f8; Phone Camera</div>
-    </div>
-
-    <!-- Top Toolbar -->
-    <div class="top-bar">
-        <div class="breadcrumbs" id="breadcrumbs"></div>
-        <div class="action-buttons">
-            <button class="btn" onclick="openNewFolderModal()">
-                &#x1f4c1; New Folder
-            </button>
-            <button class="btn" onclick="downloadCurrentZip()">
-                &#x1f4e6; Download ZIP
-            </button>
-            <label class="btn primary">
-                &#x2b06;&#xfe0f; Upload Files
-                <input id="fileUploadInput" type="file" multiple onchange="handleFileInput(this)">
-            </label>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-inner">
+            <a class="logo" href="/">
+                <div class="logo-icon">&#x1f4c1;</div>
+                <div>Chimp<span>Drive</span></div>
+            </a>
+            <div class="nav-links">
+                <a class="nav-link" href="/">&#x1f3e0; Dashboard</a>
+                <a class="nav-link" href="/photos/">&#x1f4f7; ChimpPix</a>
+                <button class="nav-link" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode"
+                    style="cursor: pointer; background: transparent; border: 1px solid var(--border);">
+                    <span id="themeIcon">☀️</span>
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Drag & Drop Zone -->
-    <div class="dropzone" id="dropzone">
-        <div class="dropzone-text">
-            Drag &amp; drop files here to upload to current directory, or <span onclick="document.getElementById('fileUploadInput').click()">browse</span>
+    <!-- Main -->
+    <div class="main">
+
+        <!-- Top Toolbar -->
+        <div class="top-bar">
+            <div class="breadcrumbs" id="breadcrumbs"></div>
+            <div class="action-buttons">
+                <button class="btn" onclick="openNewFolderModal()">
+                    &#x1f4c1; New Folder
+                </button>
+                <button class="btn" onclick="downloadCurrentZip()">
+                    &#x1f4e6; Download ZIP
+                </button>
+                <label class="btn primary">
+                    &#x2b06;&#xfe0f; Upload Files
+                    <input id="fileUploadInput" type="file" multiple onchange="handleFileInput(this)">
+                </label>
+            </div>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div class="dropzone" id="dropzone">
+            <div class="dropzone-text">
+                Drag &amp; drop files here to upload to current directory, or <span
+                    onclick="document.getElementById('fileUploadInput').click()">browse</span>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <input class="search-input" id="searchFilter" placeholder="Filter files..." oninput="filterFiles()">
+            <div style="font-size:12px;color:var(--text-muted)" id="itemCount">Loading...</div>
+        </div>
+
+        <!-- Table -->
+        <div class="file-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th style="width:140px">Size</th>
+                        <th style="width:180px">Modified</th>
+                        <th style="width:120px;text-align:right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="fileTableBody"></tbody>
+            </table>
+            <div class="empty-table" id="emptyTable" hidden>Your ChimpDrive is empty. Drag &amp; drop files or click
+                Upload Files above to get started.</div>
         </div>
     </div>
 
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-        <input class="search-input" id="searchFilter" placeholder="Filter files..." oninput="filterFiles()">
-        <div style="font-size:12px;color:var(--text-muted)" id="itemCount">Loading...</div>
-    </div>
-
-    <!-- Table -->
-    <div class="file-table-wrap">
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th style="width:140px">Size</th>
-                    <th style="width:180px">Modified</th>
-                    <th style="width:120px;text-align:right">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="fileTableBody"></tbody>
-        </table>
-        <div class="empty-table" id="emptyTable" hidden>This directory is empty.</div>
-    </div>
-</div>
-
-<!-- Editor / Preview Modal -->
-<div class="modal-overlay" id="editorModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <div class="modal-title" id="editorTitle">View File</div>
-            <button class="modal-close" onclick="closeModal('editorModal')">&#x2715;</button>
-        </div>
-        <div class="modal-body" id="editorBody"></div>
-        <div class="modal-footer" id="editorFooter">
-            <button class="btn" onclick="closeModal('editorModal')">Close</button>
-            <button class="btn primary" id="editorSaveBtn" onclick="saveFileContent()" hidden>Save Changes</button>
+    <!-- Editor / Preview Modal -->
+    <div class="modal-overlay" id="editorModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="editorTitle">View File</div>
+                <button class="modal-close" onclick="closeModal('editorModal')">&#x2715;</button>
+            </div>
+            <div class="modal-body" id="editorBody"></div>
+            <div class="modal-footer" id="editorFooter">
+                <button class="btn" onclick="closeModal('editorModal')">Close</button>
+                <button class="btn primary" id="editorSaveBtn" onclick="saveFileContent()" hidden>Save Changes</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Prompt Modal (New folder & rename) -->
-<div class="modal-overlay" id="promptModal">
-    <div class="modal-box" style="max-width:420px">
-        <div class="modal-header">
-            <div class="modal-title" id="promptTitle">Input</div>
-            <button class="modal-close" onclick="closeModal('promptModal')">&#x2715;</button>
-        </div>
-        <div class="modal-body">
-            <div id="promptLabel" style="font-size:13px;color:var(--text-muted)">Enter name:</div>
-            <input class="prompt-input" id="promptInput">
-        </div>
-        <div class="modal-footer">
-            <button class="btn" onclick="closeModal('promptModal')">Cancel</button>
-            <button class="btn primary" id="promptConfirmBtn">Confirm</button>
+    <!-- Prompt Modal (New folder & rename) -->
+    <div class="modal-overlay" id="promptModal">
+        <div class="modal-box" style="max-width:420px">
+            <div class="modal-header">
+                <div class="modal-title" id="promptTitle">Input</div>
+                <button class="modal-close" onclick="closeModal('promptModal')">&#x2715;</button>
+            </div>
+            <div class="modal-body">
+                <div id="promptLabel" style="font-size:13px;color:var(--text-muted)">Enter name:</div>
+                <input class="prompt-input" id="promptInput">
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('promptModal')">Cancel</button>
+                <button class="btn primary" id="promptConfirmBtn">Confirm</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
 
-<script>
-const API_BASE = window.location.pathname.startsWith('/files') ? '/files/api' : '/api';
-let currentPath = "";
-let currentItems = [];
-let editingPath = "";
+    <script>
+        const API_BASE = window.location.pathname.startsWith('/files') ? '/files/api' : '/api';
+        let currentPath = "";
+        let currentItems = [];
+        let editingPath = "";
 
-function showToast(msg) {
-    const t = document.getElementById("toast");
-    t.textContent = msg;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), 2800);
-}
+        function showToast(msg) {
+            const t = document.getElementById("toast");
+            t.textContent = msg;
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 2800);
+        }
 
-function formatDate(ts) {
-    return new Date(ts * 1000).toLocaleString(undefined, {
-        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-}
+        function formatDate(ts) {
+            return new Date(ts * 1000).toLocaleString(undefined, {
+                month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        }
 
-function getIcon(item) {
-    if (item.is_dir) return "&#x1f4c1;";
-    switch(item.type) {
-        case "image": return "&#x1f5bc;&#xfe0f;";
-        case "video": return "&#x1f3ac;";
-        case "audio": return "&#x1f3b5;";
-        case "pdf": return "&#x1f4d5;";
-        case "archive": return "&#x1f4e6;";
-        case "text": return "&#x1f4c4;";
-        default: return "&#x1f4c4;";
-    }
-}
+        function getIcon(item) {
+            if (item.is_dir) return "&#x1f4c1;";
+            switch (item.type) {
+                case "image": return "&#x1f5bc;&#xfe0f;";
+                case "video": return "&#x1f3ac;";
+                case "audio": return "&#x1f3b5;";
+                case "pdf": return "&#x1f4d5;";
+                case "archive": return "&#x1f4e6;";
+                case "text": return "&#x1f4c4;";
+                default: return "&#x1f4c4;";
+            }
+        }
 
-async function loadDirectory(path = "") {
-    currentPath = path;
-    try {
-        const res = await fetch(`${API_BASE}/files?path=${encodeURIComponent(path)}`);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
+        async function loadDirectory(path = "") {
+            currentPath = path;
+            try {
+                const res = await fetch(`${API_BASE}/files?path=${encodeURIComponent(path)}`);
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
 
-        currentItems = data.items;
-        renderBreadcrumbs(data.breadcrumbs);
-        renderTable(currentItems);
-        document.getElementById("itemCount").textContent = `${data.count} items`;
-    } catch (e) {
-        showToast("Error loading directory: " + e.message);
-    }
-}
+                currentItems = data.items;
+                renderBreadcrumbs(data.breadcrumbs);
+                renderTable(currentItems);
+                document.getElementById("itemCount").textContent = `${data.count} items`;
+            } catch (e) {
+                showToast("Error loading directory: " + e.message);
+            }
+        }
 
-function renderBreadcrumbs(crumbs) {
-    const bc = document.getElementById("breadcrumbs");
-    bc.innerHTML = `<span class="crumb ${!currentPath ? 'current' : ''}" onclick="navigateTo('')">root</span>`;
-    crumbs.forEach((c, idx) => {
-        const isLast = idx === crumbs.length - 1;
-        bc.innerHTML += `<span class="crumb-sep">/</span><span class="crumb ${isLast ? 'current' : ''}" onclick="navigateTo('${c.path}')">${c.name}</span>`;
-    });
-}
+        function renderBreadcrumbs(crumbs) {
+            const bc = document.getElementById("breadcrumbs");
+            bc.innerHTML = `<span class="crumb ${!currentPath ? 'current' : ''}" onclick="navigateTo('')">📁 ChimpDrive</span>`;
+            crumbs.forEach((c, idx) => {
+                const isLast = idx === crumbs.length - 1;
+                bc.innerHTML += `<span class="crumb-sep">/</span><span class="crumb ${isLast ? 'current' : ''}" onclick="navigateTo('${c.path}')">${c.name}</span>`;
+            });
+        }
 
-function renderTable(items) {
-    const tbody = document.getElementById("fileTableBody");
-    const empty = document.getElementById("emptyTable");
-    tbody.innerHTML = "";
-    empty.hidden = items.length > 0;
+        function renderTable(items) {
+            const tbody = document.getElementById("fileTableBody");
+            const empty = document.getElementById("emptyTable");
+            tbody.innerHTML = "";
+            empty.hidden = items.length > 0;
 
-    // "Up directory" entry if in subfolder
-    if (currentPath) {
-        const parentParts = currentPath.split("/").slice(0, -1);
-        const parentPath = parentParts.join("/");
-        const tr = document.createElement("tr");
-        tr.className = "file-row";
-        tr.onclick = () => navigateTo(parentPath);
-        tr.innerHTML = `
+            // "Up directory" entry if in subfolder
+            if (currentPath) {
+                const parentParts = currentPath.split("/").slice(0, -1);
+                const parentPath = parentParts.join("/");
+                const tr = document.createElement("tr");
+                tr.className = "file-row";
+                tr.onclick = () => navigateTo(parentPath);
+                tr.innerHTML = `
             <td colspan="4" class="file-name-cell">
                 <span class="file-icon">&#x21a9;&#xfe0f;</span>
                 <span style="color:var(--blue);font-weight:600">.. (Parent Directory)</span>
             </td>
         `;
-        tbody.appendChild(tr);
-    }
+                tbody.appendChild(tr);
+            }
 
-    items.forEach(item => {
-        const itemRelPath = currentPath ? `${currentPath}/${item.name}` : item.name;
-        const tr = document.createElement("tr");
-        tr.className = "file-row";
+            items.forEach(item => {
+                const itemRelPath = currentPath ? `${currentPath}/${item.name}` : item.name;
+                const tr = document.createElement("tr");
+                tr.className = "file-row";
 
-        tr.innerHTML = `
+                tr.innerHTML = `
             <td>
                 <div class="file-name-cell" onclick="handleItemClick('${itemRelPath}', ${item.is_dir}, '${item.type}')">
                     <span class="file-icon">${getIcon(item)}</span>
@@ -719,261 +859,262 @@ function renderTable(items) {
                 </div>
             </td>
         `;
-        tbody.appendChild(tr);
-    });
-}
-
-function navigateTo(path) {
-    loadDirectory(path);
-}
-
-function filterFiles() {
-    const q = document.getElementById("searchFilter").value.toLowerCase();
-    const filtered = currentItems.filter(i => i.name.toLowerCase().includes(q));
-    renderTable(filtered);
-    document.getElementById("itemCount").textContent = `${filtered.length} of ${currentItems.length} items`;
-}
-
-async function handleItemClick(relPath, isDir, type) {
-    if (isDir) {
-        navigateTo(relPath);
-        return;
-    }
-
-    // Media or Text Preview
-    if (type === "text") {
-        openTextEditor(relPath);
-    } else if (type === "image") {
-        openMediaPreview(relPath, "image");
-    } else if (type === "video") {
-        openMediaPreview(relPath, "video");
-    } else if (type === "audio") {
-        openMediaPreview(relPath, "audio");
-    } else {
-        downloadFile(relPath);
-    }
-}
-
-async function openTextEditor(relPath) {
-    editingPath = relPath;
-    const modal = document.getElementById("editorModal");
-    const title = document.getElementById("editorTitle");
-    const body = document.getElementById("editorBody");
-    const saveBtn = document.getElementById("editorSaveBtn");
-
-    title.textContent = `Editing: ${relPath.split('/').pop()}`;
-    body.innerHTML = '<div style="color:var(--text-muted)">Loading file content...</div>';
-    saveBtn.hidden = false;
-    modal.classList.add("active");
-
-    try {
-        const res = await fetch(`${API_BASE}/file/content?path=${encodeURIComponent(relPath)}`);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-
-        body.innerHTML = `<textarea class="code-editor" id="codeEditorArea">${escapeHtml(data.content)}</textarea>`;
-    } catch (e) {
-        body.innerHTML = `<div style="color:var(--red)">Unable to load file: ${e.message}</div>`;
-        saveBtn.hidden = true;
-    }
-}
-
-function openMediaPreview(relPath, mediaType) {
-    const modal = document.getElementById("editorModal");
-    const title = document.getElementById("editorTitle");
-    const body = document.getElementById("editorBody");
-    const saveBtn = document.getElementById("editorSaveBtn");
-
-    title.textContent = relPath.split('/').pop();
-    saveBtn.hidden = true;
-
-    const fileUrl = `${API_BASE}/file/raw?path=${encodeURIComponent(relPath)}`;
-    if (mediaType === "image") {
-        body.innerHTML = `<img class="preview-media" src="${fileUrl}">`;
-    } else if (mediaType === "video") {
-        body.innerHTML = `<video class="preview-media" src="${fileUrl}" controls autoplay></video>`;
-    } else if (mediaType === "audio") {
-        body.innerHTML = `<audio style="width:100%;margin-top:20px" src="${fileUrl}" controls autoplay></audio>`;
-    }
-    modal.classList.add("active");
-}
-
-async function saveFileContent() {
-    const content = document.getElementById("codeEditorArea").value;
-    try {
-        const res = await fetch(`${API_BASE}/file/save`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ path: editingPath, content: content })
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || "Save failed");
-        showToast("File saved successfully!");
-        closeModal("editorModal");
-    } catch (e) {
-        alert("Failed to save: " + e.message);
-    }
-}
-
-function downloadFile(relPath) {
-    window.location.href = `${API_BASE}/file/raw?path=${encodeURIComponent(relPath)}&download=1`;
-}
-
-function downloadCurrentZip() {
-    window.location.href = `${API_BASE}/zip?path=${encodeURIComponent(currentPath)}`;
-}
-
-async function deleteItem(relPath, name) {
-    if (!confirm(`Are you sure you want to delete '${name}'?`)) return;
-    try {
-        const res = await fetch(`${API_BASE}/item/delete`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ path: relPath })
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || "Delete failed");
-        showToast(`'${name}' deleted`);
-        loadDirectory(currentPath);
-    } catch (e) {
-        alert("Delete failed: " + e.message);
-    }
-}
-
-function openNewFolderModal() {
-    const modal = document.getElementById("promptModal");
-    const title = document.getElementById("promptTitle");
-    const input = document.getElementById("promptInput");
-    const btn = document.getElementById("promptConfirmBtn");
-
-    title.textContent = "Create New Folder";
-    input.value = "";
-    btn.onclick = async () => {
-        const name = input.value.trim();
-        if (!name) return;
-        try {
-            const res = await fetch(`${API_BASE}/folder/create`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ path: currentPath, name: name })
+                tbody.appendChild(tr);
             });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error || "Create failed");
-            closeModal("promptModal");
-            showToast(`Folder '${name}' created`);
-            loadDirectory(currentPath);
-        } catch (e) {
-            alert("Create folder failed: " + e.message);
         }
-    };
-    modal.classList.add("active");
-    input.focus();
-}
 
-function openRenameModal(relPath, currentName) {
-    const modal = document.getElementById("promptModal");
-    const title = document.getElementById("promptTitle");
-    const input = document.getElementById("promptInput");
-    const btn = document.getElementById("promptConfirmBtn");
-
-    title.textContent = `Rename '${currentName}'`;
-    input.value = currentName;
-    btn.onclick = async () => {
-        const newName = input.value.trim();
-        if (!newName || newName === currentName) return;
-        try {
-            const res = await fetch(`${API_BASE}/item/rename`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ path: relPath, new_name: newName })
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error || "Rename failed");
-            closeModal("promptModal");
-            showToast(`Renamed to '${newName}'`);
-            loadDirectory(currentPath);
-        } catch (e) {
-            alert("Rename failed: " + e.message);
+        function navigateTo(path) {
+            loadDirectory(path);
         }
-    };
-    modal.classList.add("active");
-    input.focus();
-}
 
-function closeModal(id) {
-    document.getElementById(id).classList.remove("active");
-}
+        function filterFiles() {
+            const q = document.getElementById("searchFilter").value.toLowerCase();
+            const filtered = currentItems.filter(i => i.name.toLowerCase().includes(q));
+            renderTable(filtered);
+            document.getElementById("itemCount").textContent = `${filtered.length} of ${currentItems.length} items`;
+        }
 
-function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
+        async function handleItemClick(relPath, isDir, type) {
+            if (isDir) {
+                navigateTo(relPath);
+                return;
+            }
 
-// Drag & Drop and Upload handling
-const dropzone = document.getElementById("dropzone");
-dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("dragover"); });
-dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
-dropzone.addEventListener("drop", e => {
-    e.preventDefault();
-    dropzone.classList.remove("dragover");
-    if (e.dataTransfer.files.length) {
-        uploadFiles(e.dataTransfer.files);
-    }
-});
+            // Media or Text Preview
+            if (type === "text") {
+                openTextEditor(relPath);
+            } else if (type === "image") {
+                openMediaPreview(relPath, "image");
+            } else if (type === "video") {
+                openMediaPreview(relPath, "video");
+            } else if (type === "audio") {
+                openMediaPreview(relPath, "audio");
+            } else {
+                downloadFile(relPath);
+            }
+        }
 
-function handleFileInput(input) {
-    if (input.files.length) {
-        uploadFiles(input.files);
-    }
-    input.value = "";
-}
+        async function openTextEditor(relPath) {
+            editingPath = relPath;
+            const modal = document.getElementById("editorModal");
+            const title = document.getElementById("editorTitle");
+            const body = document.getElementById("editorBody");
+            const saveBtn = document.getElementById("editorSaveBtn");
 
-async function uploadFiles(files) {
-    const form = new FormData();
-    form.append("path", currentPath);
-    for (const f of files) form.append("files", f);
+            title.textContent = `Editing: ${relPath.split('/').pop()}`;
+            body.innerHTML = '<div style="color:var(--text-muted)">Loading file content...</div>';
+            saveBtn.hidden = false;
+            modal.classList.add("active");
 
-    showToast(`Uploading ${files.length} file(s)...`);
-    try {
-        const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || "Upload failed");
-        showToast(`${data.saved} file(s) uploaded successfully!`);
-        loadDirectory(currentPath);
-    } catch (e) {
-        alert("Upload error: " + e.message);
-    }
-}
+            try {
+                const res = await fetch(`${API_BASE}/file/content?path=${encodeURIComponent(relPath)}`);
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
 
-// Theme Management
-function initTheme() {
-    const saved = localStorage.getItem("chimp_theme") || "dark";
-    applyTheme(saved);
-}
-function applyTheme(theme) {
-    const icon = document.getElementById("themeIcon");
-    const btn = document.getElementById("themeToggleBtn");
-    if (theme === "light") {
-        document.documentElement.setAttribute("data-theme", "light");
-        if (icon) icon.textContent = "🌙";
-        if (btn) btn.title = "Switch to Dark Mode";
-    } else {
-        document.documentElement.removeAttribute("data-theme");
-        if (icon) icon.textContent = "☀️";
-        if (btn) btn.title = "Switch to Light Mode";
-    }
-    localStorage.setItem("chimp_theme", theme);
-}
-function toggleTheme() {
-    const isLight = document.documentElement.getAttribute("data-theme") === "light";
-    applyTheme(isLight ? "dark" : "light");
-}
-window.addEventListener('storage', (e) => {
-    if (e.key === 'chimp_theme') applyTheme(e.newValue || 'dark');
-});
-initTheme();
+                body.innerHTML = `<textarea class="code-editor" id="codeEditorArea">${escapeHtml(data.content)}</textarea>`;
+            } catch (e) {
+                body.innerHTML = `<div style="color:var(--red)">Unable to load file: ${e.message}</div>`;
+                saveBtn.hidden = true;
+            }
+        }
 
-// Initial load
-loadDirectory();
-</script>
+        function openMediaPreview(relPath, mediaType) {
+            const modal = document.getElementById("editorModal");
+            const title = document.getElementById("editorTitle");
+            const body = document.getElementById("editorBody");
+            const saveBtn = document.getElementById("editorSaveBtn");
+
+            title.textContent = relPath.split('/').pop();
+            saveBtn.hidden = true;
+
+            const fileUrl = `${API_BASE}/file/raw?path=${encodeURIComponent(relPath)}`;
+            if (mediaType === "image") {
+                body.innerHTML = `<img class="preview-media" src="${fileUrl}">`;
+            } else if (mediaType === "video") {
+                body.innerHTML = `<video class="preview-media" src="${fileUrl}" controls autoplay></video>`;
+            } else if (mediaType === "audio") {
+                body.innerHTML = `<audio style="width:100%;margin-top:20px" src="${fileUrl}" controls autoplay></audio>`;
+            }
+            modal.classList.add("active");
+        }
+
+        async function saveFileContent() {
+            const content = document.getElementById("codeEditorArea").value;
+            try {
+                const res = await fetch(`${API_BASE}/file/save`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ path: editingPath, content: content })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || "Save failed");
+                showToast("File saved successfully!");
+                closeModal("editorModal");
+            } catch (e) {
+                alert("Failed to save: " + e.message);
+            }
+        }
+
+        function downloadFile(relPath) {
+            window.location.href = `${API_BASE}/file/raw?path=${encodeURIComponent(relPath)}&download=1`;
+        }
+
+        function downloadCurrentZip() {
+            window.location.href = `${API_BASE}/zip?path=${encodeURIComponent(currentPath)}`;
+        }
+
+        async function deleteItem(relPath, name) {
+            if (!confirm(`Are you sure you want to delete '${name}'?`)) return;
+            try {
+                const res = await fetch(`${API_BASE}/item/delete`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ path: relPath })
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || "Delete failed");
+                showToast(`'${name}' deleted`);
+                loadDirectory(currentPath);
+            } catch (e) {
+                alert("Delete failed: " + e.message);
+            }
+        }
+
+        function openNewFolderModal() {
+            const modal = document.getElementById("promptModal");
+            const title = document.getElementById("promptTitle");
+            const input = document.getElementById("promptInput");
+            const btn = document.getElementById("promptConfirmBtn");
+
+            title.textContent = "Create New Folder";
+            input.value = "";
+            btn.onclick = async () => {
+                const name = input.value.trim();
+                if (!name) return;
+                try {
+                    const res = await fetch(`${API_BASE}/folder/create`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ path: currentPath, name: name })
+                    });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.error || "Create failed");
+                    closeModal("promptModal");
+                    showToast(`Folder '${name}' created`);
+                    loadDirectory(currentPath);
+                } catch (e) {
+                    alert("Create folder failed: " + e.message);
+                }
+            };
+            modal.classList.add("active");
+            input.focus();
+        }
+
+        function openRenameModal(relPath, currentName) {
+            const modal = document.getElementById("promptModal");
+            const title = document.getElementById("promptTitle");
+            const input = document.getElementById("promptInput");
+            const btn = document.getElementById("promptConfirmBtn");
+
+            title.textContent = `Rename '${currentName}'`;
+            input.value = currentName;
+            btn.onclick = async () => {
+                const newName = input.value.trim();
+                if (!newName || newName === currentName) return;
+                try {
+                    const res = await fetch(`${API_BASE}/item/rename`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ path: relPath, new_name: newName })
+                    });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.error || "Rename failed");
+                    closeModal("promptModal");
+                    showToast(`Renamed to '${newName}'`);
+                    loadDirectory(currentPath);
+                } catch (e) {
+                    alert("Rename failed: " + e.message);
+                }
+            };
+            modal.classList.add("active");
+            input.focus();
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove("active");
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Drag & Drop and Upload handling
+        const dropzone = document.getElementById("dropzone");
+        dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("dragover"); });
+        dropzone.addEventListener("dragleave", () => dropzone.classList.remove("dragover"));
+        dropzone.addEventListener("drop", e => {
+            e.preventDefault();
+            dropzone.classList.remove("dragover");
+            if (e.dataTransfer.files.length) {
+                uploadFiles(e.dataTransfer.files);
+            }
+        });
+
+        function handleFileInput(input) {
+            if (input.files.length) {
+                uploadFiles(input.files);
+            }
+            input.value = "";
+        }
+
+        async function uploadFiles(files) {
+            const form = new FormData();
+            form.append("path", currentPath);
+            for (const f of files) form.append("files", f);
+
+            showToast(`Uploading ${files.length} file(s)...`);
+            try {
+                const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: form });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error || "Upload failed");
+                showToast(`${data.saved} file(s) uploaded successfully!`);
+                loadDirectory(currentPath);
+            } catch (e) {
+                alert("Upload error: " + e.message);
+            }
+        }
+
+        // Theme Management
+        function initTheme() {
+            const saved = localStorage.getItem("chimp_theme") || "dark";
+            applyTheme(saved);
+        }
+        function applyTheme(theme) {
+            const icon = document.getElementById("themeIcon");
+            const btn = document.getElementById("themeToggleBtn");
+            if (theme === "light") {
+                document.documentElement.setAttribute("data-theme", "light");
+                if (icon) icon.textContent = "🌙";
+                if (btn) btn.title = "Switch to Dark Mode";
+            } else {
+                document.documentElement.removeAttribute("data-theme");
+                if (icon) icon.textContent = "☀️";
+                if (btn) btn.title = "Switch to Light Mode";
+            }
+            localStorage.setItem("chimp_theme", theme);
+        }
+        function toggleTheme() {
+            const isLight = document.documentElement.getAttribute("data-theme") === "light";
+            applyTheme(isLight ? "dark" : "light");
+        }
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'chimp_theme') applyTheme(e.newValue || 'dark');
+        });
+        initTheme();
+
+        // Initial load
+        loadDirectory();
+    </script>
 </body>
+
 </html>

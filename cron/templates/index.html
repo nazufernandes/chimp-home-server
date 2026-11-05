@@ -4,15 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⏰ ChimpCron | Scheduled Automation</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏰</text></svg>">
+    <title>ChimpCron | Scheduled Automation</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐒</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <script>
-        (function() {
+        (function () {
             const theme = localStorage.getItem("chimp_theme") || "dark";
             if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
         })();
@@ -93,24 +94,31 @@
             transition: background 0.25s, border-color 0.25s;
         }
 
-        .brand {
+        .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
             text-decoration: none;
             color: var(--text);
-            font-weight: 700;
-            font-size: 1.15rem;
         }
 
-        .brand-badge {
-            background: var(--purple-dim);
-            color: var(--purple);
-            font-size: 0.72rem;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-weight: 600;
-            border: 1px solid rgba(167, 139, 250, 0.3);
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #d97706, #fbbf24);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
+        }
+
+        .logo span {
+            color: #fbbf24;
         }
 
         .nav-links {
@@ -691,17 +699,85 @@
         }
 
         @media (max-width: 600px) {
-            .navbar { padding: 10px 14px; }
-            .brand { font-size: 1rem; }
-            .container { padding: 0 10px; margin: 16px auto; }
-            .header-bar { gap: 10px; margin-bottom: 16px; flex-direction: column; align-items: stretch; }
-            .header-actions { width: 100%; justify-content: space-between; }
-            .metrics-grid { grid-template-columns: 1fr; gap: 10px; }
-            .job-card { padding: 14px; }
-            .job-actions { width: 100%; justify-content: flex-end; flex-wrap: wrap; }
-            .modal-card { width: 95%; max-width: none; padding: 16px; }
-            .log-terminal { max-height: 45vh; font-size: 11px; }
-            .toast { left: 12px; right: 12px; max-width: none; width: auto; justify-content: center; }
+            .navbar {
+                padding: 10px 14px;
+            }
+
+            .logo {
+                font-size: 17px;
+                gap: 8px;
+            }
+
+            .logo-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+                border-radius: 8px;
+            }
+
+            .nav-links {
+                gap: 6px;
+            }
+
+            .nav-link {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+
+            .nav-link .nav-text {
+                display: none;
+            }
+
+            .container {
+                padding: 0 10px;
+                margin: 16px auto;
+            }
+
+            .header-bar {
+                gap: 10px;
+                margin-bottom: 16px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .job-card {
+                padding: 14px;
+            }
+
+            .job-actions {
+                width: 100%;
+                justify-content: flex-end;
+                flex-wrap: wrap;
+            }
+
+            .modal-card {
+                width: 95%;
+                max-width: none;
+                padding: 16px;
+            }
+
+            .log-terminal {
+                max-height: 45vh;
+                font-size: 11px;
+            }
+
+            .toast {
+                left: 12px;
+                right: 12px;
+                max-width: none;
+                width: auto;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -710,18 +786,18 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <a href="/" class="brand">
-            <span>🐒</span>
-            <span>ChimpCron</span>
-            <span class="brand-badge">Automation</span>
+        <a class="logo" href="/">
+            <div class="logo-icon">&#x23f0;</div>
+            <div>Chimp<span>Cron</span></div>
         </a>
         <div class="nav-links">
-            <a href="/" class="nav-link"><span>📊</span> Dashboard</a>
-            <a href="/drop/" class="nav-link"><span>📋</span> ChimpDrop</a>
-            <a href="/files/" class="nav-link"><span>📁</span> Files</a>
-            <a href="/photos/" class="nav-link"><span>📷</span> Photos</a>
-            <a href="/cron/" class="nav-link active"><span>⏰</span> Cron</a>
-            <button class="nav-link" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode" style="cursor: pointer; background: transparent; border: 1px solid var(--border);">
+            <a href="/" class="nav-link"><span>📊</span> <span class="nav-text">Dashboard</span></a>
+            <a href="/drop/" class="nav-link"><span>📋</span> <span class="nav-text">ChimpDrop</span></a>
+            <a href="/files/" class="nav-link"><span>📁</span> <span class="nav-text">Files</span></a>
+            <a href="/photos/" class="nav-link"><span>📷</span> <span class="nav-text">Photos</span></a>
+            <a href="/cron/" class="nav-link active"><span>⏰</span> <span class="nav-text">Cron</span></a>
+            <button class="nav-link" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light / Dark Mode"
+                style="cursor: pointer; background: transparent; border: 1px solid var(--border);">
                 <span id="themeIcon">☀️</span>
             </button>
         </div>

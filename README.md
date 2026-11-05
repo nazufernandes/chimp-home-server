@@ -1,28 +1,14 @@
 <div align="center">
 
-```text
-                                ▒▓████▓▒
-                             ▓████████████▒
-                          ▒██████████████████▒
-                         █████████████████████▓
-                       ▒████████████████████████
-                      ▒██████████████████████████
-                    ▒▒░▓████▒░░░░░▒▓▓▒░░░░░░▓███▓░▒▒
-                   ▓█▓▓▓██▓░░██▓▓▓▒░░▒▓█▓▓█▒░▓██▓▒▓█▒
-                  ▓▓▒▓████▓░▒▓█▓▓███▓███▓▓▓▓░░████▓▒▒▓
-                  ▒▓░██████░░░▒▒░░▓▓▒▒░░▒▒░░░▓████▓░▒▒
-                   ▒▓░░▓████▒░░▒▒░░░░░░▒▒░░▒▓███▓▒▒█
-                     ▒▓███████▓░░▒█▒░▓▓░▒▓▓██████▓▒
-                       ▓██████░░░░░▒░░░░░░██████▒
-                       ▒█████▒░░░░░░░░░░░░░█████▒
-                        ▓████░▒▒▒▒▒▒▒▒▒▒▒▒░▓███▓
-                         ▒███▓░░▒▓▓▓▓▓▓▒░░▓███▒
-                           ▒███▓░░░░░░░▓▓███▓
-                             ▒████████████▓
-                               ▒▒▓████▓▒▒
-```
+<a href="https://github.com/nazufernandes/chimp-home-server">
+  <img src="web/chimp-ascii.svg" alt="Chimp Mascot" width="170">
+</a>
 
 # 🐒 Chimp Home Server
+
+<a href="https://github.com/nazufernandes/chimp-home-server/blob/main/web/preview.png">
+  <img src="https://github.com/nazufernandes/chimp-home-server/blob/main/web/preview.png?raw=true" alt="Chimp Home Server" width="100%">
+</a>
 
 **Turn any old Android smartphone or Linux SBC into a sleek, silent, low-power home server.**
 
@@ -215,21 +201,29 @@ CHIMP_ADMIN_PASSWORD=your_secure_password
 
 ## 🛠️ CLI Management
 
-Once installed, use these built-in aliases from any terminal session:
+Once installed, the unified **`chimp`** command is available globally from any directory:
 
 ```bash
-# Check status of all services
-server-status
+# Check real-time service health & hardware metrics
+chimp status
 
-# Restart the entire server stack
-server-restart
+# Start / Stop / Restart the entire server stack
+chimp start
+chimp stop
+chimp restart
 
-# Start / Stop all services
-server-start
-server-stop
+# View or stream live service logs (gateway, monitor, files, drop, cron, photos)
+chimp logs
+chimp logs monitor -f
 
-# Tail live server logs
-server-logs
+# Attach directly to the live tmux server terminal
+chimp console
+
+# Display dynamic public SSH connection command
+chimp ssh
+
+# Display local LAN and Internet public URLs
+chimp url
 ```
 
 ---
