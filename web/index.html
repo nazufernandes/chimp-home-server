@@ -4,6 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chimp | Home Server Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐒</text></svg>">
+
+<!-- Open Graph / Facebook / WhatsApp / Telegram Preview -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://holstered-meltingly-pablo.ngrok-free.dev">
+<meta property="og:title" content="Chimp | Home Server Dashboard">
+<meta property="og:description" content="Personal Linux Home Server &amp; Cloud Suite — Real-time Hardware Telemetry, File Cloud, Universal Clipboard, Media Gallery &amp; Automation.">
+<meta property="og:image" content="https://holstered-meltingly-pablo.ngrok-free.dev/preview.png">
+<meta property="og:image:width" content="1518">
+<meta property="og:image:height" content="714">
+<meta property="og:site_name" content="Chimp Home Server">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://holstered-meltingly-pablo.ngrok-free.dev">
+<meta name="twitter:title" content="Chimp | Home Server Dashboard">
+<meta name="twitter:description" content="Personal Linux Home Server &amp; Cloud Suite — Real-time Hardware Telemetry, File Cloud, Universal Clipboard, Media Gallery &amp; Automation.">
+<meta name="twitter:image" content="https://holstered-meltingly-pablo.ngrok-free.dev/preview.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -101,6 +119,10 @@
     --locked-badge-border: rgba(239, 68, 68, 0.4);
     --toast-bg: #ffffff;
     --btn-accent-text: #ffffff;
+}
+html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -425,11 +447,13 @@ body::before {
     font-size: 18px;
     font-weight: 700;
     letter-spacing: -0.3px;
+    word-break: break-word;
 }
 .info-detail {
     font-size: 12px;
     color: var(--text-dim);
     margin-top: 4px;
+    word-break: break-word;
 }
 
 /* === SERVICES === */
@@ -475,11 +499,13 @@ body::before {
 .service-name {
     font-size: 15px;
     font-weight: 600;
+    word-break: break-word;
 }
 .service-url {
     font-size: 12px;
     color: var(--text-dim);
     margin-top: 2px;
+    word-break: break-word;
 }
 .service-arrow {
     margin-left: auto;
@@ -744,20 +770,333 @@ input:checked + .slider:before {
     to { transform: translateY(0); opacity: 1; }
 }
 
-@media (max-width: 768px) {
-    .main { padding: 20px 16px; }
-    .header-inner { padding: 0 16px; }
-    .hero h1 { font-size: 24px; }
-    .metric-value { font-size: 26px; }
+/* Header & Navigation */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+.public-url-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: rgba(99,102,241,0.12);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: #818cf8;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    max-width: 220px;
+    white-space: nowrap;
+}
+.public-url-badge span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.public-url-badge:hover {
+    background: rgba(99,102,241,0.22);
+    border-color: #818cf8;
+}
+
+/* Services Header */
+.services-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* === RESPONSIVE MEDIA QUERIES === */
+@media (max-width: 900px) {
     .metrics-grid, .info-grid, .services-grid {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
 }
-@media (max-width: 480px) {
+
+@media (max-width: 768px) {
+    .main {
+        padding: 20px 14px 40px 14px;
+    }
+    .header-inner {
+        padding: 0 16px;
+        height: 60px;
+    }
+    .header-right {
+        gap: 8px;
+    }
+    .public-url-badge {
+        max-width: 140px;
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    .hero {
+        margin-bottom: 24px;
+    }
+    .hero h1 {
+        font-size: 24px;
+    }
+    .hero-sub {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    .hero-sub span {
+        margin-left: 0;
+        margin-top: 4px;
+    }
+    .metrics-grid, .info-grid, .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    .metric-card, .info-card, .service-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+    .metric-value {
+        font-size: 24px;
+    }
+    .metric-sub {
+        font-size: 11px;
+        margin-bottom: 10px;
+    }
+    .info-value {
+        font-size: 16px;
+    }
+
+    /* Modal layout */
+    .ctrl-overlay {
+        padding: 10px;
+    }
+    .ctrl-card {
+        max-height: calc(100dvh - 20px);
+        display: flex;
+        flex-direction: column;
+        border-radius: 14px;
+    }
+    .ctrl-header {
+        padding: 14px 18px;
+    }
+    .ctrl-title {
+        font-size: 16px;
+    }
+    .ctrl-body {
+        padding: 14px 18px;
+        flex: 1;
+        max-height: none;
+        gap: 10px;
+    }
+    .ctrl-footer {
+        padding: 12px 18px;
+    }
+    .ctrl-service-row {
+        padding: 12px;
+        border-radius: 10px;
+        gap: 10px;
+    }
+    .ctrl-service-left {
+        min-width: 0;
+        flex: 1;
+    }
+    .ctrl-service-sub {
+        font-size: 11px;
+        word-break: break-word;
+    }
+}
+
+@media (max-width: 520px) {
     .metrics-grid, .info-grid, .services-grid {
         grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
     }
-    .footer { flex-direction: column; gap: 8px; text-align: center; }
+    .header-inner {
+        padding: 0 10px;
+        height: 56px;
+    }
+    .logo {
+        gap: 8px;
+        font-size: 17px;
+    }
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+    .header-right {
+        gap: 6px;
+    }
+    .header-status {
+        padding: 6px 8px;
+        font-size: 11px;
+        gap: 6px;
+    }
+    .header-status span {
+        display: none;
+    }
+    .public-url-badge {
+        max-width: 100px;
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+    .btn-theme {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+    .main {
+        padding: 14px 10px 40px 10px;
+    }
+    .hero {
+        margin-bottom: 18px;
+    }
+    .hero h1 {
+        font-size: 22px;
+    }
+    .section-title {
+        font-size: 11px;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+    }
+    .services-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    .services-header .btn-ctrl {
+        width: 100%;
+        justify-content: center;
+        padding: 8px 12px;
+    }
+    .service-card {
+        padding: 14px;
+        gap: 12px;
+    }
+    .service-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 18px;
+        border-radius: 10px;
+    }
+    .footer {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+        padding: 18px 0;
+    }
+
+    /* Modal Mobile Optimization */
+    .ctrl-overlay {
+        padding: 6px;
+    }
+    .ctrl-card {
+        border-radius: 12px;
+        max-height: calc(100dvh - 12px);
+    }
+    .ctrl-header {
+        padding: 12px 14px;
+    }
+    .ctrl-title {
+        font-size: 15px;
+        gap: 6px;
+    }
+    .admin-sub-bar {
+        padding: 10px 14px !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+    }
+    .admin-sub-bar-actions {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+    .ctrl-body {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    .ctrl-service-row {
+        padding: 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .ctrl-service-row .ctrl-service-left {
+        width: 100%;
+    }
+    .ctrl-service-row .ctrl-toggles {
+        width: 100%;
+        justify-content: space-between;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    [data-theme="light"] .ctrl-service-row .ctrl-toggles {
+        border-top-color: rgba(0,0,0,0.06);
+    }
+    .toggle-wrap {
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .locked-badge-overlay {
+        right: 10px;
+        top: 10px;
+        transform: none;
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+    .locked-badge-overlay:hover {
+        transform: none;
+    }
+
+    /* SSH Modal */
+    #sshModal .ctrl-card > div:nth-child(2) {
+        padding: 16px 14px !important;
+        gap: 12px !important;
+    }
+    #sshModalCmd {
+        font-size: 11px !important;
+    }
+    #sshModalCopyBtn {
+        padding: 4px 10px !important;
+        font-size: 11px !important;
+    }
+
+    /* Toast */
+    .toast {
+        left: 12px;
+        right: 12px;
+        bottom: 16px;
+        max-width: none;
+        width: auto;
+        justify-content: center;
+        text-align: center;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 360px) {
+    .header-inner {
+        padding: 0 6px;
+    }
+    .logo div:nth-child(2) {
+        font-size: 14px;
+    }
+    .public-url-badge {
+        display: none !important;
+    }
+    .ctrl-title {
+        font-size: 13px;
+    }
 }
 </style>
 </head>
@@ -770,8 +1109,8 @@ input:checked + .slider:before {
             <div class="logo-icon" id="chimpLogoBtn" onclick="handleLogoClick(event)" title="Chimp Server">&#x1f412;</div>
             <div>Chimp<span>Server</span></div>
         </a>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <a id="publicUrlBadge" href="#" target="_blank" style="display: none; align-items: center; gap: 6px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); color: #818cf8; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all 0.2s;" title="Open permanent public link">
+        <div class="header-right">
+            <a id="publicUrlBadge" class="public-url-badge" href="#" target="_blank" title="Open permanent public link">
                 <span>🌐</span> <span id="publicUrlDomain">Public Link</span>
             </a>
             <div class="header-status">
@@ -893,7 +1232,7 @@ input:checked + .slider:before {
     </div>
 
     <!-- Services -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div class="services-header">
         <div class="section-title" style="margin-bottom: 0;">Server Services</div>
         <button class="btn-ctrl" onclick="openControlPanel()">
             <span>⚙️</span> Control Panel (<span id="activeServicesCount">--</span> Active)
@@ -977,9 +1316,9 @@ input:checked + .slider:before {
                 <button class="btn-ctrl" style="padding: 4px 8px;" onclick="closeAdminModal()">✕</button>
             </div>
         </div>
-        <div style="padding: 12px 24px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <div class="admin-sub-bar" style="padding: 12px 24px; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
             <span>Master daemon control. Disabling a service terminates its process and locks it in the standard user panel.</span>
-            <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="admin-sub-bar-actions" style="display: flex; align-items: center; gap: 10px;">
                 <button class="btn-ctrl" onclick="openSshModal()" style="padding: 3px 10px; font-size: 11px; background: rgba(34,201,151,0.12); color: var(--accent); border-color: rgba(34,201,151,0.3); font-weight: 600; display: inline-flex; align-items: center; gap: 5px;" title="Open Remote SSH Command">
                     <span>⚡</span> SSH Connect
                 </button>
@@ -1604,6 +1943,7 @@ async function refresh() {
             const domainSpan = document.getElementById("publicUrlDomain");
             const netDetail = document.getElementById("netDetail");
             const cleanDomain = d.public_url.replace(/^https?:\/\//, "");
+            const cleanUrl = d.public_url.replace(/\/+$/, "");
 
             if (badge && domainSpan) {
                 badge.href = d.public_url;
@@ -1611,8 +1951,18 @@ async function refresh() {
                 badge.style.display = "inline-flex";
             }
             if (netDetail) {
-                netDetail.innerHTML = `Public: <a href="${d.public_url}" target="_blank" style="color:#818cf8;text-decoration:none;font-weight:600;">${cleanDomain}</a>`;
+                netDetail.innerHTML = `Public: <a href="${d.public_url}" target="_blank" style="color:#818cf8;text-decoration:none;font-weight:600;word-break:break-all;">${cleanDomain}</a>`;
             }
+
+            // Sync Open Graph & Twitter Card tags with active public domain
+            const ogUrl = document.querySelector('meta[property="og:url"]');
+            if (ogUrl) ogUrl.setAttribute("content", cleanUrl);
+            const ogImg = document.querySelector('meta[property="og:image"]');
+            if (ogImg) ogImg.setAttribute("content", cleanUrl + "/preview.png");
+            const twUrl = document.querySelector('meta[name="twitter:url"]');
+            if (twUrl) twUrl.setAttribute("content", cleanUrl);
+            const twImg = document.querySelector('meta[name="twitter:image"]');
+            if (twImg) twImg.setAttribute("content", cleanUrl + "/preview.png");
         } else {
             const badge = document.getElementById("publicUrlBadge");
             if (badge) badge.style.display = "none";

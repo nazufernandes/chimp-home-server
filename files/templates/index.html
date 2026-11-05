@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ChimpDrive | Cloud File Manager</title>
+<title>📁 ChimpDrive | Cloud File Manager</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📁</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -287,7 +288,8 @@ body {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 table {
     width: 100%;
@@ -476,6 +478,28 @@ tr:hover .file-actions { opacity: 1; }
 .toast.show {
     transform: translateY(0);
     opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .header-inner { padding: 0 16px; height: 58px; }
+    .main { padding: 16px; }
+    .top-bar { gap: 12px; margin-bottom: 16px; }
+    .action-buttons { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+    .toolbar { flex-direction: column; align-items: stretch; gap: 10px; }
+    .search-box { max-width: none; }
+    th, td { padding: 10px 12px; }
+}
+@media (max-width: 480px) {
+    .header-inner { padding: 0 10px; height: 54px; }
+    .main { padding: 12px 10px; }
+    .logo { font-size: 17px; gap: 8px; }
+    .logo-icon { width: 32px; height: 32px; font-size: 16px; border-radius: 8px; }
+    .nav-link { padding: 4px 8px; font-size: 12px; }
+    .btn { padding: 7px 12px; font-size: 12px; }
+    .action-buttons { gap: 6px; }
+    .storage-bar-wrap { width: 100%; margin-left: 0; }
+    th:nth-child(3), td:nth-child(3) { display: none; }
+    .toast { left: 12px; right: 12px; max-width: none; width: auto; text-align: center; justify-content: center; }
 }
 </style>
 </head>
