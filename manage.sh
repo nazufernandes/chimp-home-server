@@ -192,6 +192,23 @@ start_services() {
             echo -e "  ${DIM}[-] ChimpPix disabled in Control Panel (skipping)${NC}"
         fi
 
+        # ChimpAI Neural Engine (8092 - Optional Module)
+        if [ -f "$BASE_DIR/run_llama.sh" ] || [ -f "$HOME/run_llama.sh" ]; then
+            if is_service_enabled "ai"; then
+                if ! check_port 8092; then
+                    AI_SCRIPT="$BASE_DIR/run_llama.sh"
+                    [ ! -f "$AI_SCRIPT" ] && AI_SCRIPT="$HOME/run_llama.sh"
+                    tmux new-window -t chimp:4 -n ai 2>/dev/null || true
+                    tmux send-keys -t chimp:ai "while true; do $AI_SCRIPT; sleep 3; done" C-m
+                    echo -e "  ${GREEN}[✓]${NC} ChimpAI started on http://${IP}:8080/chimpai/"
+                else
+                    echo -e "  ${DIM}[-] ChimpAI already running (Port 8092)${NC}"
+                fi
+            else
+                echo -e "  ${DIM}[-] ChimpAI disabled in Control Panel (skipping)${NC}"
+            fi
+        fi
+
         # Public Tunnels (Ngrok Web + SSH)
         if is_service_enabled "tunnel"; then
             TUNNEL_DOMAIN=""
@@ -249,6 +266,7 @@ stop_services() {
     pkill -9 -f "server/monitor/monitor.py" 2>/dev/null || true
     pkill -9 -f "server/photos/app.py" 2>/dev/null || true
     pkill -9 -f "server/cron/app.py" 2>/dev/null || true
+    pkill -9 -f "llama-server" 2>/dev/null || true
     pkill -9 -f "termux-chroot" 2>/dev/null || true
     pkill -9 -x ngrok 2>/dev/null || true
     echo -e "  ${GREEN}[✓]${NC} All services stopped cleanly."
@@ -292,6 +310,10 @@ status_services() {
     check_port 8083 && print_status_line "ChimpCron (Scheduler)" "RUNNING" "Port 8083" || print_status_line "ChimpCron (Scheduler)" "STOPPED" ""
     check_port 8091 && print_status_line "ChimpPix (Photos)" "RUNNING" "Port 8091" || print_status_line "ChimpPix (Photos)" "STOPPED" ""
 
+    if [ -f "$BASE_DIR/run_llama.sh" ] || [ -f "$HOME/run_llama.sh" ] || check_port 8092; then
+        check_port 8092 && print_status_line "ChimpAI (Neural Engine)" "RUNNING" "Port 8092" || print_status_line "ChimpAI (Neural Engine)" "STOPPED" ""
+    fi
+
     TUNNEL_DOMAIN=""
     [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
     [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
@@ -311,6 +333,11 @@ status_services() {
     echo -e "${DIM}  ========================================================${NC}"
     echo -e "  ${BOLD}Active Endpoints:${NC}"
     echo -e "  👉 Local LAN Web:   ${BLUE}http://${IP}:8080/${NC}"
+    if [ -f "$BASE_DIR/run_llama.sh" ] || [ -f "$HOME/run_llama.sh" ] || check_port 8092; then
+        if check_port 8092; then
+            echo -e "  👉 Local ChimpAI:   ${BLUE}http://${IP}:8080/chimpai/${NC}"
+        fi
+    fi
     [ -n "$TUNNEL_DOMAIN" ] && check_port 4040 && echo -e "  👉 Internet Web:    ${GREEN}https://${TUNNEL_DOMAIN}/${NC}"
     [ -n "$SSH_CMD" ] && echo -e "  👉 Remote SSH:      ${YELLOW}${SSH_CMD}${NC}"
     echo ""
@@ -332,6 +359,7 @@ logs_service() {
         drop|clipboard|clip)     target_win="drop" ;;
         cron|scheduler|tasks)    target_win="cron" ;;
         photos|pix|gallery)      target_win="photos" ;;
+        ai|chimpai|llama)        target_win="ai" ;;
         tunnel|tunnels|ngrok)    target_win="ngrok-web" ;;
         ssh-tunnel|ngrok-ssh)    target_win="ngrok-ssh" ;;
         "")                      target_win="" ;;
@@ -363,14 +391,14 @@ logs_service() {
             fi
         else
             echo -e "${RED}[!] No active tmux pane or log file found for '${svc}'.${NC}"
-            echo -e "Available services: gateway, monitor, files, drop, cron, photos, tunnel"
+            echo -e "Available services: gateway, monitor, files, drop, cron, photos, ai, tunnel"
         fi
     else
         echo -e "${GREEN}=== 🐒 Chimp Home Server — Active Service Panes ===${NC}"
-        echo -e "${DIM}Services: gateway, monitor, files, drop, cron, photos, tunnel${NC}"
+        echo -e "${DIM}Services: gateway, monitor, files, drop, cron, photos, ai, tunnel${NC}"
         echo ""
         if tmux has-session -t chimp 2>/dev/null; then
-            for win in gateway monitor files drop cron photos ngrok-web; do
+            for win in gateway monitor files drop cron photos ai ngrok-web; do
                 if tmux list-windows -t chimp -F "#{window_name}" | grep -q "^${win}$"; then
                     echo -e "${BOLD}${BLUE}▶ [${win}]:${NC}"
                     tmux capture-pane -p -t "chimp:${win}" -S -4 | sed 's/^/  /'
@@ -401,6 +429,11 @@ show_urls() {
     echo -e "${BOLD}${GREEN}  🐒 Chimp Home Server Endpoints${NC}"
     echo -e "${DIM}  ========================================================${NC}"
     echo -e "  👉 Local LAN Web:   ${BLUE}http://${IP}:8080/${NC}"
+    if [ -f "$BASE_DIR/run_llama.sh" ] || [ -f "$HOME/run_llama.sh" ] || check_port 8092; then
+        if check_port 8092; then
+            echo -e "  👉 Local ChimpAI:   ${BLUE}http://${IP}:8080/chimpai/${NC}"
+        fi
+    fi
     TUNNEL_DOMAIN=""
     [ -f "$DATA_DIR/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$DATA_DIR/tunnel.conf" | tr -d '\r\n')"
     [ -z "$TUNNEL_DOMAIN" ] && [ -f "$BASE_DIR/config/tunnel.conf" ] && TUNNEL_DOMAIN="$(cat "$BASE_DIR/config/tunnel.conf" | tr -d '\r\n')"
@@ -483,6 +516,78 @@ handle_ssh() {
     esac
 }
 
+handle_ai() {
+    local action="$1"
+    local AI_SCRIPT="$BASE_DIR/run_llama.sh"
+    [ ! -f "$AI_SCRIPT" ] && AI_SCRIPT="$HOME/run_llama.sh"
+
+    case "$action" in
+        start)
+            if [ ! -f "$AI_SCRIPT" ]; then
+                echo -e "${RED}[!] ChimpAI is not installed yet.${NC}"
+                echo -e "Run: ${GREEN}./install_ai.sh${NC} to install it."
+                return 1
+            fi
+            if check_port 8092; then
+                echo -e "  ${DIM}[-] ChimpAI is already running (Port 8092)${NC}"
+                return 0
+            fi
+            echo -e "${BOLD}${GREEN}  🧠 Starting ChimpAI Neural Engine...${NC}"
+            if tmux has-session -t chimp 2>/dev/null; then
+                tmux new-window -t chimp:4 -n ai 2>/dev/null || tmux new-window -t chimp -n ai 2>/dev/null || true
+                tmux send-keys -t chimp:ai "while true; do $AI_SCRIPT; sleep 3; done" C-m
+            else
+                nohup "$AI_SCRIPT" > "$LOG_DIR/ai.log" 2>&1 &
+            fi
+            sleep 2
+            if check_port 8092; then
+                echo -e "  ${GREEN}[✓]${NC} ChimpAI running on http://${IP}:8080/chimpai/"
+            else
+                echo -e "  ${YELLOW}[~]${NC} ChimpAI launched (warming up weights). Check with: ${GREEN}chimp ai status${NC}"
+            fi
+            ;;
+        stop)
+            echo -e "${BOLD}${RED}  🛑 Stopping ChimpAI Neural Engine...${NC}"
+            pkill -9 -f "llama-server" 2>/dev/null || true
+            if tmux has-session -t chimp 2>/dev/null; then
+                for w in $(tmux list-windows -t chimp -F '#{window_id}:#{window_name}' 2>/dev/null | grep 'ai' | cut -d: -f1); do
+                    tmux kill-window -t "$w" 2>/dev/null || true
+                done
+            fi
+            echo -e "  ${GREEN}[✓]${NC} ChimpAI stopped."
+            ;;
+        restart)
+            handle_ai stop
+            sleep 2
+            handle_ai start
+            ;;
+        status|"")
+            if check_port 8092; then
+                echo -e "${BOLD}${GREEN}ChimpAI Neural Engine is ONLINE${NC} (Port 8092)"
+                echo -e "  👉 Local Web: ${BLUE}http://${IP}:8080/chimpai/${NC}"
+                local health_check
+                health_check=$(curl -s http://127.0.0.1:8092/health 2>/dev/null || echo 'OK')
+                echo -e "  👉 Engine:    ${GREEN}${health_check}${NC}"
+            else
+                echo -e "${RED}[!] ChimpAI Neural Engine is OFFLINE.${NC}"
+                if [ -f "$AI_SCRIPT" ]; then
+                    echo -e "  Start it with: ${GREEN}chimp ai start${NC}"
+                else
+                    echo -e "  Install it with: ${GREEN}./install_ai.sh${NC}"
+                fi
+            fi
+            ;;
+        logs)
+            logs_service ai -f
+            ;;
+        *)
+            echo -e "${RED}[!] Unknown ai parameter: '${action}'${NC}"
+            echo -e "Usage: ${GREEN}chimp ai [start|stop|restart|status|logs]${NC}"
+            exit 1
+            ;;
+    esac
+}
+
 update_server() {
     echo -e "${BOLD}${GREEN}Pulling latest updates from git repository...${NC}"
     if [ -d "$BASE_DIR/.git" ]; then
@@ -508,8 +613,9 @@ show_help() {
     echo -e "    ${GREEN}stop${NC}              Stop all running server services"
     echo -e "    ${GREEN}restart${NC}           Restart all server services"
     echo -e "    ${GREEN}status${NC}            Show real-time status of all services & system health"
-    echo -e "    ${GREEN}logs${NC} [service]    View service logs (gateway, monitor, files, drop, cron, photos)"
+    echo -e "    ${GREEN}logs${NC} [service]    View service logs (gateway, monitor, files, drop, cron, photos, ai)"
     echo -e "                        Add ${BOLD}-f${NC} to stream live logs (e.g. ${DIM}chimp logs monitor -f${NC})"
+    echo -e "    ${GREEN}ai${NC} [cmd]          Manage ChimpAI on-device neural engine (start|stop|restart|status)"
     echo -e "    ${GREEN}console${NC}           Attach directly to the live tmux server terminal"
     echo -e "    ${GREEN}ssh${NC} [-off|-on]     Print dynamic Remote SSH command, or toggle tunnel (-off/-on)"
     echo -e "    ${GREEN}url${NC}               Print local LAN and public Internet URLs"
@@ -536,6 +642,9 @@ case "$1" in
         ;;
     status)
         status_services
+        ;;
+    ai|chimpai|llama)
+        handle_ai "$2"
         ;;
     log|logs)
         shift

@@ -18,7 +18,7 @@
 [![Reverse Proxy](https://img.shields.io/badge/Gateway-Nginx%201.29-brightgreen.svg)](#)
 [![Root](https://img.shields.io/badge/Root-Not%20Required-success.svg)](#)
 
-[Features](#-features) • [Architecture](#-architecture) • [Quickstart](#-quickstart-installation) • [Services](#-services-catalog) • [CLI Commands](#-cli-management) • [License](#-license)
+[Features](#-features) • [Architecture](#-architecture) • [ChimpAI](#-chimpai-on-device-neural-engine--assistant) • [Quickstart](#-quickstart-installation) • [Services](#-services-catalog) • [CLI Commands](#-cli-management) • [License](#-license)
 
 </div>
 
@@ -45,6 +45,16 @@ Access all web apps, tools, and endpoints through a single clean port (`:8080`) 
 * Dynamic RAM gauge with free/used tracking.
 * Storage disk usage analyzer.
 * Real-time uptime counter and connection heartbeat.
+
+### 🧠 ChimpAI (On-Device Neural Engine & Assistant)
+* **100% Private & Local**: Zero cloud dependencies, zero telemetry, zero monthly API bills. Conversations run entirely within device memory and never leave your phone.
+* **Powered by llama.cpp**: Native C/C++ neural engine running quantized Qwen 2.5 0.5B Instruct (~398MB GGUF) with real-time SSE token streaming.
+* **Modern Web Interface**: Responsive chat experience featuring:
+  * 🔊 **Read Aloud (TTS)**: Built-in natural voice playback with active stop controls.
+  * ⏹️ **Stop Generating**: Instant response interruption via on-screen stop button or `Esc` key.
+  * 📥 **Move to Archive**: Keep active chat list organized with a collapsible archive drawer and one-click restore.
+  * 📋 **Smart Copy**: One-click copy for answers and code snippets with live green checkmark confirmation.
+* **OpenAI-Compatible API**: Direct reverse-proxied endpoint at `http://<IP>:8080/ai/v1/chat/completions` for integrating on-device intelligence into external scripts or home automations.
 
 ### 📋 ChimpDrop (Universal Web Clipboard)
 * **Instant Text & Code Syncing**: Seamlessly share snippets, URLs, notes, and code between your PC and phone.
@@ -95,6 +105,8 @@ graph TD
     GW -->|"/photos/"| Photos["📷 Photo Library & EXIF Gallery (:8091)"]
     GW -->|"/cron/"| Cron["⏰ ChimpCron Task Scheduler (:8083)"]
     GW -->|"/sites/"| Sites["🌐 ChimpSites Static Hosting (Nginx)"]
+    GW -->|"/chimpai/"| AI["🧠 ChimpAI Assistant & Web UI"]
+    GW -->|"/ai/"| Llama["⚡ llama.cpp Streaming API (:8092)"]
     GW -->|"/api/status"| Mon["📈 Hardware Telemetry API (:8090)"]
 
     subgraph Server_Core ["🐒 Chimp Server Core"]
@@ -104,6 +116,8 @@ graph TD
         Photos
         Cron
         Sites
+        AI
+        Llama
         Mon
     end
 
@@ -112,12 +126,14 @@ graph TD
         PhotoStore["photos/"]
         SharedDir["shared/"]
         SitesDir["sites/"]
+        ModelStore["~/models/ (GGUF Weights)"]
     end
 
     Drop --> DropFiles
     Photos --> PhotoStore
     Files --> Storage
     Sites --> SitesDir
+    Llama --> ModelStore
 ```
 
 ---
@@ -146,6 +162,22 @@ The automated script will:
 6. **Public Remote Access**: Built-in global HTTPS web access and direct Remote SSH tunneling (powered by Ngrok, zero client software required).
 7. Start all server services in the background.
 
+### 🧠 Optional: Install ChimpAI (Local Neural Engine)
+
+To turn your phone into a private, self-hosted AI server with an on-device Large Language Model, run the modular AI installer:
+
+```bash
+cd ~/server && ./install_ai.sh
+```
+
+This modular script:
+1. Checks system resources and sets up the compiler toolchain (`clang`, `cmake`, `make`).
+2. Builds `llama.cpp` from source optimized for ARM/Linux CPU cores.
+3. Downloads the **Qwen 2.5 0.5B Instruct** GGUF model (~398MB).
+4. Generates the `run_llama.sh` runner with `termux-wake-lock` to keep the model loaded with screen off.
+5. Links Nginx for SSE streaming at `/ai/` and serves the web interface at `/chimpai/`.
+6. Registers ChimpAI in the Master Dashboard and Admin Control Panel.
+
 ---
 
 ## 🌐 Remote Access & Worldwide SSH
@@ -169,12 +201,14 @@ Chimp Home Server includes built-in global access for both web browsing and term
 | Service | Clean Gateway URL | Direct Port | Description |
 | :--- | :--- | :--- | :--- |
 | **Dashboard** | `http://<IP>:8080/` | `:8080` | Live telemetry & server launcher |
+| **ChimpAI**   | `http://<IP>:8080/chimpai/` | `:8092` | Private on-device neural assistant & chat UI |
 | **ChimpDrop** | `http://<IP>:8080/drop/` | `:8082` | Universal clipboard & drag-drop files |
 | **ChimpDrive**| `http://<IP>:8080/files/`| `:8081` | Cloud file explorer & code editor |
 | **ChimpPix**  | `http://<IP>:8080/photos/`| `:8091` | Media gallery with EXIF viewer |
 | **ChimpCron** | `http://<IP>:8080/cron/`  | `:8083` | Visual task scheduler & background automation |
 | **ChimpSites**| `http://<IP>:8080/sites/` | `:8080` | Zero-config static web hosting & launchpad |
 | **Telemetry API**| `http://<IP>:8080/api/status`| `:8090` | JSON hardware status endpoint |
+| **AI Stream API**| `http://<IP>:8080/ai/` | `:8092` | OpenAI-compatible SSE streaming API (`/v1/chat/completions`) |
 
 *(Replace `<IP>` with your server's local IP address, e.g. `192.168.1.13`)*
 
@@ -214,9 +248,16 @@ chimp start
 chimp stop
 chimp restart
 
-# View or stream live service logs (gateway, monitor, files, drop, cron, photos)
+# View or stream live service logs (gateway, monitor, files, drop, cron, photos, ai)
 chimp logs
 chimp logs monitor -f
+
+# Manage ChimpAI on-device neural engine (status, start, stop, restart, stream logs)
+chimp ai status
+chimp ai start
+chimp ai stop
+chimp ai restart
+chimp logs ai -f
 
 # Attach directly to the live tmux server terminal
 chimp console

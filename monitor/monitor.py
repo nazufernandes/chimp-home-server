@@ -92,6 +92,18 @@ SERVICES_DEF = [
         "port": 8080,
         "script": None,
         "type": "static"
+    },
+    {
+        "id": "ai",
+        "name": "ChimpAI",
+        "desc": "Local Neural Engine & Assistant",
+        "icon": "/chimp-ascii.svg",
+        "color": "#22c997",
+        "bg": "rgba(34,201,151,0.12)",
+        "url": "/chimpai/",
+        "port": 8092,
+        "script": "run_llama.sh",
+        "type": "process"
     }
 ]
 
@@ -217,6 +229,9 @@ def is_service_running(svc):
     if svc["type"] == "tunnel":
         pid = run_cmd(["pgrep", "-f", "ngrok http"])
         return bool(pid.strip())
+    if svc.get("id") == "ai":
+        pid = run_cmd(["pgrep", "-f", "llama-server"])
+        return bool(pid.strip())
     script = svc["script"]
     if not script:
         return True
@@ -247,8 +262,22 @@ def start_service_process(svc):
     script = svc.get("script")
     if not script:
         return
-    
+
     script_path = os.path.join(BASE_DIR, script)
+    if s_id == "ai":
+        ai_cmd = script_path if os.path.exists(script_path) else os.path.expanduser("~/run_llama.sh")
+        if has_tmux_session():
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ai"])
+            run_cmd(["tmux", "new-window", "-t", "chimp", "-n", "ai"])
+            run_cmd(["tmux", "send-keys", "-t", "chimp:ai", f"while true; do {ai_cmd}; sleep 3; done", "C-m"])
+        else:
+            os.makedirs(LOG_DIR, exist_ok=True)
+            log_path = os.path.join(LOG_DIR, "ai.log")
+            try:
+                subprocess.Popen([ai_cmd], stdout=open(log_path, "a"), stderr=subprocess.STDOUT, start_new_session=True)
+            except Exception as e:
+                print("Failed to start ai:", e)
+        return
     if has_tmux_session():
         run_cmd(["tmux", "kill-window", "-t", f"chimp:{s_id}"])
         run_cmd(["tmux", "new-window", "-t", "chimp", "-n", s_id])
@@ -282,6 +311,11 @@ def stop_service_process(svc):
     script = svc.get("script")
     if not script:
         return
+    if s_id == "ai":
+        if has_tmux_session():
+            run_cmd(["tmux", "kill-window", "-t", "chimp:ai"])
+        run_cmd(["pkill", "-9", "-f", "llama-server"])
+        return
     if has_tmux_session():
         run_cmd(["tmux", "kill-window", "-t", f"chimp:{s_id}"])
     run_cmd(["pkill", "-9", "-f", script])
@@ -293,6 +327,7 @@ PORT_CATALOG = {
     8083: {"name": "ChimpCron", "desc": "Scheduled Automation & Tasks"},
     8090: {"name": "ChimpMonitor", "desc": "Metrics Monitor & Admin API"},
     8091: {"name": "ChimpPix", "desc": "Photo Gallery & EXIF Inspector"},
+    8092: {"name": "ChimpAI", "desc": "Local Neural Engine & Assistant"},
     8022: {"name": "SSH Daemon", "desc": "Termux OpenSSH Server"},
     4040: {"name": "Ngrok API", "desc": "Public Web Tunnel Inspector"}
 }
@@ -482,6 +517,12 @@ def get_services_catalog():
     res = []
     for s in SERVICES_DEF:
         s_id = s["id"]
+        if s_id == "ai":
+            has_ai = os.path.exists(os.path.join(BASE_DIR, "web", "chimpai", "index.html")) or \
+                     os.path.exists(os.path.join(BASE_DIR, "run_llama.sh")) or \
+                     os.path.exists(os.path.expanduser("~/run_llama.sh"))
+            if not has_ai:
+                continue
         s_conf = state.get(s_id, {"enabled": True, "show_dashboard": True})
         running = is_service_running(s) if s_conf.get("enabled", True) else False
         res.append({
@@ -820,7 +861,7 @@ class MonitorHandler(BaseHTTPRequestHandler):
                 body = self.rfile.read(length).decode("utf-8") if length > 0 else "{}"
                 data = json.loads(body)
                 
-                svc_id = data.get("id")
+                svc_id = data.get("id") or data.get("service")
                 svc = next((s for s in SERVICES_DEF if s["id"] == svc_id), None)
                 if not svc:
                     self.send_error(404, "Service not found")
