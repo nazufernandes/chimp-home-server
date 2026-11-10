@@ -2,8 +2,6 @@
 
 **Assessment date:** 8 November 2026\
 **Repository:** `nazufernandes/chimp-home-server`\
-**Public test instance:**
-`https://holstered-meltingly-pablo.ngrok-free.dev/`\
 **Assessment type:** Source-code review and limited, non-destructive
 live HTTP validation\
 **Status:** Preliminary assessment; remediation and retesting
